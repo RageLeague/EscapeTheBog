@@ -9,4 +9,11 @@ local QDEF = QuestDef.Define
 
         TheGame:GetGameState():SetMainQuest(quest)
     end,
+
+    GenerateBogMap = function(quest, map_count, mandatory_locations)
+        local quest_queue = {}
+        for i, id in ipairs(mandatory_locations or {}) do
+            table.insert(quest_queue, QuestUtil.SpawnQuest("id"))
+        end
+    end,
 }

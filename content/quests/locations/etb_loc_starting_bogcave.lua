@@ -1,5 +1,7 @@
 local QDEF = EscapeTheBogUtil.AddBogLocationQuest(
-    nil,
+    {
+        is_unique = true,
+    },
     {
         name = "Bog Cave",
         desc = "A cave in the middle of the bog. Not a great place to be.",
