@@ -4,12 +4,11 @@ local QDEF = QuestDef.Define
 }
 :AddQuestLocation{
     cast_id = "main_location",
-    name = "Bog Cave",
-    desc = "A cave in the middle of the bog. Not a great place to be.",
-    plax = "INT_Bog_Cave_01",
+    name = "Bog Clearing",
+    desc = "A clearing in the bog. A rare place of respite here.",
+    plax = "EXT_Bog_HedgeGod_01",
     show_agents = true,
-    tags = {"cave", "bog"},
-    indoors = true,
+    tags = {"bog", "campsite", "clearing"},
 }
 
 EscapeTheBogUtil.AddBogExits(QDEF, 2)
