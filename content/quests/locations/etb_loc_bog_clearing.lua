@@ -11,4 +11,4 @@ local QDEF = QuestDef.Define
     tags = {"bog", "campsite", "clearing"},
 }
 
-EscapeTheBogUtil.AddBogExits(QDEF, 2)
+EscapeTheBogUtil.AddBogExits(QDEF, {"dangerous", "dangerous"})

@@ -12,4 +12,4 @@ local QDEF = QuestDef.Define
     indoors = true,
 }
 
-EscapeTheBogUtil.AddBogExits(QDEF, 2)
+EscapeTheBogUtil.AddBogExits(QDEF, {"deepbog", "deepbog"})
