@@ -4,9 +4,7 @@ local QDEF = EscapeTheBogUtil.AddBogLocationQuest(
         entry_encounter = {
             ETB_STARTING_OUT = 1,
         },
-        repeat_encounter = {
-            ETB_NO_EVENT = 1,
-        },
+        repeat_encounter = EscapeTheBogUtil.GenericRepeatEncounterTable,
     },
     {
         name = "Bog Cave",

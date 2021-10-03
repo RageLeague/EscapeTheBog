@@ -4,9 +4,7 @@ local QDEF = EscapeTheBogUtil.AddBogLocationQuest(
             -- ETB_STARTING_OUT = 1,
             ETB_NO_EVENT = 1,
         },
-        repeat_encounter = {
-            ETB_NO_EVENT = 1,
-        },
+        repeat_encounter = EscapeTheBogUtil.NullEncounterTable,
     },
     {
         name = "Bog Clearing",

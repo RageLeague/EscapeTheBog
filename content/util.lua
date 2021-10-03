@@ -21,6 +21,9 @@ function EscapeTheBogUtil.AddBogLocationQuest(quest_def, location_def, exit_defs
     quest_def.events.caravan_move_location = function(quest, location)
         if location == quest:GetCastMember("main_location") then
             local encounter_table = (not quest.param.visited_location) and quest:GetQuestDef().entry_encounter or quest:GetQuestDef().repeat_encounter
+            if type(encounter_table) == "function" then
+                encounter_table = encounter_table(TheGame:GetGameState():GetCurrentBaseDifficulty(), quest, location)
+            end
             local chosen_event = weightedpick(encounter_table)
             QuestUtil.SpawnQuest(chosen_event, {parameters = {location = location}})
             quest.param.visited_location = true
@@ -158,4 +161,17 @@ function EscapeTheBogUtil.IsETBCampaign(act_id)
         return false
     end
     return string.find(act_id, "ESCAPE_THE_BOG")
+end
+
+function EscapeTheBogUtil.NullEncounterTable()
+    return {
+        ETB_NO_EVENT = 1,
+    }
+end
+
+function EscapeTheBogUtil.GenericRepeatEncounterTable(difficulty, quest, location)
+    local t = {
+        ETB_NO_EVENT = 1,
+    }
+    return t
 end
