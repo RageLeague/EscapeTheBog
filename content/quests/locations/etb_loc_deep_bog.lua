@@ -1,6 +1,13 @@
 local QDEF = EscapeTheBogUtil.AddBogLocationQuest(
     {
         quest_weight = 3,
+        entry_encounter = {
+            -- ETB_STARTING_OUT = 1,
+            NOTHING = 1,
+        },
+        repeat_encounter = {
+            NOTHING = 1,
+        },
     },
     {
         name = "Deep Bog",
