@@ -179,5 +179,11 @@ function EscapeTheBogUtil.GenericRepeatEncounterTable(difficulty, quest, locatio
     if difficulty <= 3 and not location:IsIndoors() then
         t.ETB_BOG_BURR_ATTACK = TheGame:GetGameState():GetDayPhase() == DAY_PHASE.NIGHT and 3 or 1
     end
+    if location:HasTag("bog") then
+        t.ETB_BOGGER_SCAVENGERS = 1 + math.floor(difficulty / 2)
+        if location:HasTag("deepbog") then
+            t.ETB_BOGGER_SCAVENGERS = t.ETB_BOGGER_SCAVENGERS + math.ceil(difficulty / 2)
+        end
+    end
     return t
 end
