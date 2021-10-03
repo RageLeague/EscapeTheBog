@@ -36,12 +36,14 @@ local QDEF = QuestDef.Define
                         local loc_id = string.format( "%s_main_location", qdef.id)
                         if chosen_tag == "any" or table.arraycontains(Content.GetLocationContent(loc_id).tags or {}, chosen_tag) then
                             table.insert(tag_cache[chosen_tag], id)
+                            table.insert(tag_cache[chosen_tag], (qdef.quest_weight or 1))
                         end
                     end
                 end
             end
             if #tag_cache[chosen_tag] > 0 then
-                local new_quest = QuestUtil.SpawnQuest(table.arraypick(tag_cache[chosen_tag]))
+                local choice = weighted_arraypick(tag_cache[chosen_tag])
+                local new_quest = QuestUtil.SpawnQuest(choice)
                 chosen_quest:DefFn("AttachLocation", new_quest)
                 quest_queue[idx] = new_quest
                 if #chosen_quest.param.available_exits > 0 then
