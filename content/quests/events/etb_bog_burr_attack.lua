@@ -4,7 +4,7 @@ local QDEF = QuestDef.Define
     act_filter = EscapeTheBogUtil.IsETBCampaign,
 
     process_fighter = function(quest, fighter)
-        if table.arraycontains(quest.param.opfor or {}, fighter.agent) then
+        if table.arraycontains(quest.param.opfor or {}, fighter.agent) and not (fighter.agent:GetContentID() == "GROUT_LOOT_CLUSTER" or fighter.agent:GetContentID() == "GROUT_BOG_CYST") then
             fighter:AddCondition("grout_burr_immunity", 1)
         end
     end,
