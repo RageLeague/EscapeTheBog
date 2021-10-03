@@ -8,12 +8,16 @@ local QDEF = QuestDef.Define
     on_init = function(quest)
 
         TheGame:GetGameState():SetMainQuest(quest)
+
+        quest:DefFn("GenerateBogMap", 30, {"ETB_LOC_STARTING_BOGCAVE", "ETB_LOC_DEEP_BOG"})
     end,
 
     GenerateBogMap = function(quest, map_count, mandatory_locations)
         local quest_queue = {}
         for i, id in ipairs(mandatory_locations or {}) do
-            table.insert(quest_queue, QuestUtil.SpawnQuest("id"))
+            table.insert(quest_queue, QuestUtil.SpawnQuest(id))
         end
+        print(quest_queue[1]:DefFn("CanAttachLocation", quest_queue[2]))
+        print(quest_queue[1]:DefFn("AttachLocation", quest_queue[2]))
     end,
 }
