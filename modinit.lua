@@ -56,10 +56,34 @@ end
 
 local function OnLoad( mod )
 
+    for k, filepath in ipairs( filepath.list_files( "ESCAPE_THE_BOG:patches/", "*.lua", true )) do
+        local name = filepath:match( "(.+)[.]lua$" )
+
+        if name then
+            require( name )
+        end
+    end
+
     require "ESCAPE_THE_BOG:content/util"
     require "ESCAPE_THE_BOG:content/convo_loc_common"
     require "ESCAPE_THE_BOG:content/combat_parties"
     require "ESCAPE_THE_BOG:content/custom_card_rewards"
+
+    for k, filepath in ipairs( filepath.list_files( "ESCAPE_THE_BOG:content/battle/", "*.lua", true )) do
+        local name = filepath:match( "(.+)[.]lua$" )
+
+        if name then
+            require( name )
+        end
+    end
+
+    for k, filepath in ipairs( filepath.list_files( "ESCAPE_THE_BOG:content/characters/", "*.lua", true )) do
+        local name = filepath:match( "(.+)[.]lua$" )
+
+        if name then
+            require( name )
+        end
+    end
 
     for k, filepath in ipairs( filepath.list_files( "ESCAPE_THE_BOG:content/quests/", "*.lua", true )) do
         local name = filepath:match( "(.+)[.]lua$" )
@@ -74,15 +98,7 @@ local function OnLoad( mod )
         end
     end
 
-    for k, filepath in ipairs( filepath.list_files( "ESCAPE_THE_BOG:patches/", "*.lua", true )) do
-        local name = filepath:match( "(.+)[.]lua$" )
 
-        if name then
-            -- package.loaded[ name ] = nil
-            require( name )
-            -- assert( rawget( _G, "QDEF" ) == nil or error( string.format( "Stop declaring global QDEFS %s", name )))
-        end
-    end
 
     return OnPostLoad
 end

@@ -2,6 +2,16 @@ local QDEF = QuestDef.Define
 {
     qtype = QTYPE.EVENT,
     act_filter = EscapeTheBogUtil.IsETBCampaign,
+
+    process_fighter = function(quest, fighter)
+        if table.arraycontains(quest.param.opfor or {}, fighter.agent) then
+            fighter:AddCondition("grout_burr_immunity", 1)
+        end
+    end,
+}
+:AddObjective{
+    id = "start",
+    state = QSTATUS.ACTIVE,
 }
 
 QDEF:AddConvo()
@@ -49,17 +59,26 @@ QDEF:AddConvo()
             ]],
         }
         :Fn(function(cxt)
-            local opfor =  CreateCombatParty("BOG_BURRS_TEAM", cxt.quest:GetRank(), cxt.location)
-            cxt:TalkTo(opfor[1])
+            cxt.quest.param.opfor =  CreateCombatParty("BOG_BURRS_TEAM", cxt.quest:GetRank(), cxt.location)
+            cxt:TalkTo(cxt.quest.param.opfor[1])
             cxt:Dialog("DIALOG_INTRO")
 
             cxt:Opt("OPT_DEFEND")
+                :Dialog("DIALOG_DEFEND")
                 :Battle{
                     no_oppo_limit = true,
-                    flags = BATTLE_FLAGS.SELF_DEFENCE
+                    flags = BATTLE_FLAGS.SELF_DEFENCE,
+                    on_start_battle = function(battle)
+                        -- for i, agent in ipairs(opfor) do
+                        --     local fighter = battle:GetFighterForAgent(agent)
+                        --     if fighter then
+                        --         fighter:RemoveCondition("grout_burr")
+                        --     end
+                        -- end
+                    end
                 }
                 :OnWin()
-                    :Fn(function()
-                        cxt.quest:Complete()
-                    end)
+                    :Dialog("DIALOG_DEFEND_WIN")
+                    :CompleteQuest()
+                    :DoneConvo()
         end)

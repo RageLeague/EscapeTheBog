@@ -171,7 +171,10 @@ end
 
 function EscapeTheBogUtil.GenericRepeatEncounterTable(difficulty, quest, location)
     local t = {
-        ETB_NO_EVENT = 1,
+        ETB_NO_EVENT = 5,
     }
+    if difficulty <= 3 and not location:IsIndoors() then
+        t.ETB_BOG_BURR_ATTACK = TheGame:GetGameState():GetDayPhase() == DAY_PHASE.NIGHT and 3 or 1
+    end
     return t
 end
