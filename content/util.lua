@@ -132,22 +132,25 @@ function EscapeTheBogUtil.AddBogLocationQuest(quest_def, location_def, exit_defs
             if cxt.location ~= cxt:GetCastMember("main_location") then
                 return
             end
-            for i, exit in ipairs (cxt.quest.param.exits) do
-                cxt:Opt("OPT_MOVE_TO", exit:GetCastMember("main_location"))
-                    :Fn( function(cxt)
-                        cxt.quest.param.target_location = exit
-                        UIHelpers.DoSpecificConvo( nil, cxt.convodef.id, "STATE_MOVE" , nil, nil, cxt.quest)
-                    end )
-            end
+            cxt:Opt("OPT_TRAVEL")
+                :MakeUnder()
+                :Fn( function(cxt)
+                    UIHelpers.DoSpecificConvo( nil, cxt.convodef.id, "STATE_MOVE" , nil, nil, cxt.quest)
+                end )
         end )
         :State("STATE_MOVE")
             :Fn(function(cxt)
-                local location = cxt.quest.param.target_location:GetCastMember("main_location")
-                cxt:Dialog("DIALOG_MOVE_TO", location)
-                cxt.encounter:DoLocationTransition( location )
-                TheGame:GetGameState():GetCaravan():MoveToLocation( location )
-                cxt:End()
-
+                for i, exit in ipairs (cxt.quest.param.exits) do
+                    local location = exit:GetCastMember("main_location")
+                    cxt:Opt("OPT_MOVE_TO", location)
+                        :Dialog("DIALOG_MOVE_TO", location)
+                        :Fn( function(cxt)
+                            cxt.encounter:DoLocationTransition( location )
+                            TheGame:GetGameState():GetCaravan():MoveToLocation( location )
+                            cxt:End()
+                        end )
+                end
+                StateGraphUtil.AddBackButton(cxt)
             end)
 
     return QDEF
