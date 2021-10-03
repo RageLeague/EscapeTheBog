@@ -2,7 +2,7 @@ local GENERATORS =
 {
     BOG_BURRS_TEAM = function(difficulty_level)
         local offensive_burrs = {"GROUT_KNUCKLE", "ETB_GROUT_EYE"}
-        local extra_burrs = {"GROUT_BOG_CYST", "GROUT_KNUCKLE", "ETB_GROUT_EYE", "GROUT_LOOT_CLUSTER"}
+        local extra_burrs = {"GROUT_BOG_CYST", "GROUT_LOOT_CLUSTER"}
         local t = {}
         for i = 1, math.min(difficulty_level, 4) do
             table.insert(t, table.arraypick(offensive_burrs))
