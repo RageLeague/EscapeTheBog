@@ -51,7 +51,7 @@ local QDEF = QuestDef.Define
                 end
             end
         end
-        DBG(tag_cache)
+        -- DBG(tag_cache)
         -- Linking mandatory locations to existing ones
         for i, id in ipairs(mandatory_locations or {}) do
             table.shuffle(quest_queue)

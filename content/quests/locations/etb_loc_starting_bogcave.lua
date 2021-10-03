@@ -5,7 +5,7 @@ local QDEF = EscapeTheBogUtil.AddBogLocationQuest(
             ETB_STARTING_OUT = 1,
         },
         repeat_encounter = {
-            NOTHING = 1,
+            ETB_NO_EVENT = 1,
         },
     },
     {

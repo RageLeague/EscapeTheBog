@@ -15,6 +15,18 @@ EscapeTheBogUtil.BOG_LOCATION_QUESTS = {}
 
 function EscapeTheBogUtil.AddBogLocationQuest(quest_def, location_def, exit_defs)
     quest_def = quest_def or {}
+    if not quest_def.events then
+        quest_def.events = {}
+    end
+    quest_def.events.caravan_move_location = function(quest, location)
+        if location == quest:GetCastMember("main_location") then
+            local encounter_table = (not quest.param.visited_location) and quest:GetQuestDef().entry_encounter or quest:GetQuestDef().repeat_encounter
+            local chosen_event = weightedpick(encounter_table)
+            QuestUtil.SpawnQuest(chosen_event, {parameters = {location = location}})
+            quest.param.visited_location = true
+        end
+    end
+
     local t = debug.getinfo( 2 )
     print(t.short_src)
     local QDEF = QuestDef.Define
@@ -130,10 +142,20 @@ function EscapeTheBogUtil.AddBogLocationQuest(quest_def, location_def, exit_defs
                 local location = cxt.quest.param.target_location:GetCastMember("main_location")
                 cxt:Dialog("DIALOG_MOVE_TO", location)
                 cxt.encounter:DoLocationTransition( location )
-                TheGame:GetGameState():GetPlayerAgent():MoveToLocation( location )
+                TheGame:GetGameState():GetCaravan():MoveToLocation( location )
                 cxt:End()
 
             end)
 
     return QDEF
+end
+
+function EscapeTheBogUtil.IsETBCampaign(act_id)
+    if not act_id then
+        act_id = TheGame:GetGameState():GetCurrentActID()
+    end
+    if not act_id then
+        return false
+    end
+    return string.find(act_id, "ESCAPE_THE_BOG")
 end
