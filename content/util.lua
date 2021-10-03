@@ -112,5 +112,28 @@ function EscapeTheBogUtil.AddBogLocationQuest(quest_def, location_def, exit_defs
 
     EscapeTheBogUtil.AddBogExits(QDEF, exit_defs)
 
+    QDEF:AddConvo()
+        :Hub_Location( function( cxt, who )
+            if cxt.location ~= cxt:GetCastMember("main_location") then
+                return
+            end
+            for i, exit in ipairs (cxt.quest.param.exits) do
+                cxt:Opt("OPT_MOVE_TO", exit:GetCastMember("main_location"))
+                    :Fn( function(cxt)
+                        cxt.quest.param.target_location = exit
+                        UIHelpers.DoSpecificConvo( nil, cxt.convodef.id, "STATE_MOVE" , nil, nil, cxt.quest)
+                    end )
+            end
+        end )
+        :State("STATE_MOVE")
+            :Fn(function(cxt)
+                local location = cxt.quest.param.target_location:GetCastMember("main_location")
+                cxt:Dialog("DIALOG_MOVE_TO", location)
+                cxt.encounter:DoLocationTransition( location )
+                TheGame:GetGameState():GetPlayerAgent():MoveToLocation( location )
+                cxt:End()
+
+            end)
+
     return QDEF
 end

@@ -10,6 +10,8 @@ local QDEF = QuestDef.Define
         TheGame:GetGameState():SetMainQuest(quest)
 
         quest:DefFn("GenerateBogMap", 10, "ETB_LOC_STARTING_BOGCAVE")
+
+        TheGame:GetGameState():GetCaravan():MoveToLocation(quest.param.starting_location:GetCastMember("main_location"))
     end,
 
     GenerateBogMap = function(quest, map_count, starting_location, mandatory_locations)
@@ -18,7 +20,7 @@ local QDEF = QuestDef.Define
         table.insert(quest_queue, QuestUtil.SpawnQuest(starting_location))
         -- print(quest_queue[1]:DefFn("CanAttachLocation", quest_queue[2]))
         -- print(quest_queue[1]:DefFn("AttachLocation", quest_queue[2]))
-        quest.param.current_location = quest_queue[1]
+        quest.param.starting_location = quest_queue[1]
         local tag_cache = {}
         while map_count > 0 do
             map_count = map_count - 1
@@ -39,7 +41,7 @@ local QDEF = QuestDef.Define
                 end
             end
             if #tag_cache[chosen_tag] > 0 then
-                local new_quest = QuestUtil.SpawnQuest(starting_location)
+                local new_quest = QuestUtil.SpawnQuest(table.arraypick(tag_cache[chosen_tag]))
                 chosen_quest:DefFn("AttachLocation", new_quest)
                 quest_queue[idx] = new_quest
                 if #chosen_quest.param.available_exits > 0 then
@@ -47,6 +49,7 @@ local QDEF = QuestDef.Define
                 end
             end
         end
+        DBG(tag_cache)
         -- Linking mandatory locations to existing ones
         for i, id in ipairs(mandatory_locations or {}) do
             table.shuffle(quest_queue)
@@ -63,7 +66,7 @@ local QDEF = QuestDef.Define
         end
         -- At this point everything should be connected.
         -- Now let's add alternative routes, probably
-        while #quest_queue > 1 then
+        while #quest_queue > 1 do
             table.shuffle(quest_queue)
             local quest_to_connect = quest_queue[#quest_queue]
             local ok = false
