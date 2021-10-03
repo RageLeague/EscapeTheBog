@@ -4,7 +4,7 @@ function EscapeTheBogUtil.AddBogExits(qdef, exit_defs)
     if type(exit_defs) == "number" then
         local res = {}
         for i = 1, exit_defs do
-            table.insert(res, "any")
+            table.insert(res, "bog")
         end
         exit_defs = res
     end
