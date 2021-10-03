@@ -1,3 +1,10 @@
+local patch_id = "HIDDEN_ENCOUNTER"
+if rawget(_G, patch_id) then
+    return
+end
+rawset(_G, patch_id, true)
+print("Loaded patch:"..patch_id)
+
 function ConvoOption:HiddensNegotiation( params )
     params = params or {}
     params.is_negotiation = true

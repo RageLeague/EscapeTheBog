@@ -187,3 +187,12 @@ function EscapeTheBogUtil.GenericRepeatEncounterTable(difficulty, quest, locatio
     end
     return t
 end
+
+function EscapeTheBogUtil.ObfuscateWords(txt, frequency)
+    local newtxt = txt:gsub("[%a']+", function(word)
+            return math.random() < (frequency or 0.80) and string.rep("-", string.len(word)) or word
+        end)
+        :gsub("%- ", "--")
+        :gsub(" %-", "--")
+    return newtxt
+end

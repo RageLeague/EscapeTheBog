@@ -14,6 +14,15 @@ local QDEF = QuestDef.Define
         TheGame:GetGameState():GetCaravan():MoveToLocation(quest.param.starting_location:GetCastMember("main_location"))
     end,
 
+    events = {
+        on_convo_speech = function(quest, params)
+            local agent, txt = table.unpack(params)
+            if not (agent:IsPlayer()) and agent:IsSentient() then
+                params[2] = EscapeTheBogUtil.ObfuscateWords(txt)
+            end
+        end,
+    },
+
     GenerateBogMap = function(quest, map_count, starting_location, mandatory_locations)
         map_count = map_count or 0
         local quest_queue = {}
@@ -83,4 +92,8 @@ local QDEF = QuestDef.Define
             end
         end
     end,
+}
+:AddObjective{
+    id = "start",
+    state = QSTATUS.ACTIVE,
 }
