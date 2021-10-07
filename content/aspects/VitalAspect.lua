@@ -22,3 +22,13 @@ function VitalAspect:HarvestStrings(t)
         end
     end
 end
+
+function VitalAspect:DeltaStat(delta)
+    local old_stat = self.current_stat
+
+    self.current_stat = math.max(self.min_stat or 0, self.current_stat + delta)
+
+    if self.OnDeltaStat then
+        self:OnDeltaStat(old_stat, self.current_stat, delta)
+    end
+end
