@@ -101,6 +101,7 @@ local DEFS = {
                         :AddID( "grout_eye_attack", 1)
 
                     self:SetPattern( self.Cycle )
+                    self.fighter:AddCondition("grout_burr", 2+math.random(4))
                 end,
 
                 Cycle = function( self )

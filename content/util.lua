@@ -210,7 +210,7 @@ function EscapeTheBogUtil.GenericInitialEncounterTable(difficulty, quest, locati
     if location:HasTag("bog") then
         t.ETB_OUTLAW_CAMP = 1 + math.floor(difficulty / 2)
         if location:HasTag("clearing") then
-            t.ETB_OUTLAW_CAMP = t.ETB_OUTLAW_CAMP + 1
+            t.ETB_OUTLAW_CAMP = t.ETB_OUTLAW_CAMP + math.ceil(difficulty / 2)
         end
     end
     return t
