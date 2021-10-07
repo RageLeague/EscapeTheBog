@@ -34,7 +34,7 @@ local QDEF = QuestDef.Define
         end,
     },
 
-    AdvanceTime = function(quest, amt, source)
+    AdvanceTime = function(quest, amt, reason)
         local old_time = {datetime = TheGame:GetGameState():GetDateTime(), segment = (quest.param.time_segment or 0)}
         quest.param.time_segment = (quest.param.time_segment or 0) + amt
         while quest.param.time_segment >= 6 do
@@ -46,7 +46,7 @@ local QDEF = QuestDef.Define
             if agent.sorted_aspects then
                 for i, aspect in ipairs(agent.sorted_aspects) do
                     if aspect.OnTimeSegmentPassETB then
-                        aspect:OnTimeSegmentPassETB(old_time, new_time, amt, source)
+                        aspect:OnTimeSegmentPassETB(old_time, new_time, amt, reason)
                     end
                 end
             end
