@@ -1,9 +1,6 @@
 local QDEF = EscapeTheBogUtil.AddBogLocationQuest(
     {
-        entry_encounter = {
-            -- ETB_STARTING_OUT = 1,
-            ETB_NO_EVENT = 1,
-        },
+        entry_encounter = EscapeTheBogUtil.GenericInitialEncounterTable,
         repeat_encounter = EscapeTheBogUtil.NullEncounterTable,
     },
     {

@@ -1,10 +1,7 @@
 local QDEF = EscapeTheBogUtil.AddBogLocationQuest(
     {
         quest_weight = 3,
-        entry_encounter = {
-            -- ETB_STARTING_OUT = 1,
-            ETB_NO_EVENT = 1,
-        },
+        entry_encounter = EscapeTheBogUtil.GenericInitialEncounterTable,
         repeat_encounter = EscapeTheBogUtil.GenericRepeatEncounterTable,
     },
     {

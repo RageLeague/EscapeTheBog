@@ -188,6 +188,18 @@ function EscapeTheBogUtil.GenericRepeatEncounterTable(difficulty, quest, locatio
     return t
 end
 
+function EscapeTheBogUtil.GenericInitialEncounterTable(difficulty, quest, location)
+    local t = EscapeTheBogUtil.GenericRepeatEncounterTable(difficulty, quest, location)
+    t.ETB_NO_EVENT = 2
+    if location:HasTag("bog") then
+        t.ETB_OUTLAW_CAMP = 1 + math.floor(difficulty / 2)
+        if location:HasTag("clearing") then
+            t.ETB_OUTLAW_CAMP = t.ETB_OUTLAW_CAMP + 1
+        end
+    end
+    return t
+end
+
 function EscapeTheBogUtil.ObfuscateWords(txt, frequency)
     local newtxt = txt:gsub("[%a']+", function(word)
             return math.random() < (frequency or 0.80) and string.rep("-", string.len(word)) or word
