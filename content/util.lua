@@ -20,12 +20,28 @@ function EscapeTheBogUtil.AddBogLocationQuest(quest_def, location_def, exit_defs
     end
     quest_def.events.caravan_move_location = function(quest, location)
         if location == quest:GetCastMember("main_location") then
+            if quest.param.current_event and quest.param.current_event:IsActive() then
+                -- Currently has an associated event. You probably need to deal with it first.
+                return
+            end
             local encounter_table = (not quest.param.visited_location) and quest:GetQuestDef().entry_encounter or quest:GetQuestDef().repeat_encounter
             if type(encounter_table) == "function" then
                 encounter_table = encounter_table(TheGame:GetGameState():GetCurrentBaseDifficulty(), quest, location)
+            elseif encounter_table == nil then
+                encounter_table = {}
+            else
+                encounter_table = shallowcopy(encounter_table)
             end
-            local chosen_event = weightedpick(encounter_table)
-            QuestUtil.SpawnQuest(chosen_event, {parameters = {location = location}})
+            local q
+            while not q and next(encounter_table) do
+                local chosen_event = weightedpick(encounter_table)
+                q = QuestUtil.SpawnQuest(chosen_event, {parameters = {location = location}})
+                encounter_table[chosen_event] = nil
+            end
+            if not q then
+                q = QuestUtil.SpawnQuest("ETB_NO_EVENT", {parameters = {location = location}})
+            end
+            quest.param.current_event = q
             quest.param.visited_location = true
         end
     end
