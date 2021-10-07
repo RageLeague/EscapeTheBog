@@ -149,6 +149,7 @@ function EscapeTheBogUtil.AddBogLocationQuest(quest_def, location_def, exit_defs
 
     QDEF:AddQuestLocation(table.extend{
         cast_id = "main_location",
+        show_player = true,
     }(location_def))
 
     table.insert(EscapeTheBogUtil.BOG_LOCATION_QUESTS, QDEF.id)
