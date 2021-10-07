@@ -173,9 +173,9 @@ function EscapeTheBogUtil.AddBogLocationQuest(quest_def, location_def, exit_defs
                     cxt:Opt("OPT_MOVE_TO", location)
                         :Dialog("DIALOG_MOVE_TO", location)
                         :Fn( function(cxt)
+                            EscapeTheBogUtil.TryMainQuestFn("AdvanceTime", 1)
                             cxt.encounter:DoLocationTransition( location )
                             TheGame:GetGameState():GetCaravan():MoveToLocation( location )
-                            EscapeTheBogUtil.TryMainQuestFn("AdvanceTime", 1)
                             cxt:End()
                         end )
                 end
