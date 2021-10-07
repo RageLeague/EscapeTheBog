@@ -104,18 +104,18 @@ local QDEF = QuestDef.Define
     end,
 }
 :Loc{
-    TIME_SEG_DAY_1 = "Dawn",
+    TIME_SEG_DAY_1 = "Sunrise",
     TIME_SEG_DAY_2 = "Morning",
-    TIME_SEG_DAY_3 = "Noon",
-    TIME_SEG_DAY_4 = "Afternoon",
-    TIME_SEG_DAY_5 = "",
+    TIME_SEG_DAY_3 = "Day",
+    TIME_SEG_DAY_4 = "Noon",
+    TIME_SEG_DAY_5 = "Afternoon",
     TIME_SEG_DAY_6 = "Sunset",
     TIME_SEG_NIGHT_1 = "Dusk",
     TIME_SEG_NIGHT_2 = "Evening",
-    TIME_SEG_NIGHT_3 = "Midnight",
-    TIME_SEG_NIGHT_4 = "",
-    TIME_SEG_NIGHT_5 = "",
-    TIME_SEG_NIGHT_6 = "",
+    TIME_SEG_NIGHT_3 = "Night",
+    TIME_SEG_NIGHT_4 = "Midnight",
+    TIME_SEG_NIGHT_5 = "Early Morning",
+    TIME_SEG_NIGHT_6 = "Dawn",
 }
 :AddObjective{
     id = "start",
