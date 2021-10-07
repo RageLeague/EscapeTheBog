@@ -50,7 +50,7 @@ Content.AddAspect( "etb_hunger", Hunger )
 
 Hunger.default_stat = 3
 Hunger.name = "Hunger"
-Hunger.desc = "Every organic being needs to eat food. Eating a healthy amount of food is key to health, strength, and not dying.",
+Hunger.desc = "Every organic being needs to eat food. Eating a healthy amount of food is key to health, strength, and not dying."
 Hunger.loc_strings = {
     ALT_NAME = "Hunger ({1})",
     NAME_STAGE_1 = "Bloated",
