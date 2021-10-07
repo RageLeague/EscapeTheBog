@@ -96,19 +96,19 @@ QDEF:AddConvo()
                 player:
                     Ha! That will teach you!
                 {dead?
-                    * The bogger does not respond. It would be weird that they did, given that they are dead.
+                    * You noticed that where the corpse of the bogger was is a mangled bog monster.
+                    * You now feel somewhat awkward for talking to whatever lies below your feet.
                     {some_alive?
-                        * The rest of the boggers ran away like cowards.
-                        * You lost sight of them before you can follow them.
+                        * The rest of the boggers disappeared before you can follow them.
                     }
                 }
                 {not dead?
                 agent:
                     %bogger_battle_aftermath
                     !exit
-                * Either way, the boggers ran away.
-                * You lost sight of them before you can follow them.
+                * The boggers disappeared before you can follow them.
                 }
+                * That was a bit weird, but you didn't think too hard about it.
             ]],
             OPT_NO = "No?",
             DIALOG_NO = [[
@@ -143,7 +143,7 @@ QDEF:AddConvo()
             cxt:Opt("OPT_YES")
                 :Dialog("DIALOG_YES")
                 :HiddenBattle{
-                    flags = BATTLE_FLAGS.SELF_DEFENCE,
+                    flags = BATTLE_FLAGS.SELF_DEFENCE | BATTLE_FLAGS.ISOLATED,
                 }
                     :OnWin()
                         :Fn(function(cxt)
@@ -157,8 +157,8 @@ QDEF:AddConvo()
                         :Dialog("DIALOG_BATTLE_WIN")
                         :Fn(function(cxt)
                             for i, agent in ipairs(cxt.quest.param.opfor) do
-                                if agent:IsAlive() then
-                                    agent:MoveToLimbo()
+                                if not agent:IsRetired() then
+                                    agent:Retire()
                                 end
                             end
                         end)
@@ -173,8 +173,8 @@ QDEF:AddConvo()
                         :Dialog("DIALOG_NEGOTIATION_WIN")
                         :Fn(function(cxt)
                             for i, agent in ipairs(cxt.quest.param.opfor) do
-                                if agent:IsAlive() then
-                                    agent:MoveToLimbo()
+                                if not agent:IsRetired() then
+                                    agent:Retire()
                                 end
                             end
                         end)
@@ -199,8 +199,8 @@ QDEF:AddConvo()
                                         :Dialog("DIALOG_BATTLE_WIN")
                                         :Fn(function(cxt)
                                             for i, agent in ipairs(cxt.quest.param.opfor) do
-                                                if agent:IsAlive() then
-                                                    agent:MoveToLimbo()
+                                                if not agent:IsRetired() then
+                                                    agent:Retire()
                                                 end
                                             end
                                         end)

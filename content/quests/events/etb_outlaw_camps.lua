@@ -53,6 +53,17 @@ QDEF:AddConvo()
                     I think that I've heard enough. Time to get your ass kicked.
                 ]],
             },
+            {
+                tags = "battle_aftermath",
+                [[
+                    Fine, grifter. You can have this place for yourself.
+                ]],
+                [[
+                    We will just leave and you can have this place all for yourself.
+                    !hips
+                    Bet you feel really accomplished.
+                ]],
+            },
         }
         :Loc{
             DIALOG_INTRO = [[
@@ -86,4 +97,86 @@ QDEF:AddConvo()
                 * Uh oh, they don't look happy.
                 * Better defend yourself!
             ]],
+            OPT_ATTACK = "Attack them",
+            DIALOG_ATTACK = [[
+                player:
+                    !fight
+                    Take this!
+            ]],
+            DIALOG_DEFEND = [[
+                player:
+                    !fight
+                    Fine! Let's do this the hard way then!
+            ]],
+            DIALOG_BATTLE_WIN = [[
+                player:
+                    Ha! That will teach you!
+                {dead?
+                    * You noticed that where the corpse of the camper was is a mangled bog monster.
+                    * You now feel somewhat awkward for talking to whatever lies below your feet.
+                    {some_alive?
+                        * The camper's friends disappeared before you can follow them.
+                    }
+                }
+                {not dead?
+                agent:
+                    %battle_aftermath
+                    !exit
+                * The campers disappeared before you can follow them.
+                }
+                * That was a bit weird, but you didn't think too hard about it.
+            ]],
         }
+        :Fn(function(cxt)
+            local options = {"BOGGER_PATROL", "RISE_PATROL", "BANDIT_PATROL", "JAKES_PATROL"}
+            cxt.quest.param.opfor =  CreateCombatParty(table.arraypick(options), cxt.quest:GetRank(), cxt.location)
+            cxt:TalkTo(cxt.quest.param.opfor[1])
+            cxt:Dialog("DIALOG_INTRO")
+
+            cxt:BasicNegotiation("TALK", {})
+                :OnSuccess()
+                    :Fn(function(cxt)
+                        for i, agent in ipairs(cxt.quest.param.opfor) do
+                            if not agent:IsRetired() then
+                                agent:Retire()
+                            end
+                        end
+                    end)
+                    :CompleteQuest()
+                    :DoneConvo()
+                :OnFailure()
+                    :Fn(function(cxt)
+                        cxt:Opt("OPT_DEFEND")
+                            :Dialog("DIALOG_DEFEND")
+                            :Battle{
+                                flags = BATTLE_FLAGS.SELF_DEFENCE | BATTLE_FLAGS.ISOLATED,
+                            }
+                                :OnWin()
+                                    :Dialog("DIALOG_BATTLE_WIN")
+                                    :Fn(function(cxt)
+                                        for i, agent in ipairs(cxt.quest.param.opfor) do
+                                            if not agent:IsRetired() then
+                                                agent:Retire()
+                                            end
+                                        end
+                                    end)
+                                    :CompleteQuest()
+                                    :DoneConvo()
+                    end)
+            cxt:Opt("OPT_ATTACK")
+                :Dialog("DIALOG_ATTACK")
+                :Battle{
+                    flags = BATTLE_FLAGS.ISOLATED,
+                }
+                    :OnWin()
+                        :Dialog("DIALOG_BATTLE_WIN")
+                        :Fn(function(cxt)
+                            for i, agent in ipairs(cxt.quest.param.opfor) do
+                                if not agent:IsRetired() then
+                                    agent:Retire()
+                                end
+                            end
+                        end)
+                        :CompleteQuest()
+                        :DoneConvo()
+        end)
