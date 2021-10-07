@@ -9,12 +9,12 @@ local QDEF = QuestDef.Define
 
 QDEF:AddConvo("starting_out")
     :Confront(function(cxt)
-        -- if TheGame:GetLocalSettings().FAST_STARTUP then
-        --     TheGame:GetGameState():GetMainQuest().param.debug_mode = true
-        --     cxt.quest:Complete()
-        -- else
+        if TheGame:GetLocalSettings().FAST_STARTUP then
+            TheGame:GetGameState():GetMainQuest().param.debug_mode = true
+            cxt.quest:Complete()
+        else
             return "STATE_START"
-        -- end
+        end
     end)
     :State("STATE_START")
         :Loc{
