@@ -5,6 +5,8 @@ end
 rawset(_G, patch_id, true)
 print("Loaded patch:"..patch_id)
 
+local negotiation_defs = require "negotiation/negotiation_defs"
+
 function ConvoOption:HiddensNegotiation( params )
     params = params or {}
     params.is_negotiation = true
