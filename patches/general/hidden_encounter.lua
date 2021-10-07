@@ -55,7 +55,7 @@ function ConvoOption:HiddensNegotiation( params )
     --     return true
     -- end
 
-    -- local timer_name = self.hub:GetStateID()..(params.timer_id or self.loc_id or self.text or "")
+    local timer_name = self.hub:GetStateID()..(params.timer_id or self.loc_id or self.text or "")
     -- local cooldown = params.cooldown or 1
     -- if cooldown > 0 then
     --     local mem, duration = agent:HasMemoryOfNegotiation(timer_name, cooldown)
