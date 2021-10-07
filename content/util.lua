@@ -1,5 +1,17 @@
 local EscapeTheBogUtil = class("EscapeTheBogUtil")
 
+function EscapeTheBogUtil.TryMainQuestFn(id, ...)
+    local arguments = {...}
+    local ok, result = xpcall(function(...) return TheGame:GetGameState():GetMainQuest():DefFn(id, ...) end, generic_error, ...)
+        -- print(loc.format("Call main quest fn: {1} (params: {2#listing})", id, arguments))
+    -- print(ok, id, ...)
+    -- print(result)
+    if not ok then
+        print(result)
+    end
+    return result
+end
+
 function EscapeTheBogUtil.AddBogExits(qdef, exit_defs)
     if type(exit_defs) == "number" then
         local res = {}
@@ -163,6 +175,7 @@ function EscapeTheBogUtil.AddBogLocationQuest(quest_def, location_def, exit_defs
                         :Fn( function(cxt)
                             cxt.encounter:DoLocationTransition( location )
                             TheGame:GetGameState():GetCaravan():MoveToLocation( location )
+                            EscapeTheBogUtil.TryMainQuestFn("AdvanceTime", 1)
                             cxt:End()
                         end )
                 end

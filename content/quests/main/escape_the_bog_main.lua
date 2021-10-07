@@ -16,6 +16,15 @@ local QDEF = QuestDef.Define
         TheGame:GetGameState():GetCaravan():MoveToLocation(quest.param.starting_location:GetCastMember("main_location"))
     end,
 
+    get_narrative_progress = function(quest)
+
+        local time_segment_id = "TIME_SEG_" .. (TheGame:GetGameState():GetDayPhase() == DAY_PHASE.DAY and "DAY" or "NIGHT") .. "_" .. ((quest.param.time_segment or 0) + 1)
+        local current_day = math.floor( TheGame:GetGameState():GetDateTime() / 2 ) + 1
+
+        local title = loc.format(quest:GetLocalizedStr("TIME_DISPLAY"), quest:GetLocalizedStr(time_segment_id), current_day)
+        return (TheGame:GetGameState():GetDateTime() * 6 + (quest.param.time_segment or 0)) / 12, title, TheGame:GetGameState():GetPlayerAgent():GetLocation():GetName()
+    end,
+
     events = {
         on_convo_speech = function(quest, params)
             local agent, txt = table.unpack(params)
@@ -26,11 +35,13 @@ local QDEF = QuestDef.Define
     },
 
     AdvanceTime = function(quest, amt)
-        quest.param.time_segment = quest.param.time_segment + amt
+        quest.param.time_segment = (quest.param.time_segment or 0) + amt
         while quest.param.time_segment >= 6 do
-            quest.param.time_segment = quest.param.time_segment - 6
+            quest.param.time_segment = (quest.param.time_segment or 0) - 6
             TheGame:GetGameState():AdvanceTime()
         end
+        quest:NotifyChanged()
+        TheGame:GetEvents():BroadcastEvent( "update_overlay" )
     end,
 
     GenerateBogMap = function(quest, map_count, starting_location, mandatory_locations)
@@ -116,6 +127,7 @@ local QDEF = QuestDef.Define
     TIME_SEG_NIGHT_4 = "Midnight",
     TIME_SEG_NIGHT_5 = "Early Morning",
     TIME_SEG_NIGHT_6 = "Dawn",
+    TIME_DISPLAY = "{1} {2}",
 }
 :AddObjective{
     id = "start",
