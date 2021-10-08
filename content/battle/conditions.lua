@@ -4,7 +4,7 @@ local CARD_FLAGS = battle_defs.CARD_FLAGS
 
 local CONDITIONS =
 {
-    grout_burr_immunity = {
+    etb_grout_burr_immunity = {
         hidden = true,
 
         event_priorities =

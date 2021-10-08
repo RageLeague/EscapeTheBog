@@ -13,6 +13,10 @@ local QDEF = QuestDef.Define
 
         quest:DefFn("GenerateBogMap", 10, "ETB_LOC_STARTING_BOGCAVE")
 
+        TheGame:GetGameState():GetPlayerAgent():AddAspect("etb_hunger")
+        TheGame:GetGameState():GetPlayerAgent():AddAspect("etb_fatigue")
+
+
         TheGame:GetGameState():GetCaravan():MoveToLocation(quest.param.starting_location:GetCastMember("main_location"))
     end,
 

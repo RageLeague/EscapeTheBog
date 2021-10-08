@@ -87,9 +87,9 @@ Hunger.loc_strings = {
     DESC_STAGE_2 = "<#BONUS>Full</>: You have eaten enough. Gain 2 max health for each time segment passed.",
     DESC_STAGE_3 = "<#HILITE>Content</>: You have eaten enough food to go for a while. No special effects.",
     DESC_STAGE_4 = "<#PENALTY>Peckish</>: You are starting to crave some food. Lose 1 resolve for each time segment passed.",
-    DESC_STAGE_5 = "<#PENALTY>Hungry</>: You need to eat some food. Lose 1 resolve for each time segment passed. Battle cards you own deal 1 less damage.",
-    DESC_STAGE_6 = "<#PENALTY>Very Hungry</>: You <i>really</> need to eat some food. Lose 2 resolve and 1 max health for each time segment passed. Battle cards you own deal 2 less damage.",
-    DESC_STAGE_7 = "<#PENALTY>Starving</>: You need to eat before you starve to death. Lose 3 resolve and 2 max health for each time segment passed. Battle cards you own deal 3 less damage.",
+    DESC_STAGE_5 = "<#PENALTY>Hungry</>: You need to eat some food. Lose 1 resolve for each time segment passed. Lose 1 power at the start of each battle.",
+    DESC_STAGE_6 = "<#PENALTY>Very Hungry</>: You <i>really</> need to eat some food. Lose 2 resolve and 1 max health for each time segment passed. Lose 2 power at the start of each battle.",
+    DESC_STAGE_7 = "<#PENALTY>Starving</>: You need to eat before you starve to death. Lose 3 resolve and 2 max health for each time segment passed. Lose 3 power at the start of each battle.",
 }
 Hunger.texture = global_images.health
 
@@ -136,7 +136,7 @@ function Hunger:OnTimeSegmentPassETB(old_time, new_time, delta, reason)
         end
 
         local max_health_delta = self.MAX_HEALTH_DELTA[current_stage]
-        if max_health_delta and max_health_loss ~= 0 then
+        if max_health_delta and max_health_delta ~= 0 then
             if self.agent.health then
                 self.agent.health:AddStatModifier("HUNGER_DELTA", max_health_delta)
             end
@@ -150,6 +150,15 @@ function Hunger:OnTimeSegmentPassETB(old_time, new_time, delta, reason)
         if math.random() < chance then
             self:DeltaStat(1)
         end
+    end
+end
+
+function Hunger:ProcessFighter(fighter)
+    local current_stage = self:GetCurrentStage()
+
+    local damage_reduction = self.DAMAGE_REDUCTION[current_stage]
+    if damage_reduction and damage_reduction > 0 then
+        fighter:DeltaCondition("POWER", -damage_reduction)
     end
 end
 
@@ -184,9 +193,9 @@ function Fatigue:GetCurrentStage()
     if self.current_stat <= 1 then
         return 1
     elseif self.current_stat <= 3 then
-        return 2
+        return 2, true
     elseif self.current_stat <= 5 then
-        return 3, true
+        return 3
     elseif self.current_stat <= 7 then
         return 4
     else

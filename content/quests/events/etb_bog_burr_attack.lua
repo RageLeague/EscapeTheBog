@@ -5,7 +5,7 @@ local QDEF = QuestDef.Define
 
     process_fighter = function(quest, fighter)
         if table.arraycontains(quest.param.opfor or {}, fighter.agent) and not (fighter.agent:GetContentID() == "GROUT_LOOT_CLUSTER" or fighter.agent:GetContentID() == "GROUT_BOG_CYST") then
-            fighter:AddCondition("grout_burr_immunity", 1)
+            fighter:AddCondition("etb_grout_burr_immunity", 1)
         end
     end,
 }
