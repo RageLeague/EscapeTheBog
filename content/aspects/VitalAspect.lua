@@ -65,7 +65,7 @@ end
 local Hunger = class( "ETBClass.Hunger", ETBClass.VitalAspect)
 Content.AddAspect( "etb_hunger", Hunger )
 
-Hunger.DELTA_CHANCE = {1, 1, 0.75, 0.65, 0.5, 0.4, 0.35}
+Hunger.DELTA_CHANCE = {0.98, 0.85, 0.75, 0.65, 0.5, 0.4, 0.35}
 Hunger.RESOLVE_LOSS = {0, 0, 0, 1, 1, 2, 3}
 Hunger.MAX_HEALTH_DELTA = {3, 2, 0, 0, 0, -1, -2}
 Hunger.DAMAGE_REDUCTION = {0, 0, 0, 0, 1, 2, 3}
@@ -83,7 +83,7 @@ Hunger.loc_strings = {
     NAME_STAGE_6 = "Very Hungry",
     NAME_STAGE_7 = "Starving",
     DESC_STAGE_1 = "<#BONUS>Bloated</>: You are quite full. Gain 1 Fatigue and 3 max health for each time segment passed.",
-    DESC_STAGE_2 = "<#BONUS>Bloated</>: You have eaten enough. Gain 2 max health for each time segment passed.",
+    DESC_STAGE_2 = "<#BONUS>Full</>: You have eaten enough. Gain 2 max health for each time segment passed.",
     DESC_STAGE_3 = "<#HILITE>Content</>: You have eaten enough food to go for a while. No special effects.",
     DESC_STAGE_4 = "<#PENALTY>Peckish</>: You are starting to crave some food. Lose 1 resolve for each time segment passed.",
     DESC_STAGE_5 = "<#PENALTY>Hungry</>: You need to eat some food. Lose 1 resolve for each time segment passed. Battle cards you own deal 1 less damage.",
@@ -148,6 +148,7 @@ end
 local Fatigue = class( "ETBClass.Fatigue", ETBClass.VitalAspect)
 Content.AddAspect( "etb_fatigue", Fatigue )
 
+Fatigue.DELTA_CHANCE = {0.9, 0.75, 0.6, 0.5, 0.3}
 Fatigue.MAX_RESOLVE_DELTA = {1, 0, 0, -1, -2}
 
 Fatigue.default_stat = 2
