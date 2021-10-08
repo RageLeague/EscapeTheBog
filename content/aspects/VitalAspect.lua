@@ -114,13 +114,16 @@ function Hunger:GetDesc(game_state, agent)
 end
 
 function VitalAspect:OnTimeSegmentPassETB(old_time, new_time, delta, reason)
+    if delta <= 0 then
+        return
+    end
     for i = 1, delta do
         local current_stage = self:GetCurrentStage()
 
         local resolve_loss = self.RESOLVE_LOSS[current_stage]
         if resolve_loss and resolve_loss > 0 then
             if self.agent:IsPlayer() then
-                TheGame:GetGameState():GetGameState():DeltaResolve(-resolve_loss)
+                TheGame:GetGameState():GetCaravan():DeltaResolve(-resolve_loss)
             end
         end
 

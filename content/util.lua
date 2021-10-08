@@ -174,8 +174,13 @@ function EscapeTheBogUtil.AddBogLocationQuest(quest_def, location_def, exit_defs
                     cxt:Opt("OPT_MOVE_TO", location)
                         :Dialog("DIALOG_MOVE_TO", location)
                         :Fn( function(cxt)
-                            EscapeTheBogUtil.TryMainQuestFn("AdvanceTime", 1, "TRAVEL")
                             cxt.encounter:DoLocationTransition( location )
+                            EscapeTheBogUtil.TryMainQuestFn("AdvanceTime", 1, "TRAVEL")
+                            local screen = TheGame:FE():FindScreen( Screen.LocationScreen )
+                            if screen then
+                                screen:UpdateDayPhase()
+                                screen:RefreshPlaxClickables(true)
+                            end
                             TheGame:GetGameState():GetCaravan():MoveToLocation( location )
                             cxt:End()
                         end )
