@@ -48,6 +48,11 @@ end
 local Hunger = class( "ETBClass.Hunger", ETBClass.VitalAspect)
 Content.AddAspect( "etb_hunger", Hunger )
 
+Hunger.DELTA_CHANCE = {1, 1, 0.75, 0.65, 0.5, 0.4, 0.35}
+Hunger.RESOLVE_LOSS = {0, 0, 0, 1, 1, 2, 3}
+Hunger.MAX_HEALTH_LOSS = {0, 0, 0, 0, 0, 1, 2}
+Hunger.DAMAGE_REDUCTION = {0, 0, 0, 0, 1, 2, 3}
+
 Hunger.default_stat = 3
 Hunger.name = "Hunger"
 Hunger.desc = "Every organic being needs to eat food. Eating a healthy amount of food is key to health, strength, and not dying."
@@ -86,7 +91,7 @@ function Hunger:GetCurrentStage()
         return 5
     elseif self.current_stat <= 9 then
         return 6
-    elseif self.current_stat <= 11 then
+    else
         return 7
     end
 end
@@ -106,4 +111,33 @@ function Hunger:GetDesc(game_state, agent)
         table.insert(tt, self:GetLocalizedString("DESC_STAGE_" .. current_stage))
     end
     return table.concat(tt, "\n")
+end
+
+function VitalAspect:OnTimeSegmentPassETB(old_time, new_time, delta, reason)
+    for i = 1, delta do
+        local current_stage = self:GetCurrentStage()
+
+        local resolve_loss = self.RESOLVE_LOSS[current_stage]
+        if resolve_loss and resolve_loss > 0 then
+            if self.agent:IsPlayer() then
+                TheGame:GetGameState():GetGameState():DeltaResolve(-resolve_loss)
+            end
+        end
+
+        local max_health_loss = self.MAX_HEALTH_LOSS[current_stage]
+        if max_health_loss and max_health_loss > 0 then
+            if self.agent.health then
+                self.agent.health:AddStatModifier("HUNGER", -max_health_loss)
+            end
+        end
+
+        -- Possibly increment hunger
+        local chance = self.DELTA_CHANCE[current_stage]
+        if reason == "REST" then
+            chance = chance / 2
+        end
+        if math.random() < chance then
+            self:DeltaStat(1)
+        end
+    end
 end
