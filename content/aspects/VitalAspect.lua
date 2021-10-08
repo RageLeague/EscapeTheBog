@@ -98,3 +98,12 @@ function Hunger:GetName()
     end
     return Hunger._base.GetName(self)
 end
+
+function Hunger:GetDesc(game_state, agent)
+    local tt = {self:GetLocalizedString("DESC")}
+    local current_stage = self:GetCurrentStage()
+    if current_stage then
+        table.insert(tt, self:GetLocalizedString("DESC_STAGE_" .. current_stage))
+    end
+    return table.concat(tt, "\n")
+end

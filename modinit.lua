@@ -64,6 +64,14 @@ local function OnLoad( mod )
         end
     end
 
+    for k, filepath in ipairs( filepath.list_files( "ESCAPE_THE_BOG:ui/", "*.lua", true )) do
+        local name = filepath:match( "(.+)[.]lua$" )
+
+        if name then
+            require( name )
+        end
+    end
+
     require "ESCAPE_THE_BOG:content/util"
     require "ESCAPE_THE_BOG:content/convo_loc_common"
     require "ESCAPE_THE_BOG:content/combat_parties"
