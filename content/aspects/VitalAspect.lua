@@ -53,7 +53,7 @@ Hunger.RESOLVE_LOSS = {0, 0, 0, 1, 1, 2, 3}
 Hunger.MAX_HEALTH_LOSS = {0, 0, 0, 0, 0, 1, 2}
 Hunger.DAMAGE_REDUCTION = {0, 0, 0, 0, 1, 2, 3}
 
-Hunger.default_stat = 3
+Hunger.default_stat = 2
 Hunger.name = "Hunger"
 Hunger.desc = "Every organic being needs to eat food. Eating a healthy amount of food is key to health, strength, and not dying."
 Hunger.loc_strings = {
@@ -65,10 +65,10 @@ Hunger.loc_strings = {
     NAME_STAGE_5 = "Hungry",
     NAME_STAGE_6 = "Very Hungry",
     NAME_STAGE_7 = "Starving",
-    DESC_STAGE_1 = "<#BONUS>Bloated</>: You are quite full. Gain 1 Tiredness for every time segment passed as long as you are Bloated. Gain 3 max health when you go from Bloated to Full.",
+    DESC_STAGE_1 = "<#BONUS>Bloated</>: You are quite full. Gain 1 Fatigue for every time segment passed as long as you are Bloated. Gain 3 max health when you go from Bloated to Full.",
     DESC_STAGE_2 = "<#BONUS>Bloated</>: You have eaten enough. Gain 2 max health when you go from Full to Content.",
     DESC_STAGE_3 = "<#HILITE>Content</>: You have eaten enough food to go for a while. No special effects.",
-    DESC_STAGE_4 = "<#HILITE>Peckish</>: You are starting to crave some food. Lose 1 resolve for each time segment passed as long as you are Peckish.",
+    DESC_STAGE_4 = "<#PENALTY>Peckish</>: You are starting to crave some food. Lose 1 resolve for each time segment passed as long as you are Peckish.",
     DESC_STAGE_5 = "<#PENALTY>Hungry</>: You need to eat some food. Lose 1 resolve for each time segment passed as long as you are Hungry. Battle cards you own deal 1 less damage as long as you are Hungry.",
     DESC_STAGE_6 = "<#PENALTY>Very Hungry</>: You <i>really</> need to eat some food. Lose 2 resolve and 1 max health for each time segment passed as long as you are Hungry. Battle cards you own deal 2 less damage as long as you are Hungry.",
     DESC_STAGE_7 = "<#PENALTY>Very Hungry</>: You need to eat before you starve to death. Lose 3 resolve and 2 max health for each time segment passed as long as you are Hungry. Battle cards you own deal 3 less damage as long as you are Hungry.",
@@ -144,3 +144,24 @@ function VitalAspect:OnTimeSegmentPassETB(old_time, new_time, delta, reason)
         end
     end
 end
+
+local Fatigue = class( "ETBClass.Fatigue", ETBClass.VitalAspect)
+Content.AddAspect( "etb_fatigue", Fatigue )
+
+Fatigue.default_stat = 2
+Fatigue.name = "Fatigue"
+Fatigue.desc = "High level organisms often need some time to rest. A good night sleep is good for your sanity and your memory."
+Fatigue.loc_strings = {
+    ALT_NAME = "Fatigue ({1})",
+    NAME_STAGE_1 = "Vigilant",
+    NAME_STAGE_2 = "Lucid",
+    NAME_STAGE_3 = "Drowsy",
+    NAME_STAGE_4 = "Tired",
+    NAME_STAGE_5 = "Exerted",
+    DESC_STAGE_1 = "<#BONUS>Vigilant</>: Your mind is like a freshly sharpened sword. Fatigued occurs 1 turn later in both battle and negotiation. Gain 2 max resolve when you go from Vigilant to Lucid. Cannot sleep.",
+    DESC_STAGE_2 = "<#HILITE>Lucid</>: You are perfectly awake. Cannot sleep.",
+    DESC_STAGE_3 = "<#PENALTY>Drowsy</>: You are starting to want to go to sleep. Each card you play has a chance of getting expended, up to once per negotiation/battle.",
+    DESC_STAGE_4 = "<#PENALTY>Tired</>: You really need to go to sleep. Each card you play has a chance of getting expended, up to twice per negotiation/battle. Lose one action at the start of each negotiation/battle.",
+    DESC_STAGE_5 = "<#PENALTY>Exerted</>: You are seriously at your limit, and can pass out at any moment. Each card you play has a chance of getting expended, up to three times per negotiation/battle. Lose two actions at the start of each negotiation/battle.",
+}
+Fatigue.texture = global_images.resolve
