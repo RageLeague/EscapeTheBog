@@ -69,6 +69,7 @@ Hunger.DELTA_CHANCE = {0.98, 0.85, 0.75, 0.65, 0.5, 0.4, 0.35}
 Hunger.RESOLVE_LOSS = {0, 0, 0, 1, 1, 2, 3}
 Hunger.MAX_HEALTH_DELTA = {3, 2, 0, 0, 0, -1, -2}
 Hunger.DAMAGE_REDUCTION = {0, 0, 0, 0, 1, 2, 3}
+Hunger.FATIGUE_DELTA = {1, 0, 0, 0, 0, 0, 0}
 
 Hunger.default_stat = 2
 Hunger.name = "Hunger"
@@ -119,6 +120,13 @@ function Hunger:OnTimeSegmentPassETB(old_time, new_time, delta, reason)
     end
     for i = 1, delta do
         local current_stage = self:GetCurrentStage()
+
+        local fatigue_delta = self.FATIGUE_DELTA[current_stage]
+        if fatigue_delta and fatigue_delta > 0 then
+            if self.agent.fatigue then
+                self.agent.fatigue:DeltaStat(fatigue_delta)
+            end
+        end
 
         local resolve_loss = self.RESOLVE_LOSS[current_stage]
         if resolve_loss and resolve_loss > 0 then
