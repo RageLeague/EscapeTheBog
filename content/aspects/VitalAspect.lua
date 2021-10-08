@@ -21,6 +21,23 @@ end
 function VitalAspect:GetCurrentStage()
 end
 
+function VitalAspect:GetName()
+    local current_stage = self:GetCurrentStage()
+    if current_stage then
+        return loc.format(self:GetLocalizedString("ALT_NAME"), self:GetLocalizedString("NAME_STAGE_" .. current_stage))
+    end
+    return VitalAspect._base.GetName(self)
+end
+
+function VitalAspect:GetDesc(game_state, agent)
+    local tt = {self:GetLocalizedString("DESC")}
+    local current_stage = self:GetCurrentStage()
+    if current_stage then
+        table.insert(tt, self:GetLocalizedString("DESC_STAGE_" .. current_stage))
+    end
+    return table.concat(tt, "\n")
+end
+
 function VitalAspect:OnTimeSegmentPassETB(old_time, new_time, delta, reason)
 end
 
@@ -96,24 +113,7 @@ function Hunger:GetCurrentStage()
     end
 end
 
-function Hunger:GetName()
-    local current_stage = self:GetCurrentStage()
-    if current_stage then
-        return loc.format(self:GetLocalizedString("ALT_NAME"), self:GetLocalizedString("NAME_STAGE_" .. current_stage))
-    end
-    return Hunger._base.GetName(self)
-end
-
-function Hunger:GetDesc(game_state, agent)
-    local tt = {self:GetLocalizedString("DESC")}
-    local current_stage = self:GetCurrentStage()
-    if current_stage then
-        table.insert(tt, self:GetLocalizedString("DESC_STAGE_" .. current_stage))
-    end
-    return table.concat(tt, "\n")
-end
-
-function VitalAspect:OnTimeSegmentPassETB(old_time, new_time, delta, reason)
+function Hunger:OnTimeSegmentPassETB(old_time, new_time, delta, reason)
     if delta <= 0 then
         return
     end
@@ -165,3 +165,38 @@ Fatigue.loc_strings = {
     DESC_STAGE_5 = "<#PENALTY>Exerted</>: You are seriously at your limit, and can pass out at any moment. Each card you play has a chance of getting expended, up to three times per negotiation/battle. Lose two actions at the start of each negotiation/battle.",
 }
 Fatigue.texture = global_images.resolve
+
+function Fatigue:GetCurrentStage()
+    if not self.current_stat then
+        return
+    end
+    if self.current_stat <= 1 then
+        return 1
+    elseif self.current_stat <= 3 then
+        return 2
+    elseif self.current_stat <= 5 then
+        return 3, true
+    elseif self.current_stat <= 7 then
+        return 4
+    else
+        return 5
+    end
+end
+
+function Fatigue:OnTimeSegmentPassETB(old_time, new_time, delta, reason)
+    if delta <= 0 then
+        return
+    end
+    for i = 1, delta do
+        local current_stage = self:GetCurrentStage()
+
+        -- Possibly increment hunger
+        local chance = self.DELTA_CHANCE[current_stage]
+        if reason == "REST" then
+            chance = chance / 2
+        end
+        if math.random() < chance then
+            self:DeltaStat(1)
+        end
+    end
+end
