@@ -252,7 +252,7 @@ end
 function Fatigue:CanSleep()
     local can_sleep_threshold = 2
     if self.agent.etb_hunger and self.agent.etb_hunger:GetCurrentStage() > 3 then
-        awake_threshold = awake_threshold + math.ceil((self.agent.etb_hunger:GetCurrentStage() - 3) / 2)
+        can_sleep_threshold = can_sleep_threshold + math.ceil((self.agent.etb_hunger:GetCurrentStage() - 3) / 2)
     end
     return self:GetCurrentStage() >= can_sleep_threshold
 end
