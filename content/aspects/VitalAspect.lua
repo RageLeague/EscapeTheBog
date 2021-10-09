@@ -180,6 +180,7 @@ Fatigue.DELTA_CHANCE = {0.9, 0.75, 0.6, 0.5, 0.3}
 Fatigue.MAX_RESOLVE_DELTA = {1, 0, 0, -1, -2}
 Fatigue.CONDITION_DELTA = {1, 0, 1, 1, 2}
 Fatigue.CONDITION_ID = {"convenience", nil, "ETB_DROWSY", "ETB_TIRED", "ETB_TIRED"}
+Fatigue.MODIFIER_ID = {"convenience", nil, "ETB_DROWSY_NEGOTIATION", "ETB_TIRED_NEGOTIATION", "ETB_TIRED_NEGOTIATION"}
 
 Fatigue.default_stat = 2
 Fatigue.name = "Fatigue"
@@ -246,6 +247,17 @@ function Fatigue:ProcessFighter(fighter)
     local condition_id = self.CONDITION_ID[current_stage]
     if condition_id and condition_delta and condition_delta ~= 0 then
         fighter:DeltaCondition(condition_id, condition_delta)
+    end
+end
+
+function Fatigue:OnStartNegotiation(minigame)
+    local negotiator = minigame:GetNegotiator(self.agent)
+    if negotiator then
+        local condition_delta = self.CONDITION_DELTA[current_stage]
+        local condition_id = self.MODIFIER_ID[current_stage]
+        if condition_id and condition_delta and condition_delta ~= 0 then
+            negotiator:DeltaModifier( condition_id, condition_delta )
+        end
     end
 end
 
