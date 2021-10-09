@@ -79,6 +79,13 @@ QDEF:AddConvo()
                 }
                 :OnWin()
                     :Dialog("DIALOG_DEFEND_WIN")
+                    :Fn(function(cxt)
+                        for i, agent in ipairs(cxt.quest.param.opfor) do
+                            if not agent:IsRetired() then
+                                agent:Retire()
+                            end
+                        end
+                    end)
                     :CompleteQuest()
                     :DoneConvo()
         end)

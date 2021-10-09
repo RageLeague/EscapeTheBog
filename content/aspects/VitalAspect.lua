@@ -263,6 +263,8 @@ function Fatigue:ProcessFighter(fighter)
 end
 
 function Fatigue:OnStartNegotiation(minigame)
+    local current_stage = self:GetCurrentStage()
+
     local negotiator = minigame:GetNegotiator(self.agent)
     if negotiator then
         local condition_delta = self.CONDITION_DELTA[current_stage]
@@ -292,5 +294,7 @@ end
 function Fatigue:OnDeltaStat(old_stat, new_stat, delta)
     if new_stat >= 10 then
         self.passed_out = true
+    else
+        self.passed_out = nil
     end
 end

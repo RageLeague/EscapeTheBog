@@ -89,6 +89,7 @@ QDEF:AddConvo()
                     !exit
                 * {agent} disappears before you can follow them.
                 * Well, you have this place for yourself, I guess?
+                * Enjoy the food they left.
             ]],
             DIALOG_TALK_FAILURE = [[
                 agent:
@@ -125,6 +126,7 @@ QDEF:AddConvo()
                 * The campers disappeared before you can follow them.
                 }
                 * That was a bit weird, but you didn't think too hard about it.
+                * You have this place all for yourself. And the food they have left.
             ]],
         }
         :Fn(function(cxt)
@@ -133,8 +135,11 @@ QDEF:AddConvo()
             cxt:TalkTo(cxt.quest.param.opfor[1])
             cxt:Dialog("DIALOG_INTRO")
 
+            local food = table.arraypick{"hawb_drumstick", "half_sandwich"}
+
             cxt:BasicNegotiation("TALK", {})
                 :OnSuccess()
+                    :GainCard( food )
                     :Fn(function(cxt)
                         for i, agent in ipairs(cxt.quest.param.opfor) do
                             if not agent:IsRetired() then
@@ -153,6 +158,7 @@ QDEF:AddConvo()
                             }
                                 :OnWin()
                                     :Dialog("DIALOG_BATTLE_WIN")
+                                    :GainCard( food )
                                     :Fn(function(cxt)
                                         for i, agent in ipairs(cxt.quest.param.opfor) do
                                             if not agent:IsRetired() then
@@ -170,6 +176,7 @@ QDEF:AddConvo()
                 }
                     :OnWin()
                         :Dialog("DIALOG_BATTLE_WIN")
+                        :GainCard( food )
                         :Fn(function(cxt)
                             for i, agent in ipairs(cxt.quest.param.opfor) do
                                 if not agent:IsRetired() then
