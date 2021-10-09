@@ -52,6 +52,8 @@ local function OnPostLoad( mod )
         Content.internal.ACT_DATA[act_data.id] = data.acts[#data.acts]
     end
 
+    -- In postload to account for modded items.
+    require "ESCAPE_THE_BOG:content/food_items"
 end
 
 local function OnLoad( mod )
@@ -119,6 +121,14 @@ local function OnLoad( mod )
                 require( name )
                 -- assert( rawget( _G, "QDEF" ) == nil or error( string.format( "Stop declaring global QDEFS %s", name )))
             end
+        end
+    end
+
+    for k, filepath in ipairs( filepath.list_files( "ESCAPE_THE_BOG:content/convo/", "*.lua", true )) do
+        local name = filepath:match( "(.+)[.]lua$" )
+
+        if name then
+            require( name )
         end
     end
 
