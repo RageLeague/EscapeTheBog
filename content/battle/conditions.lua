@@ -61,8 +61,9 @@ local CONDITIONS =
         {
             [ BATTLE_EVENT.END_RESOLVE ] = function( self, battle, resolve_card )
                 if resolve_card and resolve_card.owner == self.owner then
-                    if resolve_card.deck == battle:GetHandDeck() or resolve_card.deck == battle:GetDrawDeck() or resolve_card.deck == battle:GetDiscardDeck() then
+                    if resolve_card.deck == battle:GetHandDeck() or resolve_card.deck == battle:GetDrawDeck() or resolve_card.deck == battle:GetDiscardDeck() or resolve_card.deck == battle:GetTrashDeck() then
                         if math.random() < self.expend_chance then
+                            battle:ExpendCard(resolve_card)
                             resolve_card:Consume()
                             self.owner:RemoveCondition( self.id, 1, self )
                         end

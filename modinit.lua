@@ -93,6 +93,14 @@ local function OnLoad( mod )
         end
     end
 
+    for k, filepath in ipairs( filepath.list_files( "ESCAPE_THE_BOG:content/negotiation/", "*.lua", true )) do
+        local name = filepath:match( "(.+)[.]lua$" )
+
+        if name then
+            require( name )
+        end
+    end
+
     for k, filepath in ipairs( filepath.list_files( "ESCAPE_THE_BOG:content/characters/", "*.lua", true )) do
         local name = filepath:match( "(.+)[.]lua$" )
 
