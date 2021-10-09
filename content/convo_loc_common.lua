@@ -33,5 +33,6 @@ Content.AddStringTable( "ETB_CONVO_COMMON", {
             * This is a sleep that you are never waking up from.
             * You have starved to death in your sleep.
         ]],
+        OPT_ACCEPT_DEATH_ETB = "Goodbye",
     }
 } )

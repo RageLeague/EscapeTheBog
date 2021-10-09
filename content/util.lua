@@ -261,8 +261,8 @@ function EscapeTheBogUtil.AddBogLocationQuest(quest_def, location_def, exit_defs
 
                 local sleep_data =
                 {
-                    health_gain = math.round(6 * sleep_segments * HEALTH_SLEEP_HEAL_RATE),
-                    resolve_gain = math.round(10 * sleep_segments * RESOLVE_SLEEP_HEAL_RATE),
+                    health_gain = math.round(10 * sleep_segments * HEALTH_SLEEP_HEAL_RATE),
+                    resolve_gain = math.round(6 * sleep_segments * RESOLVE_SLEEP_HEAL_RATE),
                     cards_removed = {},
                 }
                 TheGame:BroadcastEvent( "do_sleep", player, sleep_data )
@@ -287,7 +287,10 @@ function EscapeTheBogUtil.AddBogLocationQuest(quest_def, location_def, exit_defs
                 -- Check if starved to death like an idiot
                 if player.etb_hunger and player.etb_hunger.player_starved then
                     cxt:Dialog("DIALOG_SLEEP_STARVED_TO_DEATH_ETB")
-                    cxt.enc:PlayerDeath()
+                    cxt:Opt("OPT_ACCEPT_DEATH_ETB")
+                        :Fn(function(cxt)
+                            cxt.enc:PlayerDeath()
+                        end)
                     return
                 end
 

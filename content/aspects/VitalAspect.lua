@@ -65,7 +65,7 @@ end
 local Hunger = class( "ETBClass.Hunger", ETBClass.VitalAspect)
 Content.AddAspect( "etb_hunger", Hunger )
 
-Hunger.DELTA_CHANCE = {0.98, 0.85, 0.75, 0.65, 0.5, 0.4, 0.35}
+Hunger.DELTA_CHANCE = {0.98, 0.85, 0.75, 0.65, 0.5, 0.4, 1, 0.35}
 Hunger.RESOLVE_LOSS = {0, 0, 0, 1, 1, 2, 3}
 Hunger.MAX_HEALTH_DELTA = {3, 2, 0, 0, 0, -1, -2}
 Hunger.DAMAGE_REDUCTION = {0, 0, 0, 0, 1, 2, 3}
@@ -149,6 +149,7 @@ function Hunger:OnTimeSegmentPassETB(old_time, new_time, delta, reason)
         end
         if math.random() < chance then
             self:DeltaStat(1)
+            print("OOPS")
         end
     end
 end
@@ -249,10 +250,17 @@ function Fatigue:ProcessFighter(fighter)
 end
 
 function Fatigue:CanSleep()
-    return self:GetCurrentStage() > 2
+    local can_sleep_threshold = 2
+    if self.agent.etb_hunger and self.agent.etb_hunger:GetCurrentStage() > 3 then
+        awake_threshold = awake_threshold + math.ceil((self.agent.etb_hunger:GetCurrentStage() - 3) / 2)
+    end
+    return self:GetCurrentStage() >= can_sleep_threshold
 end
 
 function Fatigue:CanContinueSleep()
     local awake_threshold = TheGame:GetGameState():GetDayPhase() == DAY_PHASE.NIGHT and 0 or 2
+    if self.agent.etb_hunger and self.agent.etb_hunger:GetCurrentStage() > 3 then
+        awake_threshold = awake_threshold + self.agent.etb_hunger:GetCurrentStage() - 3
+    end
     return self.current_stat > awake_threshold
 end
