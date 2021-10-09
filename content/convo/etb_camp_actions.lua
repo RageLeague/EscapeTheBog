@@ -20,7 +20,8 @@ Convo("ETB_CAMP_ACTIONS")
             ]],
 
             OPT_EAT_FOOD = "Eat something...",
-            REQ_HAVE_FOOD = "You don't have any food on you right now.",
+            REQ_HAVE_FOOD = "You don't have any food you can eat on you right now.",
+            REQ_FULL = "You can't eat anymore.",
 
             SELECT_TITLE = "Select A Food",
             SELECT_DESC = "Select a food item to eat, consuming 1 use on it.",
@@ -39,13 +40,13 @@ Convo("ETB_CAMP_ACTIONS")
                 local cards = {}
                 for i, card in ipairs(cxt.player.battler.cards.cards) do
                     print(card.id)
-                    if card.food_data_etb then
+                    if cxt.player.etb_hunger:CanEatFood(card) then
                         table.insert(cards, card)
                     end
                 end
 
                 cxt:Opt("OPT_EAT_FOOD")
-                    :ReqCondition(#cards > 0, "REQ_HAVE_FOOD")
+                    :ReqCondition(#cards > 0, cxt.player.etb_hunger:CanEatFood() and "REQ_HAVE_FOOD" or "REQ_FULL")
                     :Fn(function(cxt)
                         cxt:Wait()
                         EscapeTheBogUtil.InsertSelectCardScreen(

@@ -173,6 +173,18 @@ function Hunger:OnDeltaStat(old_stat, new_stat, delta)
     end
 end
 
+function Hunger:CanEatFood(card)
+    if not card then
+        return self:GetCurrentStage() >= 3
+    end
+
+    if not card.food_data_etb then
+        return false
+    end
+
+    return self:GetCurrentStage() >= 3
+end
+
 local Fatigue = class( "ETBClass.Fatigue", ETBClass.VitalAspect)
 Content.AddAspect( "etb_fatigue", Fatigue )
 
