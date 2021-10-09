@@ -311,12 +311,13 @@ function EscapeTheBogUtil.DoSleepConvo(cxt)
     EscapeTheBogUtil.TryMainQuestFn("AdvanceTime", 1, "SLEEP")
 
     local function TrySpawnSleepEvent()
+        local associated_quest = EscapeTheBogUtil.GetAssociatedQuest(cxt.location)
         -- Process on sleep encounter
-        local encounter_table = cxt.quest:GetQuestDef().sleep_encounter
+        local encounter_table = associated_quest and associated_quest:GetQuestDef().sleep_encounter
 
         if type(encounter_table) == "function" then
             encounter_table = encounter_table(TheGame:GetGameState():GetCurrentBaseDifficulty(), quest, location)
-        elseif encounter_table == nil then
+        elseif not encounter_table then
             encounter_table = {}
         else
             encounter_table = shallowcopy(encounter_table)
@@ -389,4 +390,14 @@ function EscapeTheBogUtil.DoSleepConvo(cxt)
     assert(chosen_event, "No event spawned")
 
     cxt:PlayQuestConvo(chosen_event, "SLEEP_WAKE")
+end
+
+function EscapeTheBogUtil.GetAssociatedQuest(location)
+    if location.quest_membership then
+        for i, quest in ipairs(location.quest_membership) do
+            if quest:GetQuestDef().is_bog_location then
+                return quest
+            end
+        end
+    end
 end
