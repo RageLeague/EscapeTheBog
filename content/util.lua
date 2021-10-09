@@ -39,7 +39,7 @@ function EscapeTheBogUtil.AddBogLocationQuest(quest_def, location_def, exit_defs
             local encounter_table = (not quest.param.visited_location) and quest:GetQuestDef().entry_encounter or quest:GetQuestDef().repeat_encounter
             if type(encounter_table) == "function" then
                 encounter_table = encounter_table(TheGame:GetGameState():GetCurrentBaseDifficulty(), quest, location)
-            elseif encounter_table == nil then
+            elseif not encounter_table then
                 encounter_table = {}
             else
                 encounter_table = shallowcopy(encounter_table)
