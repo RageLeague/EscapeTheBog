@@ -19,12 +19,6 @@ Content.AddStringTable( "ETB_CONVO_COMMON", {
                 Time for me to go to sleep.
             * You decide to sleep here until you wake up.
         ]],
-        DIALOG_SLEEP_EXHAUSTED_ETB = [[
-            player:
-                !left
-                I think I will just...
-            * You passed out like a load of bricks.
-        ]],
         DIALOG_SLEEP_DOTS_ETB = [[
             * ...
         ]],

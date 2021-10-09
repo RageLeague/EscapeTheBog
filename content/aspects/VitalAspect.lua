@@ -288,3 +288,9 @@ function Fatigue:CanContinueSleep()
     end
     return self.current_stat > awake_threshold
 end
+
+function Fatigue:OnDeltaStat(old_stat, new_stat, delta)
+    if new_stat >= 10 then
+        self.passed_out = true
+    end
+end

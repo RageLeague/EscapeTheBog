@@ -148,3 +148,54 @@ local QDEF = QuestDef.Define
     id = "start",
     state = QSTATUS.ACTIVE,
 }
+
+QDEF:AddConvo()
+    :Confront(function(cxt)
+        if not cxt.player then return end
+        if cxt.player.etb_hunger and cxt.player.etb_hunger.player_starved then
+            return "STATE_STARVED"
+        end
+        if cxt.player.etb_fatigue and cxt.player.etb_fatigue.passed_out then
+            return "STATE_PASSED_OUT"
+        end
+    end)
+    :State("STATE_STARVED")
+        :Loc{
+            DIALOG_INTRO = [[
+                player:
+                    !left
+                    I can't... Go on... Anymore...
+                * You passed out from starvation.
+            ]],
+            DIALOG_INTRO_PST = [[
+                * ...
+                * ...
+                * ...
+                * This is a sleep that you are never going to wake up.
+                * The bog has claimed yet another victim.
+            ]],
+        }
+        :Fn(function(cxt)
+            cxt:Dialog("DIALOG_INTRO")
+            cxt:FadeOut()
+            cxt:Dialog("DIALOG_INTRO_PST")
+            cxt:Opt("OPT_ACCEPT_DEATH_ETB")
+                :Fn(function(cxt)
+                    cxt.enc:PlayerDeath()
+                end)
+        end)
+    :State("STATE_PASSED_OUT")
+        :Loc{
+            DIALOG_SLEEP_EXHAUSTED = [[
+                player:
+                    !left
+                    I think I will just...
+                * You passed out like a load of bricks.
+            ]],
+        }
+        :Fn(function(cxt)
+            cxt:Dialog("DIALOG_SLEEP_EXHAUSTED")
+            cxt:FadeOut()
+
+            EscapeTheBogUtil.DoSleepConvo(cxt)
+        end)
