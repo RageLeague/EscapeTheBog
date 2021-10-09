@@ -25,9 +25,11 @@ QDEF:AddConvo(nil, nil, "SLEEP_WAKE")
                 tags = "uneventful,night",
                 [[
                     * You wake up in the middle of the night. Perhaps you aren't as drowsy as you thought you were.
+                    * At least that means you are doing good in terms your sleep schedule. Probably.
                 ]],
                 [[
                     * You wake up in the middle of the night. Not a good time to wake up, you would think.
+                    * Still, it beats not waking up at all.
                 ]],
             },
         }
