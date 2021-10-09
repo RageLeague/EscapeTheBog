@@ -167,6 +167,8 @@ Content.AddAspect( "etb_fatigue", Fatigue )
 
 Fatigue.DELTA_CHANCE = {0.9, 0.75, 0.6, 0.5, 0.3}
 Fatigue.MAX_RESOLVE_DELTA = {1, 0, 0, -1, -2}
+Fatigue.CONDITION_DELTA = {1, 0, 1, 1, 2}
+Fatigue.CONDITION_ID = {"convenience", nil, "ETB_DROWSY", "ETB_TIRED", "ETB_TIRED"}
 
 Fatigue.default_stat = 2
 Fatigue.name = "Fatigue"
@@ -223,5 +225,15 @@ function Fatigue:OnTimeSegmentPassETB(old_time, new_time, delta, reason)
                 self:DeltaStat(1)
             end
         end
+    end
+end
+
+function Fatigue:ProcessFighter(fighter)
+    local current_stage = self:GetCurrentStage()
+
+    local condition_delta = self.CONDITION_DELTA[current_stage]
+    local condition_id = self.CONDITION_ID[current_stage]
+    if condition_id and condition_delta and condition_delta ~= 0 then
+        fighter:DeltaCondition(condition_id, condition_delta)
     end
 end
