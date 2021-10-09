@@ -123,8 +123,8 @@ function Hunger:OnTimeSegmentPassETB(old_time, new_time, delta, reason)
 
         local fatigue_delta = self.FATIGUE_DELTA[current_stage]
         if fatigue_delta and fatigue_delta > 0 then
-            if self.agent.fatigue then
-                self.agent.fatigue:DeltaStat(fatigue_delta)
+            if self.agent.etb_fatigue then
+                self.agent.etb_fatigue:DeltaStat(fatigue_delta)
             end
         end
 
@@ -144,7 +144,7 @@ function Hunger:OnTimeSegmentPassETB(old_time, new_time, delta, reason)
 
         -- Possibly increment hunger
         local chance = self.DELTA_CHANCE[current_stage]
-        if reason == "REST" then
+        if reason == "REST" or reason == "SLEEP" then
             chance = chance / 2
         end
         if math.random() < chance then
@@ -159,6 +159,16 @@ function Hunger:ProcessFighter(fighter)
     local damage_reduction = self.DAMAGE_REDUCTION[current_stage]
     if damage_reduction and damage_reduction > 0 then
         fighter:DeltaCondition("POWER", -damage_reduction)
+    end
+end
+
+function Hunger:OnDeltaStat(old_stat, new_stat, delta)
+    if new_stat >= 12 then
+        if self.agent:IsPlayer() then
+            self.player_starved = true
+        else
+            self.agent:Kill()
+        end
     end
 end
 
@@ -212,7 +222,7 @@ function Fatigue:OnTimeSegmentPassETB(old_time, new_time, delta, reason)
     for i = 1, delta do
         local current_stage = self:GetCurrentStage()
 
-        if reason ~= "REST" then
+        if reason ~= "REST" and reason ~= "SLEEP" then
             if self.agent:IsPlayer() then
                 local max_resolve_delta = self.MAX_RESOLVE_DELTA[current_stage]
                 if max_resolve_delta and max_resolve_delta ~= 0 then
@@ -236,4 +246,13 @@ function Fatigue:ProcessFighter(fighter)
     if condition_id and condition_delta and condition_delta ~= 0 then
         fighter:DeltaCondition(condition_id, condition_delta)
     end
+end
+
+function Fatigue:CanSleep()
+    return self:GetCurrentStage() > 2
+end
+
+function Fatigue:CanContinueSleep()
+    local awake_threshold = TheGame:GetGameState():GetDayPhase() == DAY_PHASE.NIGHT and 0 or 2
+    return self.current_stat > awake_threshold
 end
