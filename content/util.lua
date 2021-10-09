@@ -197,111 +197,10 @@ function EscapeTheBogUtil.AddBogLocationQuest(quest_def, location_def, exit_defs
             end)
         :State("STATE_SLEEP")
             :Fn(function(cxt)
-                local player = TheGame:GetGameState():GetPlayerAgent()
-                local hp, maxhp = player:GetHealth()
-                local resolve, maxresolve = TheGame:GetGameState():GetCaravan():GetResolve()
-                local initial_state =
-                {
-                    health = hp,
-                    max_health = maxhp,
-                    resolve = resolve,
-                    max_resolve = maxresolve
-                }
-
-                local chosen_event
-
                 cxt:Dialog("DIALOG_SLEEP_ETB")
                 cxt:FadeOut()
 
-                local sleep_segments = 1
-
-                cxt:Dialog("DIALOG_SLEEP_DOTS_ETB")
-
-                local fatigue = player.etb_fatigue
-                if fatigue then
-                    fatigue:DeltaStat(-1)
-                end
-                EscapeTheBogUtil.TryMainQuestFn("AdvanceTime", 1, "SLEEP")
-
-                local function TrySpawnSleepEvent()
-                    -- Process on sleep encounter
-                    local encounter_table = cxt.quest:GetQuestDef().sleep_encounter
-
-                    if type(encounter_table) == "function" then
-                        encounter_table = encounter_table(TheGame:GetGameState():GetCurrentBaseDifficulty(), quest, location)
-                    elseif encounter_table == nil then
-                        encounter_table = {}
-                    else
-                        encounter_table = shallowcopy(encounter_table)
-                    end
-
-                    local chosen = weightedpick(encounter_table)
-                    if chosen and chosen ~= "ETB_NO_SLEEP_EVENT" then
-                        chosen_event = QuestUtil.SpawnQuest(chosen)
-                    end
-                end
-
-                TrySpawnSleepEvent()
-
-                while not chosen_event and ((fatigue and fatigue:CanContinueSleep()) or (not fatigue and TheGame:GetGameState():GetDayPhase() == DAY_PHASE.NIGHT)) do
-                    cxt:Dialog("DIALOG_SLEEP_DOTS_ETB")
-
-                    sleep_segments = sleep_segments + 1
-                    if fatigue then
-                        fatigue:DeltaStat(-1)
-                    end
-                    EscapeTheBogUtil.TryMainQuestFn("AdvanceTime", 1, "SLEEP")
-
-                    TrySpawnSleepEvent()
-                end
-
-                -- Handle Health/Resolve restoring
-                local HEALTH_SLEEP_HEAL_RATE = GetAdvancementModifier( ADVANCEMENT_OPTION.SLEEP_HEALTH_RESTORE ) or 1
-                local RESOLVE_SLEEP_HEAL_RATE = GetAdvancementModifier( ADVANCEMENT_OPTION.SLEEP_RESOLVE_RESTORE ) or 1
-
-                local sleep_data =
-                {
-                    health_gain = math.round(10 * sleep_segments * HEALTH_SLEEP_HEAL_RATE),
-                    resolve_gain = math.round(6 * sleep_segments * RESOLVE_SLEEP_HEAL_RATE),
-                    cards_removed = {},
-                }
-                TheGame:BroadcastEvent( "do_sleep", player, sleep_data )
-                ConvoUtil.DoHealthDelta(cxt, sleep_data.health_gain, false)
-                ConvoUtil.DoResolveDelta(cxt, sleep_data.resolve_gain, false)
-                for i, card in ipairs( sleep_data.cards_removed ) do
-                    -- could do some UI here.
-                    if is_instance( card, Battle.Card ) then
-                        player.battler:RemoveCard( card )
-                    else
-                        player.negotiator:RemoveCard( card )
-                    end
-                end
-
-                -- Show the screen
-                local function OnDone( ... )
-                    cxt.enc:ResumeEncounter( ... )
-                end
-                TheGame:FE():PushScreen( Screen.DayOverScreen( initial_state, sleep_data, OnDone ))
-                cxt.enc:YieldEncounter()
-
-                -- Check if starved to death like an idiot
-                if player.etb_hunger and player.etb_hunger.player_starved then
-                    cxt:Dialog("DIALOG_SLEEP_STARVED_TO_DEATH_ETB")
-                    cxt:Opt("OPT_ACCEPT_DEATH_ETB")
-                        :Fn(function(cxt)
-                            cxt.enc:PlayerDeath()
-                        end)
-                    return
-                end
-
-                -- Process sleep event
-                if not chosen_event then
-                    chosen_event = QuestUtil.SpawnQuest("ETB_NO_SLEEP_EVENT")
-                end
-
-                assert(chosen_event, "No event spawned")
-
-                cxt:PlayQuestConvo(chosen_event, "SLEEP_WAKE")
+                EscapeTheBogUtil.DoSleepConvo(cxt)
             end)
 
     return QDEF
@@ -385,4 +284,109 @@ function EscapeTheBogUtil.InsertSelectCardScreen(cards, title, desc, class, on_s
     screen:SetTitles( title, desc )
     TheGame:FE():InsertScreen( screen )
     return screen
+end
+
+function EscapeTheBogUtil.DoSleepConvo(cxt)
+    local player = TheGame:GetGameState():GetPlayerAgent()
+    local hp, maxhp = player:GetHealth()
+    local resolve, maxresolve = TheGame:GetGameState():GetCaravan():GetResolve()
+    local initial_state =
+    {
+        health = hp,
+        max_health = maxhp,
+        resolve = resolve,
+        max_resolve = maxresolve
+    }
+
+    local chosen_event
+
+    local sleep_segments = 1
+
+    cxt:Dialog("DIALOG_SLEEP_DOTS_ETB")
+
+    local fatigue = player.etb_fatigue
+    if fatigue then
+        fatigue:DeltaStat(-1)
+    end
+    EscapeTheBogUtil.TryMainQuestFn("AdvanceTime", 1, "SLEEP")
+
+    local function TrySpawnSleepEvent()
+        -- Process on sleep encounter
+        local encounter_table = cxt.quest:GetQuestDef().sleep_encounter
+
+        if type(encounter_table) == "function" then
+            encounter_table = encounter_table(TheGame:GetGameState():GetCurrentBaseDifficulty(), quest, location)
+        elseif encounter_table == nil then
+            encounter_table = {}
+        else
+            encounter_table = shallowcopy(encounter_table)
+        end
+
+        local chosen = weightedpick(encounter_table)
+        if chosen and chosen ~= "ETB_NO_SLEEP_EVENT" then
+            chosen_event = QuestUtil.SpawnQuest(chosen)
+        end
+    end
+
+    TrySpawnSleepEvent()
+
+    while not chosen_event and ((fatigue and fatigue:CanContinueSleep()) or (not fatigue and TheGame:GetGameState():GetDayPhase() == DAY_PHASE.NIGHT)) do
+        cxt:Dialog("DIALOG_SLEEP_DOTS_ETB")
+
+        sleep_segments = sleep_segments + 1
+        if fatigue then
+            fatigue:DeltaStat(-1)
+        end
+        EscapeTheBogUtil.TryMainQuestFn("AdvanceTime", 1, "SLEEP")
+
+        TrySpawnSleepEvent()
+    end
+
+    -- Handle Health/Resolve restoring
+    local HEALTH_SLEEP_HEAL_RATE = GetAdvancementModifier( ADVANCEMENT_OPTION.SLEEP_HEALTH_RESTORE ) or 1
+    local RESOLVE_SLEEP_HEAL_RATE = GetAdvancementModifier( ADVANCEMENT_OPTION.SLEEP_RESOLVE_RESTORE ) or 1
+
+    local sleep_data =
+    {
+        health_gain = math.round(10 * sleep_segments * HEALTH_SLEEP_HEAL_RATE),
+        resolve_gain = math.round(6 * sleep_segments * RESOLVE_SLEEP_HEAL_RATE),
+        cards_removed = {},
+    }
+    TheGame:BroadcastEvent( "do_sleep", player, sleep_data )
+    ConvoUtil.DoHealthDelta(cxt, sleep_data.health_gain, false)
+    ConvoUtil.DoResolveDelta(cxt, sleep_data.resolve_gain, false)
+    for i, card in ipairs( sleep_data.cards_removed ) do
+        -- could do some UI here.
+        if is_instance( card, Battle.Card ) then
+            player.battler:RemoveCard( card )
+        else
+            player.negotiator:RemoveCard( card )
+        end
+    end
+
+    -- Show the screen
+    local function OnDone( ... )
+        cxt.enc:ResumeEncounter( ... )
+    end
+    TheGame:FE():PushScreen( Screen.DayOverScreen( initial_state, sleep_data, OnDone ))
+    cxt.enc:YieldEncounter()
+
+    -- Check if starved to death like an idiot
+    if player.etb_hunger and player.etb_hunger.player_starved then
+        cxt:Dialog("DIALOG_SLEEP_STARVED_TO_DEATH_ETB")
+        cxt:Opt("OPT_ACCEPT_DEATH_ETB")
+            :Fn(function(cxt)
+                cxt.enc:PlayerDeath()
+            end)
+        return
+    end
+
+    -- Process sleep event
+    if not chosen_event then
+        chosen_event = QuestUtil.SpawnQuest("ETB_NO_SLEEP_EVENT")
+    end
+
+    assert(chosen_event, "No event spawned")
+
+    cxt:PlayQuestConvo(chosen_event, "SLEEP_WAKE")
 end
