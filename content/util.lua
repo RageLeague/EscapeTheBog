@@ -181,7 +181,7 @@ function EscapeTheBogUtil.AddBogLocationQuest(quest_def, location_def, exit_defs
         end )
         :State("STATE_MOVE")
             :Fn(function(cxt)
-                for i, exit in ipairs (cxt.quest.param.exits) do
+                local function AddExitOption(exit)
                     local location = exit:GetCastMember("main_location")
                     cxt:Opt(cxt.quest.param.previous_location == exit and "OPT_RETURN_TO_ETB" or "OPT_MOVE_TO_ETB", location)
                         :PostText(exit:DefFn("GetPathDesc"))
@@ -198,6 +198,16 @@ function EscapeTheBogUtil.AddBogLocationQuest(quest_def, location_def, exit_defs
                             TheGame:GetGameState():GetCaravan():MoveToLocation( location )
                             cxt:End()
                         end )
+                end
+                local exit_length = #cxt.quest.param.exits
+                local end_idx = table.arrayfind(cxt.quest.param.exits, cxt.quest.param.previous_location) or exit_length
+                for i = end_idx + 1, exit_length do
+                    local exit = cxt.quest.param.exits[i]
+                    AddExitOption(exit)
+                end
+                for i = 1, end_idx do
+                    local exit = cxt.quest.param.exits[i]
+                    AddExitOption(exit)
                 end
                 StateGraphUtil.AddBackButton(cxt)
             end)
