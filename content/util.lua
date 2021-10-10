@@ -162,12 +162,11 @@ function EscapeTheBogUtil.AddBogLocationQuest(quest_def, location_def, exit_defs
                 return
             end
 
-            local can
-            cxt:Opt("OPT_SLEEP_ETB")
-                :ReqCondition(not cxt.player.etb_fatigue or cxt.player.etb_fatigue:CanSleep(), "REQ_CAN_SLEEP_ETB")
-                :Fn( function(cxt)
-                    UIHelpers.DoSpecificConvo( nil, cxt.convodef.id, "STATE_SLEEP" , nil, nil, cxt.quest)
-                end )
+            -- cxt:Opt("OPT_SLEEP_ETB")
+            --     :ReqCondition(not cxt.player.etb_fatigue or cxt.player.etb_fatigue:CanSleep(), "REQ_CAN_SLEEP_ETB")
+            --     :Fn( function(cxt)
+            --         UIHelpers.DoSpecificConvo( nil, cxt.convodef.id, "STATE_SLEEP" , nil, nil, cxt.quest)
+            --     end )
 
             cxt:Opt("OPT_TRAVEL_ETB")
                 :MakeUnder()
@@ -195,13 +194,13 @@ function EscapeTheBogUtil.AddBogLocationQuest(quest_def, location_def, exit_defs
                 end
                 StateGraphUtil.AddBackButton(cxt)
             end)
-        :State("STATE_SLEEP")
-            :Fn(function(cxt)
-                cxt:Dialog("DIALOG_SLEEP_ETB")
-                cxt:FadeOut()
+        -- :State("STATE_SLEEP")
+        --     :Fn(function(cxt)
+        --         cxt:Dialog("DIALOG_SLEEP_ETB")
+        --         cxt:FadeOut()
 
-                EscapeTheBogUtil.DoSleepConvo(cxt)
-            end)
+        --         EscapeTheBogUtil.DoSleepConvo(cxt)
+        --     end)
 
     return QDEF
 end
@@ -371,6 +370,12 @@ function EscapeTheBogUtil.DoSleepConvo(cxt)
     end
     TheGame:FE():PushScreen( Screen.DayOverScreen( initial_state, sleep_data, OnDone ))
     cxt.enc:YieldEncounter()
+
+    local screen = TheGame:FE():FindScreen( Screen.LocationScreen )
+    if screen then
+        screen:UpdateDayPhase()
+        screen:RefreshPlaxClickables(true)
+    end
 
     -- Check if starved to death like an idiot
     if player.etb_hunger and player.etb_hunger.player_starved then
