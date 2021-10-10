@@ -10,11 +10,11 @@ local QDEF = EscapeTheBogUtil.AddBogLocationQuest(
         end,
         GetPathDesc = function(quest)
             if not quest.param.desc_number then
-                quest.param.desc_number = math.random(1, 6)
+                quest.param.desc_number = math.random(1, 7)
             end
             local desc = {}
             table.insert(desc, quest:GetLocalizedStr("DESC_" .. quest.param.desc_number))
-            if quest.param.poi then
+            if quest.param.poi == "bogberry_bushes" then
                 table.insert(desc, quest:GetLocalizedStr("DESC_BOGBERRIES"))
             end
             return table.concat(desc, "\n")
@@ -37,6 +37,7 @@ QDEF:Loc{
     DESC_4 = "This path leads to some giant egg looking things. You should probably not disturb them.",
     DESC_5 = "You can't see past this path, and you assume it probably leads to more bog.",
     DESC_6 = "There are some footprints down this path. Someone - or something - has been down there. Which is strange, because the destination seems very unpleasant.",
+    DESC_7 = "There is a higher than normal amount of tentacles coming from this path. The normal amount of tentacles is zero, so that is not saying much.",
 
     DESC_BOGBERRIES = "There are some bushes down this path. Perhaps it leads to edible plants. Or perhaps it leads to poisonous plants.",
 }
