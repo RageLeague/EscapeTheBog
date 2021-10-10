@@ -8,6 +8,17 @@ local QDEF = EscapeTheBogUtil.AddBogLocationQuest(
         on_init = function(quest)
             quest.param.poi = "bogberry_bushes"-- table.arraypick{"nothing", "bogberry_bushes"}
         end,
+        GetPathDesc = function(quest)
+            if not quest.param.desc_number then
+                quest.param.desc_number = math.random(1, 6)
+            end
+            local desc = {}
+            table.insert(desc, quest:GetLocalizedStr("DESC_" .. quest.param.desc_number))
+            if quest.param.poi then
+                table.insert(desc, quest:GetLocalizedStr("DESC_BOGBERRIES"))
+            end
+            return table.concat(desc, "\n")
+        end,
     },
     {
         name = "Deep Bog",
@@ -18,6 +29,17 @@ local QDEF = EscapeTheBogUtil.AddBogLocationQuest(
     },
     3
 )
+
+QDEF:Loc{
+    DESC_1 = "This path leads to a secluded location with many vegetation. Generally a bad sign in the bog.",
+    DESC_2 = "This path leads to the part of the bog with many strange looking plants. Just like the rest of the bog.",
+    DESC_3 = "This path leads to an area with lots of tall trees. Enough to block out the sun.",
+    DESC_4 = "This path leads to some giant egg looking things. You should probably not disturb them.",
+    DESC_5 = "You can't see past this path, and you assume it probably leads to more bog.",
+    DESC_6 = "There are some footprints down this path. Someone - or something - has been down there. Which is strange, because the destination seems very unpleasant.",
+
+    DESC_BOGBERRIES = "There are some bushes down this path. Perhaps it leads to edible plants. Or perhaps it leads to poisonous plants.",
+}
 
 QDEF:AddConvo()
     :Loc{

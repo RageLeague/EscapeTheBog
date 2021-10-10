@@ -5,6 +5,9 @@ local QDEF = EscapeTheBogUtil.AddBogLocationQuest(
             ETB_STARTING_OUT = 1,
         },
         repeat_encounter = EscapeTheBogUtil.GenericRepeatEncounterTable,
+        GetPathDesc = function(quest)
+            return quest:GetLocalizedStr("DESC_1")
+        end,
     },
     {
         name = "Bog Cave",
@@ -16,3 +19,7 @@ local QDEF = EscapeTheBogUtil.AddBogLocationQuest(
     },
     {"deepbog", "deepbog"}
 )
+
+QDEF:Loc{
+    DESC_1 = "This path leads to the cave that you wake up in. It is a safe spot, although there is nothing of interest there.",
+}
