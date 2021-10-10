@@ -184,6 +184,7 @@ function EscapeTheBogUtil.AddBogLocationQuest(quest_def, location_def, exit_defs
                 for i, exit in ipairs (cxt.quest.param.exits) do
                     local location = exit:GetCastMember("main_location")
                     cxt:Opt("OPT_MOVE_TO_ETB", location)
+                        :PostText(exit:DefFn("GetPathDesc"))
                         :Dialog("DIALOG_MOVE_TO_ETB", location)
                         :Fn( function(cxt)
                             cxt.encounter:DoLocationTransition( location )
@@ -206,7 +207,7 @@ function EscapeTheBogUtil.AddBogLocationQuest(quest_def, location_def, exit_defs
 
         --         EscapeTheBogUtil.DoSleepConvo(cxt)
         --     end)
-
+    assert(QDEF.GetPathDesc, "No GetPathDesc defined")
     return QDEF
 end
 

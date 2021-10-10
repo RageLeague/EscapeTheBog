@@ -6,7 +6,7 @@ local QDEF = EscapeTheBogUtil.AddBogLocationQuest(
         entry_encounter = EscapeTheBogUtil.GenericInitialEncounterTable,
         repeat_encounter = EscapeTheBogUtil.GenericRepeatEncounterTable,
         on_init = function(quest)
-            quest.param.poi = "bogberry_bushes"-- table.arraypick{"nothing", "bogberry_bushes"}
+            quest.param.poi = table.arraypick{"nothing", "nothing", "bogberry_bushes"}
         end,
         GetPathDesc = function(quest)
             if not quest.param.desc_number then
@@ -39,7 +39,7 @@ QDEF:Loc{
     DESC_6 = "There are some footprints down this path. Someone - or something - has been down there. Which is strange, because the destination seems very unpleasant.",
     DESC_7 = "There is a higher than normal amount of tentacles coming from this path. The normal amount of tentacles is zero, so that is not saying much.",
 
-    DESC_BOGBERRIES = "There are some bushes down this path. Perhaps it leads to edible plants. Or perhaps it leads to poisonous plants.",
+    DESC_BOGBERRIES = "There are some bushes down this path. There might be edible plants there.",
 }
 
 QDEF:AddConvo()
