@@ -85,7 +85,14 @@ Convo("ETB_CAMP_ACTIONS")
                         )
                         local card = cxt.enc:YieldEncounter()
                         if card then
-                            local food_data = deepcopy(card.food_data_etb)
+                            local food_data
+                            if type(card.food_data_etb) == "table" then
+                                food_data = deepcopy(card.food_data_etb)
+                            elseif type(card.food_data_fn_etb) == "function" then
+                                food_data = card:food_data_fn_etb()
+                            else
+                                food_data = {}
+                            end
                             TheGame:BroadcastEvent("calculate_food_value_etb", food_data, card)
 
                             card:ConsumeCharge()
