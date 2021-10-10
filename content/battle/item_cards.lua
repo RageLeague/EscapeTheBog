@@ -21,33 +21,38 @@ local ITEMS =
                 hunger_restoration = 2,
                 health_gain = 3,
                 resolve_gain = 3,
-                cards = {"bloated"},
+                cards = {"gassy", "bloated"},
             },
             striped =
             {
                 hunger_restoration = 1,
                 resolve_gain = 7,
+                cards = {"drunk"},
             },
             purple =
             {
                 hunger_restoration = 1,
                 health_gain = 7,
+                cards = {"ulcer"},
             },
             spotted =
             {
                 hunger_restoration = 1,
                 resolve_gain = -10,
+                cards = {"sick"},
             },
             red =
             {
                 hunger_restoration = 1,
                 health_gain = -10,
+                cards = {"numbness"},
             },
             rotten =
             {
                 hunger_restoration = 1,
                 health_gain = -20,
                 max_health_gain = 5,
+                cards = {"drunk", "drunk_player"},
             },
         },
 

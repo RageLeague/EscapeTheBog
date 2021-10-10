@@ -98,12 +98,13 @@ Convo("ETB_CAMP_ACTIONS")
                         if card then
                             local food_data
                             if type(card.food_data_fn_etb) == "function" then
-                                food_data = deepcopy(card.food_data_etb)
-                            elseif type(card.food_data_etb) == "table" then
                                 food_data = card:food_data_fn_etb()
+                            elseif type(card.food_data_etb) == "table" then
+                                food_data = deepcopy(card.food_data_etb)
                             else
                                 food_data = {}
                             end
+                            assert(type(food_data) == "table", "Incorrect food data")
                             TheGame:BroadcastEvent("do_eat", food_data)
                             TheGame:BroadcastEvent("calculate_food_value_etb", food_data, card)
 
