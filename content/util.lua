@@ -183,10 +183,11 @@ function EscapeTheBogUtil.AddBogLocationQuest(quest_def, location_def, exit_defs
             :Fn(function(cxt)
                 for i, exit in ipairs (cxt.quest.param.exits) do
                     local location = exit:GetCastMember("main_location")
-                    cxt:Opt("OPT_MOVE_TO_ETB", location)
+                    cxt:Opt(cxt.quest.param.previous_location == exit and "OPT_RETURN_TO_ETB" or "OPT_MOVE_TO_ETB", location)
                         :PostText(exit:DefFn("GetPathDesc"))
                         :Dialog("DIALOG_MOVE_TO_ETB", location)
                         :Fn( function(cxt)
+                            exit.param.previous_location = cxt.quest
                             cxt.encounter:DoLocationTransition( location )
                             EscapeTheBogUtil.TryMainQuestFn("AdvanceTime", 1, "TRAVEL")
                             local screen = TheGame:FE():FindScreen( Screen.LocationScreen )
