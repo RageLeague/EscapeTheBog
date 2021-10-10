@@ -156,6 +156,11 @@ function EscapeTheBogUtil.AddBogLocationQuest(quest_def, location_def, exit_defs
 
     EscapeTheBogUtil.AddBogExits(QDEF, exit_defs)
 
+    QDEF:AddObjective{
+        id = "start",
+        state = QSTATUS.ACTIVE,
+    }
+
     QDEF:AddConvo()
         :Hub_Location( function( cxt, who )
             if cxt.location ~= cxt:GetCastMember("main_location") then

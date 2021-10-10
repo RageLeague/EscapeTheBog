@@ -178,7 +178,7 @@ function Hunger:CanEatFood(card)
         return self:GetCurrentStage() >= 3
     end
 
-    if not card.food_data_etb then
+    if not card.food_data_etb and not card.food_data_fn_etb then
         return false
     end
 
