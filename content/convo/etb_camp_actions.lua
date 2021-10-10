@@ -30,6 +30,17 @@ Convo("ETB_CAMP_ACTIONS")
                 * You ate some {1#card}.
             ]],
 
+            DIALOG_EAT_FOOD_POISON = [[
+                player:
+                    I don't feel so good...
+                    !exit
+            ]],
+            DIALOG_EAT_FOOD_POISON_PST = [[
+                * You collapsed onto the ground after eating something you shouldn't eat.
+                * On the bright side, you are never going to make that mistake again.
+                * Because, you know, you are dead.
+            ]],
+
             OPT_REST_ETB = "Rest",
             DIALOG_REST_ETB = [[
                 player:
@@ -86,13 +97,14 @@ Convo("ETB_CAMP_ACTIONS")
                         local card = cxt.enc:YieldEncounter()
                         if card then
                             local food_data
-                            if type(card.food_data_etb) == "table" then
+                            if type(card.food_data_fn_etb) == "function" then
                                 food_data = deepcopy(card.food_data_etb)
-                            elseif type(card.food_data_fn_etb) == "function" then
+                            elseif type(card.food_data_etb) == "table" then
                                 food_data = card:food_data_fn_etb()
                             else
                                 food_data = {}
                             end
+                            TheGame:BroadcastEvent("do_eat", food_data)
                             TheGame:BroadcastEvent("calculate_food_value_etb", food_data, card)
 
                             card:ConsumeCharge()
@@ -108,12 +120,32 @@ Convo("ETB_CAMP_ACTIONS")
                                 cxt.player.etb_hunger:DeltaStat(-food_data.hunger_restoration)
                             end
 
-                            if food_data.health_delta and food_data.health_delta ~= 0 then
-                                ConvoUtil.DoHealthDelta(cxt, food_data.health_delta)
+                            if food_data.health_gain and food_data.health_gain ~= 0 then
+                                ConvoUtil.DoHealthDelta(cxt, food_data.health_gain)
                             end
 
-                            if food_data.resolve_delta and food_data.resolve_delta ~= 0 then
-                                ConvoUtil.DoResolveDelta(cxt, food_data.resolve_delta)
+                            if cxt.player:GetHealth() <= 0 then
+                                cxt:Dialog("DIALOG_EAT_FOOD_POISON")
+                                cxt:FadeOut()
+                                cxt:Dialog("DIALOG_EAT_FOOD_POISON_PST")
+                                cxt:Opt("OPT_ACCEPT_DEATH_ETB")
+                                    :Fn(function(cxt)
+                                        cxt.enc:PlayerDeath()
+                                    end)
+                                return
+                            end
+
+                            if food_data.resolve_gain and food_data.resolve_gain ~= 0 then
+                                ConvoUtil.DoResolveDelta(cxt, food_data.resolve_gain)
+                            end
+
+                            if food_data.max_health_gain and food_data.max_health_gain ~= 0 then
+                                cxt.player.health:AddStatModifier( "ATE_FOOD", food_data.max_health_gain )
+                                TheGame:GetGameState():LogNotification( NOTIFY.HEALTH_UPGRADED, food_data.max_health_gain )
+                            end
+
+                            if food_data.cards then
+                                cxt:GainCards(food_data.cards)
                             end
                         end
                     end)

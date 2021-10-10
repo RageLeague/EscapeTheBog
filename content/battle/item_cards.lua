@@ -18,36 +18,36 @@ local ITEMS =
         {
             blue =
             {
-                hunger_restoration = 1,
-                health_delta = 5,
-                resolve_delta = 5,
-                force_take_cards = {"bloated"},
+                hunger_restoration = 2,
+                health_gain = 3,
+                resolve_gain = 3,
+                cards = {"bloated"},
             },
             striped =
             {
                 hunger_restoration = 1,
-                resolve_delta = 5,
+                resolve_gain = 7,
             },
             purple =
             {
                 hunger_restoration = 1,
-                health_delta = 5,
+                health_gain = 7,
             },
             spotted =
             {
                 hunger_restoration = 1,
-                resolve_delta = -5,
+                resolve_gain = -10,
             },
             red =
             {
                 hunger_restoration = 1,
-                health_delta = -5,
+                health_gain = -10,
             },
             rotten =
             {
                 hunger_restoration = 1,
-                health_delta = -10,
-                max_health_delta = 5,
+                health_gain = -20,
+                max_health_gain = 5,
             },
         },
 
@@ -77,21 +77,21 @@ local ITEMS =
             local effect_table = self.effects[chosen_effect]
             assert(effect_table, "Invalid effect: " .. chosen_effect)
 
-            if (effect_table.health_delta or 0) > 0 then
-                self.target:HealHealth( effect_table.health_delta, self )
-            elseif (effect_table.health_delta or 0) < 0 then
-                self.target:DeltaHealth( effect_table.health_delta, self )
+            if (effect_table.health_gain or 0) > 0 then
+                self.target:HealHealth( effect_table.health_gain, self )
+            elseif (effect_table.health_gain or 0) < 0 then
+                self.target:DeltaHealth( effect_table.health_gain, self )
             end
 
-            if (effect_table.resolve_delta or 0) > 0 then
-                self.target:AddCondition("CONCENTRATION", effect_table.resolve_delta, self)
-            elseif (effect_table.resolve_delta or 0) < 0 then
-                self.target:AddCondition("IMPAIR", math.ceil(-effect_table.resolve_delta / 2), self)
+            if (effect_table.resolve_gain or 0) > 0 then
+                self.target:AddCondition("CONCENTRATION", effect_table.resolve_gain, self)
+            elseif (effect_table.resolve_gain or 0) < 0 then
+                self.target:AddCondition("IMPAIR", math.ceil(-effect_table.resolve_gain / 2), self)
             end
 
-            if (effect_table.max_health_delta or 0) ~= 0 then
-                self.target:DeltaMaxHealth(effect_table.max_health_delta)
-                self.target:GetAgent().health:AddStatModifier( "BOG_BERRIES", effect_table.max_health_delta )
+            if (effect_table.max_health_gain or 0) ~= 0 then
+                self.target:DeltaMaxHealth(effect_table.max_health_gain)
+                self.target:GetAgent().health:AddStatModifier( "BOG_BERRIES", effect_table.max_health_gain )
             end
         end,
     },
