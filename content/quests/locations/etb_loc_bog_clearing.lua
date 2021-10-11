@@ -1,11 +1,12 @@
-local QDEF = EscapeTheBogUtil.AddBogLocationQuest(
+local QDEF
+QDEF = EscapeTheBogUtil.AddBogLocationQuest(
     {
         entry_encounter = EscapeTheBogUtil.GenericInitialEncounterTable,
         repeat_encounter = EscapeTheBogUtil.NullEncounterTable,
 
         GetPathDesc = function(quest)
             if not quest.param.desc_number then
-                quest.param.desc_number = math.random(1, 5)
+                quest.param.desc_number = EscapeTheBogUtil.TryMainQuestFn("RequestRiffleShuffle", QDEF.id .. "_DESC", 1, 5) -- math.random(1, 5)
             end
             local desc = {}
             table.insert(desc, quest:GetLocalizedStr("DESC_" .. quest.param.desc_number))

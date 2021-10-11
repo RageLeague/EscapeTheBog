@@ -1,6 +1,7 @@
 local BOGBERRY_ID = "etb_mixed_bogberries"
 
-local QDEF = EscapeTheBogUtil.AddBogLocationQuest(
+local QDEF
+QDEF = EscapeTheBogUtil.AddBogLocationQuest(
     {
         quest_weight = 3,
         entry_encounter = EscapeTheBogUtil.GenericInitialEncounterTable,
@@ -10,7 +11,7 @@ local QDEF = EscapeTheBogUtil.AddBogLocationQuest(
         end,
         GetPathDesc = function(quest)
             if not quest.param.desc_number then
-                quest.param.desc_number = math.random(1, 7)
+                quest.param.desc_number = EscapeTheBogUtil.TryMainQuestFn("RequestRiffleShuffle", QDEF.id .. "_DESC", 1, 7) -- math.random(1, 7)
             end
             local desc = {}
             table.insert(desc, quest:GetLocalizedStr("DESC_" .. quest.param.desc_number))

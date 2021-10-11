@@ -128,6 +128,32 @@ local QDEF = QuestDef.Define
             end
         end
     end,
+
+    RequestRiffleShuffle = function(quest, id, ...)
+        local params = {...}
+        local possibility_table = params[1]
+        if not quest.param.RIFFLE_DATA then
+            quest.param.RIFFLE_DATA = {}
+        end
+        if not quest.param.RIFFLE_DATA[id] or #quest.param.RIFFLE_DATA[id] == 0 then
+            if #params >= 2 then
+                local minbound, maxbound, delta = ...
+                possibility_table = {}
+                for i = minbound, maxbound, delta or 1 do
+                    table.insert(possibility_table, i)
+                end
+            end
+            quest.param.RIFFLE_DATA[id] = shallowcopy(possibility_table)
+        end
+
+
+        local chosen = table.arraypick(quest.param.RIFFLE_DATA[id])
+        table.arrayremove(quest.param.RIFFLE_DATA[id], chosen)
+        if #quest.param.RIFFLE_DATA[id] == 0 then
+            quest.param.RIFFLE_DATA[id] = nil
+        end
+        return chosen
+    end,
 }
 :Loc{
     TIME_SEG_DAY_1 = "Sunrise",

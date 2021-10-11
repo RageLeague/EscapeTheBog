@@ -1,4 +1,5 @@
-local QDEF = EscapeTheBogUtil.AddBogLocationQuest(
+local QDEF
+QDEF = EscapeTheBogUtil.AddBogLocationQuest(
     {
         is_unique = true,
         entry_encounter = {
