@@ -101,13 +101,13 @@ function Hunger:GetCurrentStage()
         return 1
     elseif self.current_stat <= 1 then
         return 2
-    elseif self.current_stat <= 3 then
-        return 3, true
     elseif self.current_stat <= 5 then
-        return 4
+        return 3, true
     elseif self.current_stat <= 7 then
-        return 5
+        return 4
     elseif self.current_stat <= 9 then
+        return 5
+    elseif self.current_stat <= 11 then
         return 6
     else
         return 7
@@ -164,7 +164,7 @@ function Hunger:ProcessFighter(fighter)
 end
 
 function Hunger:OnDeltaStat(old_stat, new_stat, delta)
-    if new_stat >= 12 then
+    if new_stat >= 14 then
         if self.agent:IsPlayer() then
             self.player_starved = true
         else
@@ -218,11 +218,11 @@ function Fatigue:GetCurrentStage()
     end
     if self.current_stat <= 1 then
         return 1
-    elseif self.current_stat <= 3 then
-        return 2, true
     elseif self.current_stat <= 5 then
-        return 3
+        return 2, true
     elseif self.current_stat <= 7 then
+        return 3
+    elseif self.current_stat <= 9 then
         return 4
     else
         return 5
@@ -293,7 +293,7 @@ function Fatigue:CanContinueSleep()
 end
 
 function Fatigue:OnDeltaStat(old_stat, new_stat, delta)
-    if new_stat >= 10 then
+    if new_stat >= 12 then
         self.passed_out = true
     else
         self.passed_out = nil
