@@ -65,7 +65,7 @@ end
 local Hunger = class( "ETBClass.Hunger", ETBClass.VitalAspect)
 Content.AddAspect( "etb_hunger", Hunger )
 
-Hunger.DELTA_CHANCE = {0.98, 0.85, 0.75, 0.65, 0.5, 0.4, 1, 0.35}
+Hunger.DELTA_CHANCE = {0.98, 0.85, 0.75, 0.65, 0.5, 0.4, 0.35}
 Hunger.RESOLVE_LOSS = {0, 0, 0, 1, 1, 2, 3}
 Hunger.MAX_HEALTH_DELTA = {3, 2, 0, 0, 0, -1, -2}
 Hunger.DAMAGE_REDUCTION = {0, 0, 0, 0, 1, 2, 3}
@@ -288,6 +288,7 @@ function Fatigue:CanContinueSleep()
     if self.agent.etb_hunger and self.agent.etb_hunger:GetCurrentStage() > 3 then
         awake_threshold = awake_threshold + self.agent.etb_hunger:GetCurrentStage() - 3
     end
+    awake_threshold = math.max(0, awake_threshold - 1)
     return self.current_stat > awake_threshold
 end
 
