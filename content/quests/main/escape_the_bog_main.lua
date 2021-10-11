@@ -13,9 +13,24 @@ local QDEF = QuestDef.Define
 
         quest:DefFn("GenerateBogMap", 10, "ETB_LOC_STARTING_BOGCAVE")
 
-        TheGame:GetGameState():GetPlayerAgent():AddAspect("etb_hunger")
-        TheGame:GetGameState():GetPlayerAgent():AddAspect("etb_fatigue")
+        local player = TheGame:GetGameState():GetPlayerAgent()
 
+        player:AddAspect("etb_hunger")
+        player:AddAspect("etb_fatigue")
+
+        for i, card in ipairs(player.negotiator:GetCards()) do
+            if not card.userdata.charges then
+                card.userdata.max_charges = 15
+                card.userdata.charges = card.userdata.max_charges
+            end
+        end
+
+        for i, card in ipairs(player.battler:GetCards()) do
+            if not card.userdata.charges then
+                card.userdata.max_charges = 15
+                card.userdata.charges = card.userdata.max_charges
+            end
+        end
 
         TheGame:GetGameState():GetCaravan():MoveToLocation(quest.param.starting_location:GetCastMember("main_location"))
     end,
@@ -34,6 +49,12 @@ local QDEF = QuestDef.Define
             local agent, txt = table.unpack(params)
             if not (agent:IsPlayer()) and agent:IsSentient() then
                 params[2] = EscapeTheBogUtil.ObfuscateWords(txt)
+            end
+        end,
+        card_added = function( quest, card )
+            if not card.userdata.charges then
+                card.userdata.max_charges = 15
+                card.userdata.charges = card.userdata.max_charges
             end
         end,
     },
