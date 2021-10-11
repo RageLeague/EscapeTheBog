@@ -19,17 +19,11 @@ local QDEF = QuestDef.Define
         player:AddAspect("etb_fatigue")
 
         for i, card in ipairs(player.negotiator:GetCards()) do
-            if not card.userdata.charges then
-                card.userdata.max_charges = 15
-                card.userdata.charges = card.userdata.max_charges
-            end
+            quest:DefFn("AddUsageLimitToCard", card)
         end
 
         for i, card in ipairs(player.battler:GetCards()) do
-            if not card.userdata.charges then
-                card.userdata.max_charges = 15
-                card.userdata.charges = card.userdata.max_charges
-            end
+            quest:DefFn("AddUsageLimitToCard", card)
         end
 
         TheGame:GetGameState():GetCaravan():MoveToLocation(quest.param.starting_location:GetCastMember("main_location"))
@@ -52,12 +46,31 @@ local QDEF = QuestDef.Define
             end
         end,
         card_added = function( quest, card )
-            if not card.userdata.charges then
-                card.userdata.max_charges = 15
-                card.userdata.charges = card.userdata.max_charges
-            end
+            quest:DefFn("AddUsageLimitToCard", card)
+        end,
+        card_upgraded = function( quest, card )
+            quest:DefFn("AddUsageLimitToCard", card)
         end,
     },
+
+    AddUsageLimitToCard = function(quest, card)
+        if is_instance(card, Negotiation.Card) then
+            local negotiation_defs = require "negotiation/negotiation_defs"
+            if CheckBits( card.flags, negotiation_defs.CARD_FLAGS.CONSUME ) then
+                return
+            end
+        end
+        if is_instance(card, Battle.Card) then
+            local battle_defs = require "battle/battle_defs"
+            if CheckBits( card.flags, battle_defs.CARD_FLAGS.CONSUME ) then
+                return
+            end
+        end
+        if (not card.userdata.charges) then
+            card.userdata.max_charges = 15
+            card.userdata.charges = card.userdata.charges or card.userdata.max_charges
+        end
+    end,
 
     AdvanceTime = function(quest, amt, reason)
         local old_time = {datetime = TheGame:GetGameState():GetDateTime(), segment = (quest.param.time_segment or 0)}
