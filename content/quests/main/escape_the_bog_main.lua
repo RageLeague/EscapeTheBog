@@ -4,6 +4,8 @@ local QDEF = QuestDef.Define
     -- icon = engine.asset.Texture("icons/quests/sal_story_act1_huntingkashio.tex"),
     qtype = QTYPE.STORY,
     desc = "Find a way to get out of this place.",
+
+    difficulty_ranks = {1, 2, 3, 4, 5},
     -- icon = engine.asset.Texture("DEMOCRATICRACE:assets/quests/main_icon.png"),
     on_init = function(quest)
 
@@ -78,6 +80,10 @@ local QDEF = QuestDef.Define
         while quest.param.time_segment >= 6 do
             quest.param.time_segment = (quest.param.time_segment or 0) - 6
             TheGame:GetGameState():AdvanceTime()
+            local current_day = math.floor( TheGame:GetGameState():GetDateTime() / 2 ) + 1
+            local ranks = quest:GetQuestDef().difficulty_ranks
+
+            TheGame:GetGameState():SetDifficulty(ranks[math.min(current_day, #ranks)])
         end
         local new_time = {datetime = TheGame:GetGameState():GetDateTime(), segment = (quest.param.time_segment or 0)}
         for i, agent in TheGame:GetGameState():GetCaravan():Members() do
