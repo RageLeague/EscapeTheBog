@@ -28,8 +28,9 @@ QDEF:AddConvo("starting_out")
                 player:
                     Ow, what happened?
                 * You have no recollection of how you got where you are right now.
-                * But you know that the bog is not a nice place to be. It is not a good place to stay for long.
-                * You need to get out of here, and find civilization, you thought.
+                * But you know that the bog is not a nice place to be.
+                * The bog will make you weaker for every second you stay in the bog.
+                * You need to get out of here, and find civilization, fast, you thought.
             ]],
             OPT_CHECK_INVENTORY = "Check Inventory",
             DIALOG_CHECK_INVENTORY = [[
