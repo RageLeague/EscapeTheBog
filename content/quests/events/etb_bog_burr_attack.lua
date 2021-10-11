@@ -43,7 +43,8 @@ QDEF:AddConvo()
         }
         :Loc{
             DIALOG_INTRO = [[
-                %dialog_start
+                player:
+                    %dialog_start
                 player:
                     !left
                     !scared

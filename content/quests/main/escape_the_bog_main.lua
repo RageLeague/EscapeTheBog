@@ -57,6 +57,11 @@ local QDEF = QuestDef.Define
         end
         quest:NotifyChanged()
         TheGame:GetEvents():BroadcastEvent( "update_overlay" )
+        local screen = TheGame:FE():FindScreen( Screen.LocationScreen )
+        if screen then
+            screen:UpdateDayPhase()
+            screen:RefreshPlaxClickables(true)
+        end
     end,
 
     GenerateBogMap = function(quest, map_count, starting_location, mandatory_locations)

@@ -35,7 +35,7 @@ QDEF:AddConvo(nil, nil, "SLEEP_WAKE")
         }
         :Fn(function(cxt)
             cxt:FadeIn()
-            cxt:Quip( nil, "uneventful", TheGame:GetGameState():GetDayPhase() == DAY_PHASE.NIGHT and "night" or "day")
+            cxt:Quip( cxt.player, "uneventful", TheGame:GetGameState():GetDayPhase() == DAY_PHASE.NIGHT and "night" or "day")
             cxt.quest:Complete()
             StateGraphUtil.AddEndOption(cxt)
         end)

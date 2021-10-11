@@ -8,5 +8,7 @@ Content.AddStringTable( "ETB_CONVO_COMMON", {
         ]],
 
         OPT_ACCEPT_DEATH_ETB = "Goodbye",
+
+        OPT_FIND_POI_ETB = "Search around the area",
     }
 } )

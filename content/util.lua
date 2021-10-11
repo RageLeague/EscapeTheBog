@@ -190,11 +190,7 @@ function EscapeTheBogUtil.AddBogLocationQuest(quest_def, location_def, exit_defs
                             exit.param.previous_location = cxt.quest
                             cxt.encounter:DoLocationTransition( location )
                             EscapeTheBogUtil.TryMainQuestFn("AdvanceTime", 1, "TRAVEL")
-                            local screen = TheGame:FE():FindScreen( Screen.LocationScreen )
-                            if screen then
-                                screen:UpdateDayPhase()
-                                screen:RefreshPlaxClickables(true)
-                            end
+
                             TheGame:GetGameState():GetCaravan():MoveToLocation( location )
                             cxt:End()
                         end )
@@ -388,11 +384,11 @@ function EscapeTheBogUtil.DoSleepConvo(cxt)
     TheGame:FE():PushScreen( Screen.DayOverScreen( initial_state, sleep_data, OnDone ))
     cxt.enc:YieldEncounter()
 
-    local screen = TheGame:FE():FindScreen( Screen.LocationScreen )
-    if screen then
-        screen:UpdateDayPhase()
-        screen:RefreshPlaxClickables(true)
-    end
+    -- local screen = TheGame:FE():FindScreen( Screen.LocationScreen )
+    -- if screen then
+    --     screen:UpdateDayPhase()
+    --     screen:RefreshPlaxClickables(true)
+    -- end
 
     -- Check if starved to death like an idiot
     if player.etb_hunger and player.etb_hunger.player_starved then

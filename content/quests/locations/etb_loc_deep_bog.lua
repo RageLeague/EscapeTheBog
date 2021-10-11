@@ -7,7 +7,7 @@ QDEF = EscapeTheBogUtil.AddBogLocationQuest(
         entry_encounter = EscapeTheBogUtil.GenericInitialEncounterTable,
         repeat_encounter = EscapeTheBogUtil.GenericRepeatEncounterTable,
         on_init = function(quest)
-            quest.param.poi = table.arraypick{"nothing", "nothing", "bogberry_bushes"}
+            quest.param.poi = table.arraypick{"nothing", "bogberry_bushes"}
         end,
         GetPathDesc = function(quest)
             if not quest.param.desc_number then
@@ -15,9 +15,9 @@ QDEF = EscapeTheBogUtil.AddBogLocationQuest(
             end
             local desc = {}
             table.insert(desc, quest:GetLocalizedStr("DESC_" .. quest.param.desc_number))
-            if quest.param.poi == "bogberry_bushes" then
-                table.insert(desc, quest:GetLocalizedStr("DESC_BOGBERRIES"))
-            end
+            -- if quest.param.poi == "bogberry_bushes" then
+            --     table.insert(desc, quest:GetLocalizedStr("DESC_BOGBERRIES"))
+            -- end
             return table.concat(desc, "\n")
         end,
     },
@@ -51,14 +51,57 @@ QDEF:AddConvo()
         if cxt.location ~= cxt:GetCastMember("main_location") then
             return
         end
-        print("Helo?")
-        if cxt.quest.param.poi == "bogberry_bushes" then
-            cxt:Opt("OPT_EXAMINE_BOGBERRIES")
+        if not cxt.quest.param.searched_for_poi then
+            cxt:Opt("OPT_FIND_POI_ETB")
                 :Fn( function(cxt)
-                    UIHelpers.DoSpecificConvo( nil, cxt.convodef.id, "STATE_BOGBERRIES" , nil, nil, cxt.quest)
+                    UIHelpers.DoSpecificConvo( nil, cxt.convodef.id, "STATE_POI" , nil, nil, cxt.quest)
                 end )
+        else
+            if cxt.quest.param.poi == "bogberry_bushes" then
+                cxt:Opt("OPT_EXAMINE_BOGBERRIES")
+                    :Fn( function(cxt)
+                        UIHelpers.DoSpecificConvo( nil, cxt.convodef.id, "STATE_BOGBERRIES" , nil, nil, cxt.quest)
+                    end )
+            end
         end
     end)
+    :State("STATE_POI")
+        :Quips{
+            {
+                tags = "found_nothing",
+                [[
+                    * You find nothing of note here.
+                ]],
+                [[
+                    * You find a cool rock. It is shaped like a perfect disc.
+                    * It doesn't help you, though.
+                ]],
+                [[
+                    * You find that this is a huge waste of time.
+                ]],
+                [[
+                    * You find an extremely tall tree.
+                    * That's cool, I guess?
+                ]],
+            },
+        }
+        :Loc{
+            DIALOG_BOGBERRIES = [[
+                * You find a bunch of bushes.
+                * On those bushes are berries of all kinds of color.
+                * Perhaps they are edible? You have no idea which ones you can safely eat.
+            ]],
+        }
+        :Fn(function(cxt)
+            if cxt.quest.param.poi == "bogberry_bushes" then
+                cxt:Dialog("DIALOG_BOGBERRIES")
+            else
+                cxt:Quip( cxt.player, "found_nothing")
+            end
+            cxt.quest.param.searched_for_poi = true
+            EscapeTheBogUtil.TryMainQuestFn("AdvanceTime", 1, "SEARCH")
+            StateGraphUtil.AddEndOption(cxt)
+        end)
     :State("STATE_BOGBERRIES")
         :Loc{
             DIALOG_INTRO = [[
@@ -120,6 +163,8 @@ QDEF:AddConvo()
                 cxt:Dialog( "DIALOG_GET_CARD_PRES_BATTLE", card.id)
 
                 cxt.location:Remember("BOGBERRY_PICKED")
+
+                EscapeTheBogUtil.TryMainQuestFn("AdvanceTime", 1, "SEARCH")
 
                 StateGraphUtil.AddEndOption(cxt)
             end
