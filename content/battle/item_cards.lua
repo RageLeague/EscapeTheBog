@@ -128,6 +128,32 @@ local ITEMS =
             self.target:AddCondition("DISEASED", self.heal_amt, self)
         end,
     },
+    etb_big_game_meat =
+    {
+        name = "Big Game Meat",
+        desc = "{HEAL} {1} health.",
+        desc_fn = function(self, fmt_str)
+            return loc.format(fmt_str, self.heal_amt)
+        end,
+        flavour = "'Looks like meat is back on the menu!'",
+
+        cost = 2,
+        target_type = TARGET_TYPE.FRIENDLY_OR_SELF,
+
+        max_charges = 3,
+
+        heal_amt = 9,
+
+        food_data_etb =
+        {
+            hunger_restoration = 3,
+            health_gain = 9,
+        },
+
+        OnPostResolve = function( self, battle, attack)
+            self.target:HealHealth( self.heal_amt, self )
+        end,
+    },
 }
 for i, id, data in sorted_pairs( ITEMS ) do
     data.item_tags = (data.item_tags or 0) | ITEM_TAGS.COMBAT
