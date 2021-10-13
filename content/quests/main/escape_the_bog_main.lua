@@ -1,3 +1,5 @@
+
+
 local QDEF = QuestDef.Define
 {
     title = "Escape The Bog",
@@ -6,6 +8,11 @@ local QDEF = QuestDef.Define
     desc = "Find a way to get out of this place.",
 
     difficulty_ranks = {1, 2, 3, 4, 5},
+    monster_meat = {
+        ERCHIN = "etb_mixed_monster_meat",
+        FLEAD = "etb_mixed_monster_meat",
+        VROC = "etb_mixed_monster_meat",
+    },
     -- icon = engine.asset.Texture("DEMOCRATICRACE:assets/quests/main_icon.png"),
     on_init = function(quest)
 
@@ -52,6 +59,20 @@ local QDEF = QuestDef.Define
         end,
         card_upgraded = function( quest, card )
             quest:DefFn("AddUsageLimitToCard", card)
+        end,
+        resolve_battle = function( quest, battle, primary_enemy, repercussions )
+            print("Look at me, I am adding death loots")
+            for i, fighter in battle:AllFighters() do
+                print(fighter)
+                if fighter.team == battle:GetEnemyTeam() and fighter.agent and fighter:IsDead() then
+                    print("Loot for", fighter.agent)
+                    local id = fighter.agent:GetContentID()
+                    if quest:GetQuestDef().monster_meat[id] then
+                        print("Loot for", fighter.agent)
+                        table.insert(repercussions.loot.items, quest:GetQuestDef().monster_meat[id])
+                    end
+                end
+            end
         end,
     },
 
