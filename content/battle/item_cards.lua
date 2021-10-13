@@ -120,6 +120,7 @@ local ITEMS =
         food_data_etb =
         {
             hunger_restoration = 2,
+            health_gain = 5,
         },
 
         OnPostResolve = function( self, battle, attack)

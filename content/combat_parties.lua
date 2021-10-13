@@ -12,6 +12,18 @@ local GENERATORS =
         end
         return t
     end,
+    BOG_MONSTERS_ETB = function(difficulty_level)
+        local monsters = {}
+        if (difficulty_level >= 3 and math.random() < 0.5) or difficulty_level >= 6 then
+            table.insert(monsters, table.arraypick{"GRAWKIT", "LUMINTHIAN"})
+            difficulty_level = difficulty_level - 3
+        end
+        local normal_monster = table.arraypick{{"FLEAD"}, {"ERCHIN"}, {"VROC"}}
+        for i = 1, math.min(difficulty_level, 4 - #monsters) do
+            table.insert(monsters, table.arraypick(normal_monster))
+        end
+        return monsters
+    end,
 }
 
 for id, data in pairs(GENERATORS) do
