@@ -46,6 +46,7 @@ QDEF:Loc{
 QDEF:AddConvo()
     :Loc{
         OPT_EXAMINE_BOGBERRIES = "Examine bogberry bushes",
+        TT_EXAMINE_BOGBERRIES = "This is a good source of food, as long as you don't get poisoned to death.",
     }
     :Hub_Location(function(cxt)
         if cxt.location ~= cxt:GetCastMember("main_location") then
@@ -59,6 +60,7 @@ QDEF:AddConvo()
         else
             if cxt.quest.param.poi == "bogberry_bushes" then
                 cxt:Opt("OPT_EXAMINE_BOGBERRIES")
+                    :PostText("TT_EXAMINE_BOGBERRIES")
                     :Fn( function(cxt)
                         UIHelpers.DoSpecificConvo( nil, cxt.convodef.id, "STATE_BOGBERRIES" , nil, nil, cxt.quest)
                     end )
@@ -164,7 +166,7 @@ QDEF:AddConvo()
 
                 cxt.location:Remember("BOGBERRY_PICKED")
 
-                EscapeTheBogUtil.TryMainQuestFn("AdvanceTime", 1, "SEARCH")
+                -- EscapeTheBogUtil.TryMainQuestFn("AdvanceTime", 1, "SEARCH")
 
                 StateGraphUtil.AddEndOption(cxt)
             end

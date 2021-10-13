@@ -242,6 +242,11 @@ local QDEF = QuestDef.Define
     id = "start",
     state = QSTATUS.ACTIVE,
 }
+:AddCastByAlias{
+    cast_id = "bog_monster",
+    alias = "THE_BOG_ETB",
+    no_validation = true,
+}
 
 QDEF:AddConvo()
     :Confront(function(cxt)
