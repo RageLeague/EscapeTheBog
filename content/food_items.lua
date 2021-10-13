@@ -19,7 +19,7 @@ local BATTLE_FOOD_DEFS =
     {
         hunger_restoration = 1,
         resolve_gain = 5,
-    }
+    },
 }
 
 for id, data in pairs(BATTLE_FOOD_DEFS) do

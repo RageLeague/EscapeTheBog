@@ -100,6 +100,33 @@ local ITEMS =
             end
         end,
     },
+    etb_mixed_monster_meat =
+    {
+        name = "Mixed Monster Meat",
+        desc = "{HEAL} {1} health and gain {2} {DISEASED}.",
+        desc_fn = function(self, fmt_str)
+            return loc.format(fmt_str, self.heal_amt, self.diseased_amt)
+        end,
+        flavour = "'It's food, right?'",
+
+        cost = 1,
+        target_type = TARGET_TYPE.FRIENDLY_OR_SELF,
+
+        max_charges = 2,
+
+        heal_amt = 5,
+        diseased_amt = 2,
+
+        food_data_etb =
+        {
+            hunger_restoration = 2,
+        },
+
+        OnPostResolve = function( self, battle, attack)
+            self.target:HealHealth( self.heal_amt, self )
+            self.target:AddCondition("DISEASED", self.heal_amt, self)
+        end,
+    },
 }
 for i, id, data in sorted_pairs( ITEMS ) do
     data.item_tags = (data.item_tags or 0) | ITEM_TAGS.COMBAT
