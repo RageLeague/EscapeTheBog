@@ -61,6 +61,11 @@ QDEF:AddConvo()
                         UIHelpers.DoSpecificConvo( nil, cxt.convodef.id, "STATE_SHRINE" , nil, nil, cxt.quest)
                     end )
             elseif cxt.quest.param.poi == "ritual_platform" then
+                cxt:Opt("OPT_OFFERING")
+                    :PostText("TT_OFFERING")
+                    :Fn( function(cxt)
+                        UIHelpers.DoSpecificConvo( nil, cxt.convodef.id, "STATE_RITUAL" , nil, nil, cxt.quest)
+                    end )
             end
         end
     end)
@@ -158,3 +163,10 @@ QDEF:AddConvo()
             end
             StateGraphUtil.AddEndOption(cxt)
         end)
+    :State("STATE_RITUAL")
+        :Loc{
+            OPT_OFFER_MONEY = "Offer money",
+            OPT_OFFER_BLOOD = "Offer blood",
+            OPT_OFFER_FOOD = "Offer food",
+            OPT_OFFER_BODY = "Offer body",
+        }
