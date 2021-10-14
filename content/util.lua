@@ -268,7 +268,7 @@ end
 
 function EscapeTheBogUtil.GenericSleepEncounterTable(difficulty, quest, location)
     local t = {
-        ETB_NO_EVENT = 5,
+        ETB_NO_SLEEP_EVENT = 5,
     }
     if location:HasTag("dangerous") then
         t.ETB_SLEEP_MONSTER_ATTACK = 2
@@ -343,7 +343,7 @@ function EscapeTheBogUtil.DoSleepConvo(cxt)
         local encounter_table = associated_quest and associated_quest:GetQuestDef().sleep_encounter
 
         if type(encounter_table) == "function" then
-            encounter_table = encounter_table(TheGame:GetGameState():GetCurrentBaseDifficulty(), quest, location)
+            encounter_table = encounter_table(TheGame:GetGameState():GetCurrentBaseDifficulty(), associated_quest, cxt.location)
         elseif not encounter_table then
             encounter_table = {}
         else
@@ -369,6 +369,8 @@ function EscapeTheBogUtil.DoSleepConvo(cxt)
 
         TrySpawnSleepEvent()
     end
+
+    print("chosen event: ", chosen_event)
 
     -- Handle Health/Resolve restoring
     local HEALTH_SLEEP_HEAL_RATE = GetAdvancementModifier( ADVANCEMENT_OPTION.SLEEP_HEALTH_RESTORE ) or 1

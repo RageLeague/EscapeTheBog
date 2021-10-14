@@ -8,8 +8,8 @@ local QDEF = QuestDef.Define
     state = QSTATUS.ACTIVE,
 }
 
-QDEF:AddConvo()
-    :ConfrontState("STATE_CONF")
+QDEF:AddConvo(nil, nil, "SLEEP_WAKE")
+    :State("START")
         :Quips{
             {
                 tags = "dialog_start",
