@@ -420,3 +420,41 @@ function EscapeTheBogUtil.GetAssociatedQuest(location)
         end
     end
 end
+
+local SOCIAL_BOON_CACHE
+
+function EscapeTheBogUtil.GetSocialBoonPool()
+    if SOCIAL_BOON_CACHE then
+        return SOCIAL_BOON_CACHE
+    end
+    SOCIAL_BOON_CACHE = {
+        [ CARD_RARITY.COMMON ] = {},
+        [ CARD_RARITY.UNCOMMON ] = {},
+        [ CARD_RARITY.RARE ] = {},
+    }
+    local existing_ids = {}
+    for i, def in pairs(Content.GetAllCharacterDefs()) do
+        if def.loved_graft and def.loved_graft ~= "" and not existing_ids[def.loved_graft] then
+            local gift_cost_idx = math.max(def.renown or 1, def.combat_strength or 1)
+            if def.boss then
+                -- Boon of bosses are always rare
+                table.insert(SOCIAL_BOON_CACHE[CARD_RARITY.RARE], def.loved_graft)
+            elseif gift_cost_idx <= 2 then
+                table.insert(SOCIAL_BOON_CACHE[CARD_RARITY.COMMON], def.loved_graft)
+            elseif gift_cost_idx <= 4 then
+                table.insert(SOCIAL_BOON_CACHE[CARD_RARITY.UNCOMMON], def.loved_graft)
+            else
+                table.insert(SOCIAL_BOON_CACHE[CARD_RARITY.RARE], def.loved_graft)
+            end
+            existing_ids[def.loved_graft] = true
+        end
+    end
+    -- Just because
+    if not existing_ids.bolstered_health then
+        table.insert(SOCIAL_BOON_CACHE[CARD_RARITY.COMMON], "bolstered_health")
+    end
+    if not existing_ids.bolstered_resolve then
+        table.insert(SOCIAL_BOON_CACHE[CARD_RARITY.COMMON], "bolstered_resolve")
+    end
+    return SOCIAL_BOON_CACHE
+end

@@ -16,6 +16,27 @@ QDEF = EscapeTheBogUtil.AddBogLocationQuest(
             table.insert(desc, quest:GetLocalizedStr("DESC_" .. quest.param.desc_number))
             return table.concat(desc, "\n")
         end,
+
+        events =
+        {
+            resolve_battle = function( quest, battle, primary_enemy, repercussions )
+                if battle:GetScenario():GetLocation() ~= quest:GetCastMember("main_location") then
+                    return
+                end
+                if quest.param.poi ~= "ritual_platform" then
+                    return
+                end
+                for i, fighter in battle:AllFighters() do
+                    if fighter.team == battle:GetEnemyTeam() and fighter.agent and fighter:IsDead() then
+                        if fighter.agent:IsSentient() or fighter.agent:GetSpecies() == SPECIES.SNAIL or fighter.agent:GetSpecies() == SPECIES.BEAST then
+                            if not fighter.agent.is_grout then
+                                quest.param.sacrificed_creatures = (quest.param.sacrificed_creatures or 0) + 1
+                            end
+                        end
+                    end
+                end
+            end,
+        },
     },
     {
         name = "Bog Clearing",
@@ -168,5 +189,22 @@ QDEF:AddConvo()
             OPT_OFFER_MONEY = "Offer money",
             OPT_OFFER_BLOOD = "Offer blood",
             OPT_OFFER_FOOD = "Offer food",
-            OPT_OFFER_BODY = "Offer body",
         }
+        :SetLooping(true)
+        :Fn(function(cxt)
+            cxt:Opt("OPT_OFFER_MONEY")
+                :GoTo("STATE_RITUAL_REWARD")
+            cxt:Opt("OPT_OFFER_BLOOD")
+            cxt:Opt("OPT_OFFER_FOOD")
+            StateGraphUtil.AddBackButton(cxt)
+        end)
+    :State("STATE_RITUAL_REWARD")
+        :Loc{
+
+        }
+        :Fn(function(cxt)
+            local grafts
+            grafts = RewardUtil.GetPooledGrafts(4, 3, EscapeTheBogUtil.GetSocialBoonPool())
+            local popup = Screen.PickGraftScreen(grafts)
+            TheGame:FE():InsertScreen( popup )
+        end)
