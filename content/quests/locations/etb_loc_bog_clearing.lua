@@ -196,6 +196,10 @@ QDEF:AddConvo()
                 * Probably not your best idea, but it will likely do the trick.
             ]],
             OPT_OFFER_FOOD = "Offer food...",
+            DIALOG_OFFER_FOOD = [[
+                * You offered some food.
+                * It is your most valued possessions right now, and you figured it would make a good offering.
+            ]],
 
             SELECT_TITLE = "Select A Food",
             SELECT_DESC = "Select a food item to offer, consuming 1 use on it.",
@@ -318,12 +322,14 @@ QDEF:AddConvo()
                         else
                             cxt.quest.param.ritual_level = 4
                         end
+                        cxt:Dialog("DIALOG_OFFER_FOOD")
+                        cxt:Dialog("DIALOG_OFFER_PST")
                         cxt:GoTo("STATE_RITUAL_REWARD")
                     end
                 end)
             StateGraphUtil.AddBackButton(cxt)
         end)
-    :ConfrontState("STATE_LIVE_SACRIFICE", function(cxt) return quest.param.poi == "ritual_platform" and (quest.param.sacrificed_creatures or 0) > 0 end)
+    :ConfrontState("STATE_LIVE_SACRIFICE", function(cxt) return cxt.quest.param.poi == "ritual_platform" and (cxt.quest.param.sacrificed_creatures or 0) > 0 end)
         :Loc{
             DIALOG_INTRO = [[
                 * Something is happening!
@@ -350,7 +356,14 @@ QDEF:AddConvo()
     :State("STATE_RITUAL_REWARD")
         :Loc{
             DIALOG_ACCEPTED_GRAFT = [[
-
+                * You accepted the blessing of this mysterious entity.
+                * As long as you survive, it doesn't matter where you get your help.
+            ]],
+            DIALOG_SKIPPED_GRAFT = [[
+                * For some reason, you decide to ignore the blessing of the entity.
+                * Might not be your best idea so far, opposing the gift an unknown entity.
+                * Still, the entity doesn't seem to be mad at your insolence and gived you some money instead.
+                * It is always helpful, unless you can't spend it.
             ]],
         }
         :Fn(function(cxt)
@@ -361,6 +374,12 @@ QDEF:AddConvo()
             local popup = Screen.PickGraftScreen(grafts, false, function(...) cxt.enc:ResumeEncounter(...) end)
             TheGame:FE():InsertScreen( popup )
             local chosen_graft = cxt.enc:YieldEncounter()
+
+            if chosen_graft then
+                cxt:Dialog("DIALOG_ACCEPTED_GRAFT")
+            else
+                cxt:Dialog("DIALOG_SKIPPED_GRAFT")
+            end
 
             cxt.quest.param.ritual_level = nil
 
