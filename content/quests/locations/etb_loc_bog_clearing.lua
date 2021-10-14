@@ -190,12 +190,12 @@ QDEF:AddConvo()
             DIALOG_OFFER_MONEY = [[
                 * You offered some money at the altar.
             ]],
-            OPT_OFFER_BLOOD = "Offer blood",
+            OPT_OFFER_BLOOD = "Offer blood...",
             DIALOG_OFFER_BLOOD = [[
                 * You offered some of your own blood.
                 * Probably not your best idea, but it will likely do the trick.
             ]],
-            OPT_OFFER_FOOD = "Offer food",
+            OPT_OFFER_FOOD = "Offer food...",
 
             OPT_OFFER_SMALL = "Offer a small amount",
             OPT_OFFER_MEDIUM = "Offer a medium amount",
