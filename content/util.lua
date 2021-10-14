@@ -247,6 +247,9 @@ function EscapeTheBogUtil.GenericRepeatEncounterTable(difficulty, quest, locatio
             t.ETB_BOGGER_SCAVENGERS = t.ETB_BOGGER_SCAVENGERS + math.ceil(difficulty / 2)
         end
         t.ETB_BOG_MONSTERS = TheGame:GetGameState():GetDayPhase() == DAY_PHASE.NIGHT and 3 or 2
+        if location:HasTag("forest") then
+            t.ETB_BOG_MONSTERS = t.ETB_BOG_MONSTERS + 1
+        end
     end
     return t
 end
