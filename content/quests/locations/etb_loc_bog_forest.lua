@@ -23,7 +23,7 @@ QDEF = EscapeTheBogUtil.AddBogLocationQuest(
         desc = "The part of the bog with a lot of overgrown trees. A source of many dangers.",
         plax = "EXT_Bog_Forest_01",
         show_agents = true,
-        tags = {"bog", "deepbog", "forest", "dangerous"},
+        tags = {"bog", "forest", "dangerous"},
     },
     3
 )
