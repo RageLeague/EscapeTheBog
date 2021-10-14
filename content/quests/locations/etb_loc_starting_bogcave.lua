@@ -18,7 +18,7 @@ QDEF = EscapeTheBogUtil.AddBogLocationQuest(
         tags = {"cave", "bog"},
         indoors = true,
     },
-    {"deepbog", "deepbog"}
+    {"dangerous", "dangerous"}
 )
 
 QDEF:Loc{
