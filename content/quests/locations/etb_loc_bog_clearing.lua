@@ -113,13 +113,13 @@ QDEF:AddConvo()
         }
         :Loc{
             DIALOG_SHRINE = [[
-                * You find an old shrine.
+                * You find an old shrine. It doesn't look very Heshian.
                 * You have no idea what it is doing in the middle of the bog.
                 * Either way, if there is a time for some divine intervention, it should be now.
             ]],
             DIALOG_RITUAL_PLATFORM = [[
-                * You find some sort of elevated platform.
-                * It is stained with a crimson color.
+                * You find some sort of elevated platform, surrounded by eldritch markings.
+                * It must be some sort of ritual site.
                 * Perhaps if you make an offering, something will happen.
                 * Well not necessarily "good", but "something".
             ]],
@@ -188,7 +188,7 @@ QDEF:AddConvo()
         :Loc{
             OPT_OFFER_MONEY = "Offer money...",
             DIALOG_OFFER_MONEY = [[
-                * You offered some money at the altar.
+                * You offered some money. Not like you need it in this dire situation.
             ]],
             OPT_OFFER_BLOOD = "Offer blood...",
             DIALOG_OFFER_BLOOD = [[
@@ -197,12 +197,18 @@ QDEF:AddConvo()
             ]],
             OPT_OFFER_FOOD = "Offer food...",
 
+            SELECT_TITLE = "Select A Food",
+            SELECT_DESC = "Select a food item to offer, consuming 1 use on it.",
+            REQ_HAVE_FOOD = "You don't have any food you can offer on you right now.",
+
             OPT_OFFER_SMALL = "Offer a small amount",
             OPT_OFFER_MEDIUM = "Offer a medium amount",
             OPT_OFFER_LARGE = "Offer a large amount",
 
             DIALOG_OFFER_PST = [[
-                * Suddenly!
+                * Suddenly, the offerings you have made glow in an unnatural light, and then vanish into thin air.
+                * Seems like whatever received this offering likes what you have offered.
+                * You feel as though you are blessed by this mysterious entity!
             ]],
         }
         :SetLooping(true)
@@ -263,12 +269,89 @@ QDEF:AddConvo()
                         :GoTo("STATE_RITUAL_REWARD")
                     StateGraphUtil.AddBackButton(cxt)
                 end)
+
+            local cards = {}
+            for i, card in ipairs(cxt.player.battler.cards.cards) do
+                print(card.id)
+                if cxt.player.etb_hunger:CanEatFood(card, true) then
+                    table.insert(cards, card)
+                end
+            end
             cxt:Opt("OPT_OFFER_FOOD")
+                :ReqCondition(#cards > 0, "REQ_HAVE_FOOD")
+                :Fn(function(cxt)
+                    cxt:Wait()
+                    EscapeTheBogUtil.InsertSelectCardScreen(
+                        cards,
+                        cxt:GetLocString("SELECT_TITLE"),
+                        cxt:GetLocString("SELECT_DESC"),
+                        Widget.BattleCard,
+                        function(card)
+                            cxt.enc:ResumeEncounter( card )
+                        end
+                    )
+                    local card = cxt.enc:YieldEncounter()
+                    if card then
+                        local food_data
+                        if type(card.food_data_fn_etb) == "function" then
+                            food_data = card:food_data_fn_etb()
+                        elseif type(card.food_data_etb) == "table" then
+                            food_data = deepcopy(card.food_data_etb)
+                        else
+                            food_data = {}
+                        end
+                        assert(type(food_data) == "table", "Incorrect food data")
+                        TheGame:BroadcastEvent("do_eat", food_data)
+                        TheGame:BroadcastEvent("calculate_food_value_etb", food_data, card)
+
+                        card:ConsumeCharge()
+
+                        local charges, max_charges = card:GetCharges()
+                        if charges == 0 or charges == nil then
+                            cxt.player.battler:RemoveCard( card )
+                        end
+
+                        if food_data.hunger_restoration <= 1 then
+                            cxt.quest.param.ritual_level = 1
+                        elseif food_data.hunger_restoration <= 2 then
+                            cxt.quest.param.ritual_level = 2
+                        else
+                            cxt.quest.param.ritual_level = 4
+                        end
+                        cxt:GoTo("STATE_RITUAL_REWARD")
+                    end
+                end)
             StateGraphUtil.AddBackButton(cxt)
+        end)
+    :ConfrontState("STATE_LIVE_SACRIFICE", function(cxt) return quest.param.poi == "ritual_platform" and (quest.param.sacrificed_creatures or 0) > 0 end)
+        :Loc{
+            DIALOG_INTRO = [[
+                * Something is happening!
+                * The creatures that you have just killed glow in an unnatural light, and then vanish into thin air.
+                {searched_for_poi?
+                    * It must be that the entity behind the ritual accepted the bodies of these creatures as offerings.
+                    * You feel as though you are blessed by this mysterious entity!
+                }
+                {not searched_for_poi?
+                    * You didn't notice this before, but there seem to be some sort of eldritch markings on the ground.
+                    * And the place where you killed those creatures are on an elevated platform.
+                    * This must be some sort of ritual site, and the bodies of these creatures are accepted as offerings.
+                    * You feel as though you are blessed by this mysterious entity!
+                }
+            ]],
+        }
+        :Fn(function(cxt)
+            cxt:Dialog("DIALOG_INTRO")
+            cxt.quest.param.searched_for_poi = true
+            cxt.quest.param.ritual_level = cxt.quest.param.sacrificed_creatures
+            cxt.quest.param.sacrificed_creatures = nil
+            cxt:GoTo("STATE_RITUAL_REWARD")
         end)
     :State("STATE_RITUAL_REWARD")
         :Loc{
+            DIALOG_ACCEPTED_GRAFT = [[
 
+            ]],
         }
         :Fn(function(cxt)
             cxt.enc:WaitOnLine()
