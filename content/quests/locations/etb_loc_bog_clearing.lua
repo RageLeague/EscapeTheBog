@@ -61,7 +61,7 @@ QDEF:AddConvo()
         OPT_PRAY = "Pray at shrine",
         TT_PRAY = "Once per day, you can pray here for some time. Maybe you will get something good out of it.",
         OPT_OFFERING = "Make an offering",
-        TT_OFFERING = "You can offer a lot of things, and you might get some reward depending on your offer.",
+        TT_OFFERING = "Once per day, you can make an offering here, and you might get something out of it.",
     }
     :Hub_Location(function(cxt)
         if cxt.location ~= cxt:GetCastMember("main_location") then
@@ -76,14 +76,15 @@ QDEF:AddConvo()
             if cxt.quest.param.poi == "shrines" then
                 cxt:Opt("OPT_PRAY")
                     :PostText("TT_PRAY")
-                    :ReqCondition(not cxt.location:HasMemoryFromToday("PRAYED_HERE"), "ON_COOLDOWN")
+                    :ReqCondition(not cxt.location:HasMemoryFromToday("USED_LOCATION"), "ON_COOLDOWN")
                     :Fn( function(cxt)
-                        cxt.location:Remember("PRAYED_HERE")
+                        cxt.location:Remember("USED_LOCATION")
                         UIHelpers.DoSpecificConvo( nil, cxt.convodef.id, "STATE_SHRINE" , nil, nil, cxt.quest)
                     end )
             elseif cxt.quest.param.poi == "ritual_platform" then
                 cxt:Opt("OPT_OFFERING")
                     :PostText("TT_OFFERING")
+                    :ReqCondition(not cxt.location:HasMemoryFromToday("USED_LOCATION"), "ON_COOLDOWN")
                     :Fn( function(cxt)
                         UIHelpers.DoSpecificConvo( nil, cxt.convodef.id, "STATE_RITUAL" , nil, nil, cxt.quest)
                     end )
@@ -182,6 +183,7 @@ QDEF:AddConvo()
             elseif result == "DIALOG_HEALTH" then
                 ConvoUtil.DoHealthDelta(cxt, 10)
             end
+            EscapeTheBogUtil.TryMainQuestFn("AdvanceTime", 1, "REST")
             StateGraphUtil.AddEndOption(cxt)
         end)
     :State("STATE_RITUAL")
@@ -221,7 +223,7 @@ QDEF:AddConvo()
                 :LoopingFn(function(cxt)
                     cxt:Opt("OPT_OFFER_SMALL")
                         :Dialog("DIALOG_OFFER_MONEY")
-                        :DeliverMoney(100)
+                        :DeliverMoney(150)
                         :Dialog("DIALOG_OFFER_PST")
                         :Fn(function(cxt)
                             cxt.quest.param.ritual_level = 1
@@ -229,7 +231,7 @@ QDEF:AddConvo()
                         :GoTo("STATE_RITUAL_REWARD")
                     cxt:Opt("OPT_OFFER_MEDIUM")
                         :Dialog("DIALOG_OFFER_MONEY")
-                        :DeliverMoney(200)
+                        :DeliverMoney(300)
                         :Dialog("DIALOG_OFFER_PST")
                         :Fn(function(cxt)
                             cxt.quest.param.ritual_level = 2
@@ -237,7 +239,7 @@ QDEF:AddConvo()
                         :GoTo("STATE_RITUAL_REWARD")
                     cxt:Opt("OPT_OFFER_LARGE")
                         :Dialog("DIALOG_OFFER_MONEY")
-                        :DeliverMoney(300)
+                        :DeliverMoney(450)
                         :Dialog("DIALOG_OFFER_PST")
                         :Fn(function(cxt)
                             cxt.quest.param.ritual_level = 4
@@ -378,6 +380,8 @@ QDEF:AddConvo()
             end
 
             cxt.quest.param.ritual_level = nil
+
+            cxt.location:Remember("USED_LOCATION")
 
             StateGraphUtil.AddEndOption(cxt)
         end)
