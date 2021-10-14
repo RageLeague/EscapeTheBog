@@ -3,6 +3,7 @@ QDEF = EscapeTheBogUtil.AddBogLocationQuest(
     {
         entry_encounter = EscapeTheBogUtil.GenericInitialEncounterTable,
         repeat_encounter = EscapeTheBogUtil.GenericRepeatEncounterTable,
+        sleep_encounter = EscapeTheBogUtil.GenericSleepEncounterTable,
         on_init = function(quest)
             quest.param.poi = table.arraypick{"nothing", "bogberry_bushes"}
         end,

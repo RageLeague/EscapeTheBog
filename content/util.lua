@@ -266,6 +266,17 @@ function EscapeTheBogUtil.GenericInitialEncounterTable(difficulty, quest, locati
     return t
 end
 
+function EscapeTheBogUtil.GenericSleepEncounterTable(difficulty, quest, location)
+    local t = {
+        ETB_NO_EVENT = 5,
+    }
+    if location:HasTag("dangerous") then
+        t.ETB_SLEEP_MONSTER_ATTACK = 2
+    end
+    return t
+end
+
+
 function EscapeTheBogUtil.ObfuscateWords(txt, frequency)
     local newtxt = txt:gsub("[%a']+", function(word)
             return math.random() < (frequency or 0.80) and string.rep("-", string.len(word)) or word
