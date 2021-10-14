@@ -186,15 +186,83 @@ QDEF:AddConvo()
         end)
     :State("STATE_RITUAL")
         :Loc{
-            OPT_OFFER_MONEY = "Offer money",
+            OPT_OFFER_MONEY = "Offer money...",
+            DIALOG_OFFER_MONEY = [[
+                * You offered some money at the altar.
+            ]],
             OPT_OFFER_BLOOD = "Offer blood",
+            DIALOG_OFFER_BLOOD = [[
+                * You offered some of your own blood.
+                * Probably not your best idea, but it will likely do the trick.
+            ]],
             OPT_OFFER_FOOD = "Offer food",
+
+            OPT_OFFER_SMALL = "Offer a small amount",
+            OPT_OFFER_MEDIUM = "Offer a medium amount",
+            OPT_OFFER_LARGE = "Offer a large amount",
+
+            DIALOG_OFFER_PST = [[
+                * Suddenly!
+            ]],
         }
         :SetLooping(true)
         :Fn(function(cxt)
             cxt:Opt("OPT_OFFER_MONEY")
-                :GoTo("STATE_RITUAL_REWARD")
+                :LoopingFn(function(cxt)
+                    cxt:Opt("OPT_OFFER_SMALL")
+                        :Dialog("DIALOG_OFFER_MONEY")
+                        :DeliverMoney(100)
+                        :Dialog("DIALOG_OFFER_PST")
+                        :Fn(function(cxt)
+                            cxt.quest.param.ritual_level = 1
+                        end)
+                        :GoTo("STATE_RITUAL_REWARD")
+                    cxt:Opt("OPT_OFFER_MEDIUM")
+                        :Dialog("DIALOG_OFFER_MONEY")
+                        :DeliverMoney(200)
+                        :Dialog("DIALOG_OFFER_PST")
+                        :Fn(function(cxt)
+                            cxt.quest.param.ritual_level = 2
+                        end)
+                        :GoTo("STATE_RITUAL_REWARD")
+                    cxt:Opt("OPT_OFFER_LARGE")
+                        :Dialog("DIALOG_OFFER_MONEY")
+                        :DeliverMoney(300)
+                        :Dialog("DIALOG_OFFER_PST")
+                        :Fn(function(cxt)
+                            cxt.quest.param.ritual_level = 4
+                        end)
+                        :GoTo("STATE_RITUAL_REWARD")
+                    StateGraphUtil.AddBackButton(cxt)
+                end)
             cxt:Opt("OPT_OFFER_BLOOD")
+                :LoopingFn(function(cxt)
+                    cxt:Opt("OPT_OFFER_SMALL")
+                        :Dialog("DIALOG_OFFER_BLOOD")
+                        :DeltaHealth(-8)
+                        :Dialog("DIALOG_OFFER_PST")
+                        :Fn(function(cxt)
+                            cxt.quest.param.ritual_level = 1
+                        end)
+                        :GoTo("STATE_RITUAL_REWARD")
+                    cxt:Opt("OPT_OFFER_MEDIUM")
+                        :Dialog("DIALOG_OFFER_BLOOD")
+                        :DeltaHealth(-16)
+                        :Dialog("DIALOG_OFFER_PST")
+                        :Fn(function(cxt)
+                            cxt.quest.param.ritual_level = 2
+                        end)
+                        :GoTo("STATE_RITUAL_REWARD")
+                    cxt:Opt("OPT_OFFER_LARGE")
+                        :Dialog("DIALOG_OFFER_BLOOD")
+                        :DeltaHealth(-24)
+                        :Dialog("DIALOG_OFFER_PST")
+                        :Fn(function(cxt)
+                            cxt.quest.param.ritual_level = 4
+                        end)
+                        :GoTo("STATE_RITUAL_REWARD")
+                    StateGraphUtil.AddBackButton(cxt)
+                end)
             cxt:Opt("OPT_OFFER_FOOD")
             StateGraphUtil.AddBackButton(cxt)
         end)
@@ -203,8 +271,15 @@ QDEF:AddConvo()
 
         }
         :Fn(function(cxt)
+            cxt.enc:WaitOnLine()
+
             local grafts
-            grafts = RewardUtil.GetPooledGrafts(4, 3, EscapeTheBogUtil.GetSocialBoonPool())
-            local popup = Screen.PickGraftScreen(grafts)
+            grafts = RewardUtil.GetPooledGrafts(cxt.quest.param.ritual_level or 3, TheGame:GetGameState():GetGraftDraftDetails().count, EscapeTheBogUtil.GetSocialBoonPool())
+            local popup = Screen.PickGraftScreen(grafts, false, function(...) cxt.enc:ResumeEncounter(...) end)
             TheGame:FE():InsertScreen( popup )
+            local chosen_graft = cxt.enc:YieldEncounter()
+
+            cxt.quest.param.ritual_level = nil
+
+            StateGraphUtil.AddEndOption(cxt)
         end)
