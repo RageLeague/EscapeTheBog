@@ -202,7 +202,7 @@ QDEF:AddConvo()
             ]],
 
             SELECT_TITLE = "Select A Food",
-            SELECT_DESC = "Select a food item to offer, consuming 1 use on it.",
+            SELECT_DESC = "Select a food item with full uses to offer, destroying it.",
             REQ_HAVE_FOOD = "You don't have any food you can offer on you right now.",
 
             OPT_OFFER_SMALL = "Offer a small amount",
@@ -249,7 +249,7 @@ QDEF:AddConvo()
                 :LoopingFn(function(cxt)
                     cxt:Opt("OPT_OFFER_SMALL")
                         :Dialog("DIALOG_OFFER_BLOOD")
-                        :DeltaHealth(-8)
+                        :DeltaHealth(-12)
                         :Dialog("DIALOG_OFFER_PST")
                         :Fn(function(cxt)
                             cxt.quest.param.ritual_level = 1
@@ -257,7 +257,7 @@ QDEF:AddConvo()
                         :GoTo("STATE_RITUAL_REWARD")
                     cxt:Opt("OPT_OFFER_MEDIUM")
                         :Dialog("DIALOG_OFFER_BLOOD")
-                        :DeltaHealth(-16)
+                        :DeltaHealth(-24)
                         :Dialog("DIALOG_OFFER_PST")
                         :Fn(function(cxt)
                             cxt.quest.param.ritual_level = 2
@@ -265,7 +265,7 @@ QDEF:AddConvo()
                         :GoTo("STATE_RITUAL_REWARD")
                     cxt:Opt("OPT_OFFER_LARGE")
                         :Dialog("DIALOG_OFFER_BLOOD")
-                        :DeltaHealth(-24)
+                        :DeltaHealth(-36)
                         :Dialog("DIALOG_OFFER_PST")
                         :Fn(function(cxt)
                             cxt.quest.param.ritual_level = 4
@@ -277,7 +277,7 @@ QDEF:AddConvo()
             local cards = {}
             for i, card in ipairs(cxt.player.battler.cards.cards) do
                 print(card.id)
-                if cxt.player.etb_hunger:CanEatFood(card, true) then
+                if cxt.player.etb_hunger:CanEatFood(card, true) and not card:IsPartiallySpent() then
                     table.insert(cards, card)
                 end
             end
@@ -308,16 +308,12 @@ QDEF:AddConvo()
                         TheGame:BroadcastEvent("do_eat", food_data)
                         TheGame:BroadcastEvent("calculate_food_value_etb", food_data, card)
 
-                        card:ConsumeCharge()
-
                         local charges, max_charges = card:GetCharges()
-                        if charges == 0 or charges == nil then
-                            cxt.player.battler:RemoveCard( card )
-                        end
+                        cxt.player.battler:RemoveCard( card )
 
-                        if food_data.hunger_restoration <= 1 then
+                        if food_data.hunger_restoration * (charges or 1) < 3 then
                             cxt.quest.param.ritual_level = 1
-                        elseif food_data.hunger_restoration <= 2 then
+                        elseif food_data.hunger_restoration * (charges or 1) < 6 then
                             cxt.quest.param.ritual_level = 2
                         else
                             cxt.quest.param.ritual_level = 4
