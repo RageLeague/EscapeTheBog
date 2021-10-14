@@ -1,16 +1,14 @@
-local BOGBERRY_ID = "etb_mixed_bogberries"
-
 local QDEF
 QDEF = EscapeTheBogUtil.AddBogLocationQuest(
     {
         entry_encounter = EscapeTheBogUtil.GenericInitialEncounterTable,
         repeat_encounter = EscapeTheBogUtil.GenericRepeatEncounterTable,
         on_init = function(quest)
-            quest.param.poi = table.arraypick{"nothing", "bogberry_bushes"}
+            quest.param.poi = table.arraypick{"nothing"}
         end,
         GetPathDesc = function(quest)
             if not quest.param.desc_number then
-                quest.param.desc_number = EscapeTheBogUtil.TryMainQuestFn("RequestRiffleShuffle", QDEF.id .. "_DESC", 1, 7) -- math.random(1, 7)
+                quest.param.desc_number = EscapeTheBogUtil.TryMainQuestFn("RequestRiffleShuffle", QDEF.id .. "_DESC", 1, 5) -- math.random(1, 7)
             end
             local desc = {}
             table.insert(desc, quest:GetLocalizedStr("DESC_" .. quest.param.desc_number))
@@ -21,25 +19,21 @@ QDEF = EscapeTheBogUtil.AddBogLocationQuest(
         end,
     },
     {
-        name = "Deep Bog",
-        desc = "The Deep Bog holds many dangers. Don't stay for too long now!",
-        plax = "EXT_BOG_DEEPBOG",
+        name = "Bog Forest",
+        desc = "The part of the bog with a lot of overgrown trees. A source of many dangers.",
+        plax = "EXT_Bog_Forest_01",
         show_agents = true,
-        tags = {"bog", "deepbog", "dangerous"},
+        tags = {"bog", "deepbog", "forest", "dangerous"},
     },
     3
 )
 
 QDEF:Loc{
-    DESC_1 = "This path leads to a secluded location with many vegetation. Generally a bad sign in the bog.",
-    DESC_2 = "This path leads to the part of the bog with many strange looking plants. Just like the rest of the bog.",
-    DESC_3 = "This path leads to an area with lots of tall trees. Enough to block out the sun.",
-    DESC_4 = "This path leads to some giant egg looking things. You should probably not disturb them.",
-    DESC_5 = "You can't see past this path, and you assume it probably leads to more bog.",
-    DESC_6 = "There are some footprints down this path. Someone - or something - has been down there. Which is strange, because the destination seems very unpleasant.",
-    DESC_7 = "There is a higher than normal amount of tentacles coming from this path. The normal amount of tentacles is zero, so that is not saying much.",
-
-    DESC_BOGBERRIES = "There are some bushes down this path. There might be edible plants there.",
+    DESC_1 = "This path leads to an area with a lot of tall trees. It is hard to see anything beyond that.",
+    DESC_2 = "You can see some animals moving about down this path. You should proceed with caution.",
+    DESC_3 = "This path leads to a bunch of trees with lots of mushrooms. Eating them is almost certainly a bad idea.",
+    DESC_4 = "This path leads to some pointy trees. Seems like a bad omen.",
+    DESC_5 = "The trees down this path are lusher than most trees you've seen in the bog, although what is good for these trees are probably not good for you.",
 }
 
 QDEF:AddConvo()
