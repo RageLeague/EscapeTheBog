@@ -158,7 +158,7 @@ QDEF:AddConvo()
             if not cxt.quest.param.encountered then
                 cxt.quest.param.encountered = true
 
-                local options = {"BOGGER_PATROL", "RISE_PATROL", "BANDIT_PATROL", "JAKES_PATROL"}
+                local options = {"BOGGER_PATROL", "RISE_PATROL", "BANDIT_PATROL", "JAKES_PATROL", "CIVILIAN_PATROL", "SPARK_BARON_PATROL", "HESH_PATROL", "ADMIRALTY_PATROL"}
                 cxt.quest.param.opfor =  CreateCombatParty(table.arraypick(options), cxt.quest:GetRank(), cxt.location)
                 cxt:TalkTo(cxt.quest.param.opfor[1])
                 cxt:Dialog("DIALOG_INTRO")
