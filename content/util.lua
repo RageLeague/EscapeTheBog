@@ -191,7 +191,7 @@ function EscapeTheBogUtil.AddBogLocationQuest(quest_def, location_def, exit_defs
                             cxt.encounter:DoLocationTransition( location )
                             EscapeTheBogUtil.TryMainQuestFn("AdvanceTime", 1, "TRAVEL")
 
-                            TheGame:GetGameState():GetCaravan():MoveToLocation( location )
+                            -- TheGame:GetGameState():GetCaravan():MoveToLocation( location )
                             cxt:End()
                         end )
                 end

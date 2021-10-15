@@ -76,6 +76,10 @@ local QDEF = QuestDef.Define
                 end
             end
         end,
+        on_run_away = function(quest, params)
+            params.convo_id = "RUN_AWAY_CHAT_ETB"
+            params.state_id = "STATE_RAN"
+        end,
     },
 
     AddUsageLimitToCard = function(quest, card)
