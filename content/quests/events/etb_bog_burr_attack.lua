@@ -76,7 +76,15 @@ QDEF:AddConvo()
                         --         fighter:RemoveCondition("grout_burr")
                         --     end
                         -- end
-                    end
+                    end,
+                    on_runaway = function(cxt, battle, no_fail)
+                        for i, agent in ipairs(cxt.quest.param.opfor) do
+                            if not agent:IsRetired() then
+                                agent:Retire()
+                            end
+                        end
+                        StateGraphUtil.DoRunAway( cxt, battle, no_fail )
+                    end,
                 }
                 :OnWin()
                     :Dialog("DIALOG_DEFEND_WIN")

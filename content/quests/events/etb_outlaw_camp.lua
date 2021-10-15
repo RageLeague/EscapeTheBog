@@ -9,7 +9,7 @@ local QDEF = QuestDef.Define
 }
 
 QDEF:AddConvo()
-    :ConfrontState("STATE_CONF")
+    :ConfrontState("STATE_CONF", function(cxt) return cxt.quest.param.location == cxt.location end)
         :Quips{
             {
                 tags = "dialog_start",
@@ -33,6 +33,18 @@ QDEF:AddConvo()
                 ]],
                 [[
                     A weird place to take a walk, wouldn't you agree, grifter?
+                ]],
+            },
+            {
+                tags = "confront_again",
+                [[
+                    Why are you back here? Do you have a death wish?
+                ]],
+                [[
+                    Do you think that the beating that you have taken wasn't enough? You want some more?
+                ]],
+                [[
+                    If you want more beating, I am more than happy to oblige.
                 ]],
             },
             {
@@ -75,7 +87,18 @@ QDEF:AddConvo()
                     !right
                     %confront
                 player:
+                    !bashful
                     Uhh...
+            ]],
+            DIALOG_INTRO_AGAIN = [[
+                * You returned. The campers are still here.
+                player:
+                    !left
+                agent:
+                    !right
+                    !crossed
+                    %confront_again
+                * Looks like there is no talking out of this one!
             ]],
             OPT_TALK = "Talk your way out of this",
             DIALOG_TALK = [[
@@ -130,52 +153,18 @@ QDEF:AddConvo()
             ]],
         }
         :Fn(function(cxt)
-            local options = {"BOGGER_PATROL", "RISE_PATROL", "BANDIT_PATROL", "JAKES_PATROL"}
-            cxt.quest.param.opfor =  CreateCombatParty(table.arraypick(options), cxt.quest:GetRank(), cxt.location)
-            cxt:TalkTo(cxt.quest.param.opfor[1])
-            cxt:Dialog("DIALOG_INTRO")
+            if not cxt.quest.param.encountered then
+                cxt.quest.param.encountered = true
 
-            local food = table.arraypick{"hawb_drumstick", "half_sandwich"}
+                local options = {"BOGGER_PATROL", "RISE_PATROL", "BANDIT_PATROL", "JAKES_PATROL"}
+                cxt.quest.param.opfor =  CreateCombatParty(table.arraypick(options), cxt.quest:GetRank(), cxt.location)
+                cxt:TalkTo(cxt.quest.param.opfor[1])
+                cxt:Dialog("DIALOG_INTRO")
 
-            cxt:BasicNegotiation("TALK", {})
-                :OnSuccess()
-                    :GainCard( food )
-                    :Fn(function(cxt)
-                        for i, agent in ipairs(cxt.quest.param.opfor) do
-                            if not agent:IsRetired() then
-                                agent:Retire()
-                            end
-                        end
-                    end)
-                    :CompleteQuest()
-                    :DoneConvo()
-                :OnFailure()
-                    :Fn(function(cxt)
-                        cxt:Opt("OPT_DEFEND")
-                            :Dialog("DIALOG_DEFEND")
-                            :Battle{
-                                flags = BATTLE_FLAGS.SELF_DEFENCE | BATTLE_FLAGS.ISOLATED,
-                            }
-                                :OnWin()
-                                    :Dialog("DIALOG_BATTLE_WIN")
-                                    :GainCard( food )
-                                    :Fn(function(cxt)
-                                        for i, agent in ipairs(cxt.quest.param.opfor) do
-                                            if not agent:IsRetired() then
-                                                agent:Retire()
-                                            end
-                                        end
-                                    end)
-                                    :CompleteQuest()
-                                    :DoneConvo()
-                    end)
-            cxt:Opt("OPT_ATTACK")
-                :Dialog("DIALOG_ATTACK")
-                :Battle{
-                    flags = BATTLE_FLAGS.ISOLATED,
-                }
-                    :OnWin()
-                        :Dialog("DIALOG_BATTLE_WIN")
+                local food = table.arraypick{"hawb_drumstick", "half_sandwich"}
+
+                cxt:BasicNegotiation("TALK", {})
+                    :OnSuccess()
                         :GainCard( food )
                         :Fn(function(cxt)
                             for i, agent in ipairs(cxt.quest.param.opfor) do
@@ -186,4 +175,66 @@ QDEF:AddConvo()
                         end)
                         :CompleteQuest()
                         :DoneConvo()
+                    :OnFailure()
+                        :Fn(function(cxt)
+                            cxt:Opt("OPT_DEFEND")
+                                :Dialog("DIALOG_DEFEND")
+                                :Battle{
+                                    flags = BATTLE_FLAGS.SELF_DEFENCE | BATTLE_FLAGS.ISOLATED,
+                                    on_runaway = StateGraphUtil.DoRunAwayNoFail,
+                                }
+                                    :OnWin()
+                                        :Dialog("DIALOG_BATTLE_WIN")
+                                        :GainCard( food )
+                                        :Fn(function(cxt)
+                                            for i, agent in ipairs(cxt.quest.param.opfor) do
+                                                if not agent:IsRetired() then
+                                                    agent:Retire()
+                                                end
+                                            end
+                                        end)
+                                        :CompleteQuest()
+                                        :DoneConvo()
+                        end)
+                cxt:Opt("OPT_ATTACK")
+                    :Dialog("DIALOG_ATTACK")
+                    :Battle{
+                        flags = BATTLE_FLAGS.ISOLATED,
+                        on_runaway = StateGraphUtil.DoRunAwayNoFail,
+                    }
+                        :OnWin()
+                            :Dialog("DIALOG_BATTLE_WIN")
+                            :GainCard( food )
+                            :Fn(function(cxt)
+                                for i, agent in ipairs(cxt.quest.param.opfor) do
+                                    if not agent:IsRetired() then
+                                        agent:Retire()
+                                    end
+                                end
+                            end)
+                            :CompleteQuest()
+                            :DoneConvo()
+            else
+                cxt:TalkTo(cxt.quest.param.opfor[1])
+                cxt:Dialog("DIALOG_INTRO_AGAIN")
+
+                cxt:Opt("OPT_DEFEND")
+                    :Dialog("DIALOG_DEFEND")
+                    :Battle{
+                        flags = BATTLE_FLAGS.SELF_DEFENCE | BATTLE_FLAGS.ISOLATED,
+                        on_runaway = StateGraphUtil.DoRunAwayNoFail,
+                    }
+                        :OnWin()
+                            :Dialog("DIALOG_BATTLE_WIN")
+                            :GainCard( food )
+                            :Fn(function(cxt)
+                                for i, agent in ipairs(cxt.quest.param.opfor) do
+                                    if not agent:IsRetired() then
+                                        agent:Retire()
+                                    end
+                                end
+                            end)
+                            :CompleteQuest()
+                            :DoneConvo()
+            end
         end)

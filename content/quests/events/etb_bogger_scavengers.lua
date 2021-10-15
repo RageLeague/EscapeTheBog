@@ -144,6 +144,15 @@ QDEF:AddConvo()
                 :Dialog("DIALOG_YES")
                 :HiddenBattle{
                     flags = BATTLE_FLAGS.SELF_DEFENCE | BATTLE_FLAGS.ISOLATED,
+
+                    on_runaway = function(cxt, battle, no_fail)
+                        for i, agent in ipairs(cxt.quest.param.opfor) do
+                            if not agent:IsRetired() then
+                                agent:Retire()
+                            end
+                        end
+                        StateGraphUtil.DoRunAway( cxt, battle, no_fail )
+                    end,
                 }
                     :OnWin()
                         :Fn(function(cxt)
@@ -185,7 +194,15 @@ QDEF:AddConvo()
                         :Fn(function(cxt)
                             cxt:Opt("OPT_DEFEND")
                                 :Battle{
-                                    flags = BATTLE_FLAGS.SELF_DEFENCE,
+                                    flags = BATTLE_FLAGS.SELF_DEFENCE | BATTLE_FLAGS.ISOLATED,
+                                    on_runaway = function(cxt, battle, no_fail)
+                                        for i, agent in ipairs(cxt.quest.param.opfor) do
+                                            if not agent:IsRetired() then
+                                                agent:Retire()
+                                            end
+                                        end
+                                        StateGraphUtil.DoRunAway( cxt, battle, no_fail )
+                                    end,
                                 }
                                     :OnWin()
                                         :Fn(function(cxt)
