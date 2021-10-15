@@ -17,7 +17,7 @@ Convo("RUN_AWAY_CHAT_ETB")
                 * You run from battle, and you keep running.
                 * At least no-one knows of your shame.
             ]],
-            OPT_KEEP_RUNNING = "Keep running",
+            OPT_KEEP_RUNNING = "Keep Running",
         }
         :Fn(function(cxt, params)
 
