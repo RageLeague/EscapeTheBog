@@ -51,7 +51,9 @@ Convo("RUN_AWAY_CHAT_ETB")
                 :Fn(function(cxt)
                     local loc_quest = EscapeTheBogUtil.GetAssociatedQuest(cxt.location)
                     assert(loc_quest, "Not in a valid location")
-                    local runaway_loc = (loc_quest.param.previous_location or table.arraypick(loc_quest.param.exits)):GetCastMember("main_location")
+                    local runaway_quest = loc_quest.param.previous_location or table.arraypick(loc_quest.param.exits)
+                    local runaway_loc = runaway_quest:GetCastMember("main_location")
+                    runaway_quest.param.previous_location = loc_quest
                     cxt.encounter:DoLocationTransition( runaway_loc )
                     EscapeTheBogUtil.TryMainQuestFn("AdvanceTime", 1, "TRAVEL")
 

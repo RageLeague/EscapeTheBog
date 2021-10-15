@@ -153,6 +153,8 @@ QDEF:AddConvo()
             ]],
         }
         :Fn(function(cxt)
+            local food = table.arraypick{"hawb_drumstick", "half_sandwich"}
+
             if not cxt.quest.param.encountered then
                 cxt.quest.param.encountered = true
 
@@ -160,8 +162,6 @@ QDEF:AddConvo()
                 cxt.quest.param.opfor =  CreateCombatParty(table.arraypick(options), cxt.quest:GetRank(), cxt.location)
                 cxt:TalkTo(cxt.quest.param.opfor[1])
                 cxt:Dialog("DIALOG_INTRO")
-
-                local food = table.arraypick{"hawb_drumstick", "half_sandwich"}
 
                 cxt:BasicNegotiation("TALK", {})
                     :OnSuccess()
