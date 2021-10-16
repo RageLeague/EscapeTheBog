@@ -41,7 +41,7 @@ local DEFS = {
                     -- Tentacle
                     function( self, turns )
                         if self.cycle_turns == 0 then
-                            self.tentacle:ChooseCards(2)
+                            self.tentacle:ChooseCards(self.difficulty >= 3 and 2 or 1)
                             self.boil:ChooseCards(1)
                         end
                         self:ChooseGrowingNumbers( 2, 1 )
@@ -51,7 +51,7 @@ local DEFS = {
                     function( self, turns )
                         if self.cycle_turns == 0 then
                             self:ChooseCard(self.spore)
-                            self.fume:ChooseCards(2)
+                            self.fume:ChooseCards(1 + math.floor (self.difficulty / 2))
                         end
                         self:ChooseGrowingNumbers( 1, 1 )
                         self:ChooseComposure( 1, 2, 3 )
@@ -60,8 +60,13 @@ local DEFS = {
                     -- Rash
                     function( self, turns )
                         if self.cycle_turns == 0 then
-                            self.rash:ChooseCards(3)
-                            self.blister:ChooseCards(2)
+                            self.blister:ChooseCards(self.difficulty >= 3 and 2 or 1)
+                            if self.difficulty >= 4 then
+                                self.rash:ChooseCards(1)
+                            end
+                        end
+                        if self.difficulty >= 2 or self.cycle_turns % 2 == 0 then
+                            self.rash:ChooseCards(1)
                         end
                         self:ChooseComposure( 2, 2, 3 )
                     end,
@@ -79,11 +84,12 @@ local DEFS = {
                     self.fume = self:MakePicker()
                         :AddID("grout_bog_fume", 1)
                         :AddID("grout_bog_fume", 1)
+                        :AddID("grout_bog_fume", 1)
 
                     self.rash = self:MakePicker()
                         :AddID("grout_bog_rash", 1)
                         :AddID("grout_bog_rash", 1)
-                        :AddID("grout_bog_rash", 1)
+
                     self.blister = self:MakePicker()
                         :AddID("grout_bog_blister", 1)
                         :AddID("grout_bog_blister", 1)
