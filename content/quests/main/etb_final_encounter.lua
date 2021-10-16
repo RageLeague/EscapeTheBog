@@ -402,12 +402,16 @@ QDEF:AddConvo("starting_out")
             local current_day = math.floor( TheGame:GetGameState():GetDateTime() / 2 ) + 1
             cxt:Dialog("DIALOG_INTRO", current_day)
             if cxt.enc:GetScreen():IsAutoSkip() then
-                cxt:Opt("OPT_SKIP")
-                    :Dialog("DIALOG_SKIP")
-                    :Fn(function(cxt)
-                        cxt.quest.param.skipped_flashback = true
-                    end)
-                cxt:Opt("OPT_FLASHBACK")
+                cxt:RunLoop(function(cxt)
+                    cxt:Opt("OPT_SKIP")
+                        :Dialog("DIALOG_SKIP")
+                        :Fn(function(cxt)
+                            cxt.quest.param.skipped_flashback = true
+                        end)
+                        :Pop()
+                    cxt:Opt("OPT_FLASHBACK")
+                        :Pop()
+                end)
             end
             if not cxt.quest.param.skipped_flashback then
                 cxt:TalkTo(cxt:GetCastMember("handler"))
