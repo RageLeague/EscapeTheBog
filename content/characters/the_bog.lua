@@ -22,22 +22,9 @@ local BOGGER_BOSS_FORMATION =
 local DEFS = {
     CharacterDef("THE_BOG_ETB",
     {
-        base_def = "MONSTER",
+        base_def = "BOG_BURR_BOSS",
         name = "The Bog",
-        build = "bog_burr_boss",
-        combat_strength = 4,
-        boss = true,
-        -- hide_in_compendium = true,
         alt_boss_id = "BOGGER_BOSS",
-        tags = {"no_patron"},
-
-        compendium_offset = { -200, 0 },
-
-        -- battle_preview_anim = "anim/.zip",
-        -- battle_preview_offset = { x = 30, y = 70 },
-        -- battle_preview_glow = { colour = 0x81C67EFF, bloom = 0.1, threshold = 0.02 },
-        battle_preview_audio = "event:/ui/prebattle_overlay/prebattle_overlay_whooshin_boss_bog_burr_boss",
-        -- death_item = "",
 
         negotiation_data =
         {
@@ -81,34 +68,34 @@ local DEFS = {
                 },
 
                 OnInit = function( self, difficulty )
-                    if CheckBits(self.engine:GetFlags(), NEGOTIATION_FLAGS.WORDSMITH) then
-                        self.tentacle = self:MakePicker()
-                            :AddID("grout_bog_tentacle", 1)
-                            :AddID("grout_bog_tentacle", 1)
-                        self.boil = self:MakePicker()
-                            :AddID("grout_bog_boil", 1)
+                    -- if CheckBits(self.engine:GetFlags(), NEGOTIATION_FLAGS.WORDSMITH) then
+                    self.tentacle = self:MakePicker()
+                        :AddID("grout_bog_tentacle", 1)
+                        :AddID("grout_bog_tentacle", 1)
+                    self.boil = self:MakePicker()
+                        :AddID("grout_bog_boil", 1)
 
-                        self.spore = self:AddArgument("SPORE_CLOUD")
-                        self.fume = self:MakePicker()
-                            :AddID("grout_bog_fume", 1)
-                            :AddID("grout_bog_fume", 1)
+                    self.spore = self:AddArgument("SPORE_CLOUD")
+                    self.fume = self:MakePicker()
+                        :AddID("grout_bog_fume", 1)
+                        :AddID("grout_bog_fume", 1)
 
-                        self.rash = self:MakePicker()
-                            :AddID("grout_bog_rash", 1)
-                            :AddID("grout_bog_rash", 1)
-                            :AddID("grout_bog_rash", 1)
-                        self.blister = self:MakePicker()
-                            :AddID("grout_bog_blister", 1)
-                            :AddID("grout_bog_blister", 1)
+                    self.rash = self:MakePicker()
+                        :AddID("grout_bog_rash", 1)
+                        :AddID("grout_bog_rash", 1)
+                        :AddID("grout_bog_rash", 1)
+                    self.blister = self:MakePicker()
+                        :AddID("grout_bog_blister", 1)
+                        :AddID("grout_bog_blister", 1)
 
 
-                        self.negotiator:AddModifier("DARK_INTELLECT")
-                        self.cycle_order = shallowcopy(self.cycle_options)
-                        table.shuffle(self.cycle_order)
-                        self.current_cycle = table.remove(self.cycle_order)
-                        self.cycle_turns = 0
-                        self:SetPattern(self.BossCycle)
-                    end
+                    self.negotiator:AddModifier("DARK_INTELLECT")
+                    self.cycle_order = shallowcopy(self.cycle_options)
+                    table.shuffle(self.cycle_order)
+                    self.current_cycle = table.remove(self.cycle_order)
+                    self.cycle_turns = 0
+                    self:SetPattern(self.BossCycle)
+                    -- end
                 end,
 
                 BossCycle = function( self, turns )
