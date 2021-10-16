@@ -6,6 +6,8 @@ QDEF = EscapeTheBogUtil.AddBogLocationQuest(
             ETB_STARTING_OUT = 1,
         },
         repeat_encounter = EscapeTheBogUtil.GenericRepeatEncounterTable,
+        sleep_encounter = EscapeTheBogUtil.GenericSleepEncounterTable,
+
         GetPathDesc = function(quest)
             return quest:GetLocalizedStr("DESC_1")
         end,
