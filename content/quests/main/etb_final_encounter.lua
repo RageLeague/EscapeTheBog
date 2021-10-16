@@ -22,12 +22,15 @@ local QDEF = QuestDef.Define
         if quest.param.handler_dead and not quest:GetCastMember("handler"):IsRetired() then
             quest:GetCastMember("handler"):Kill()
         end
-        quest:AssignCastMember("handler")
+        quest:AssignCastMember("illusion_boss")
     end,
 }
 :AddObjective{
     id = "starting_out",
     state = QSTATUS.ACTIVE,
+}
+:AddObjective{
+    id = "complete_flashback",
 }
 :AddCast{
     cast_id = "illusion_boss",
@@ -40,6 +43,7 @@ local QDEF = QuestDef.Define
         local agent = AgentUtil.GetOrSpawnAgentbyAlias(id)
         table.insert(t, agent)
     end,
+    no_validation = true,
 }
 :AddCast{
     cast_id = "handler",
@@ -151,6 +155,7 @@ QDEF:AddConvo("starting_out")
         }
         :Fn(function(cxt)
             -- If you don't have madness removed, the name of the handler will never be shown.
+            cxt:TalkTo(cxt:GetCastMember("illusion_boss"))
             cxt:Dialog("DIALOG_INTRO", EscapeTheBogUtil.ObfuscateWords(cxt:GetCastMember("handler"):GetName(), 1))
             cxt:GoTo("STATE_FIGHT")
         end)
@@ -243,13 +248,13 @@ QDEF:AddConvo("starting_out")
                             cxt.quest.param.boss_fight_cards_to_win = core_arg.cards_to_win
                             cxt.quest.param.boss_fight_modifiers_to_remove = core_arg.modifiers_to_remove
                             cxt:Dialog("DIALOG_ATTACK_FAITH_SUCCESS")
-                            AddAttackOption(cxt)
+                            AddAttackOptions(cxt)
                         end,
 
                     }
                     :OnFailure()
                         :Dialog("DIALOG_ATTACK_FAITH_FAILURE")
-                AddAttackOption(cxt)
+                AddAttackOptions(cxt)
             end)
         end)
     :State("STATE_FLASHBACK")
@@ -268,6 +273,107 @@ QDEF:AddConvo("starting_out")
                 * Good.
             ]],
             OPT_FLASHBACK = "Continue Flashback",
+
+            DIALOG_FLASH_INTRO = [[
+                {handler_fellemo?
+                    {player_rook?
+                        agent:
+                            It's good that we are working together again, even for just one more time.
+                            We have made such a good team in the past before.
+                            Remember in the Roaloch? Rentoria? The-
+                        player:
+                            Are you getting senile, old slug? You mentioned this every time we work together for the past few days.
+                        agent:
+                            !hips
+                            Hah! I am just reminiscing the good old days.
+                            Anyway, we need to find the ancient artifact. It should be here somewhere.
+                        player:
+                            You don't say.
+                    }
+                    {player_sal?
+                        player:
+                            Remind me why I am working with you again?
+                        agent:
+                            You want Kashio gone, don't you? I can help you with that.
+                            But first, you need to do one more task for me: finding the ancient artifact.
+                        player:
+                            I swear, if-
+                        * You realized that mentioning Prindo in front of {agent} in this crucial moment might not be the wisest idea.
+                        * You both have a task ahead.
+                    }
+                    {player_arint?
+                        player:
+                            What are we trying to find here?
+                        agent:
+                            Ah, I supposed I never mentioned it to you, {player}.
+                            There is supposed to be an ancient artifact somewhere around here, according to my intel.
+                            We need to find it.
+                        player:
+                            Let me guess, your intel comes from a man whose name starts with an "R" and ends with a "K".
+                        agent:
+                            ...
+                        player:
+                            Look, you should know better than anyone that this man could not be trusted.
+                            What if this intel is a ruse? What if-
+                    }
+                    {not player_rook and not player_sal and not player_arint?
+                        player:
+                            What are we trying to find here?
+                        agent:
+                            Ah, I supposed I never mentioned it to you, {player}.
+                            There is supposed to be an ancient artifact somewhere around here, according to my intel.
+                            We need to find it.
+                        player:
+                            What does it look like.
+                        agent:
+                            ...
+                            We will know when we see it.
+                        player:
+                            Uh huh.
+                    }
+                }
+                {handler_kalandra?
+                    {player_sal?
+                        player:
+                            !bashful
+                            I know that we haven't talked for a very long time, but I just want to say...
+                            I'm glad that we are back together.
+                        agent:
+                            !happy
+                            I feel the same way.
+                        player:
+                            So, uh... What are we looking for, exactly?
+                        agent:
+                            An ancient artifact, guarded heavily in an ancient mine.
+                            From what I have gathered, it can very easily turn the tide of the revolution.
+                    }
+                    {not player_sal?
+                        player:
+                            So, uh... What are we looking for, exactly?
+                        agent:
+                            An ancient artifact, guarded heavily in an ancient mine.
+                            From what I have gathered, it can very easily turn the tide of the revolution.
+                        player:
+                            I guess this means that we really need to find it, then.
+                        agent:
+                            Exactly.
+                    }
+                }
+                * Suddenly, you are attacked by a group of Boggers!
+                bogger:
+                    !right
+                    Another one who seeks the treasure of the bog.
+                    You, like your predecessors, shall fertilize the bog with your blood!
+                *** You and {agent} is looking for an ancient artifact, but were attacked by boggers.
+            ]],
+            DIALOG_FLASH_DEFEND = [[
+                bogger:
+                    !exit
+                * You dispatched the boggers with no difficulty at all.
+                agent:
+                    !right
+                    Are you alright?
+            ]],
         }
         :Fn(function(cxt)
             cxt:Dialog("DIALOG_INTRO")
@@ -279,8 +385,11 @@ QDEF:AddConvo("starting_out")
                     end)
                 cxt:Opt("OPT_FLASHBACK")
             end
-            if cxt.quest.param.skipped_flashback then
-                return
+            if not cxt.quest.param.skipped_flashback then
+                cxt:TalkTo(cxt:GetCastMember("handler"))
+                cxt.enc:PresentAgent(cxt.player, SIDE.LEFT)
+                cxt.enc:PresentAgent(cxt:GetAgent(), SIDE.RIGHT)
+                cxt:FadeIn()
             end
         end)
     :State("STATE_POST_FIGHT_SPARE")

@@ -3,7 +3,7 @@ QDEF = EscapeTheBogUtil.AddBogLocationQuest(
     {
         is_unique = true,
         entry_encounter = {
-
+            ETB_FINAL_ENCOUNTER = 1,
         },
         repeat_encounter = EscapeTheBogUtil.NullEncounterTable,
         sleep_encounter = EscapeTheBogUtil.NullEncounterTable,
