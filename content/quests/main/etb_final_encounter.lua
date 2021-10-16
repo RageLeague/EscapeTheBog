@@ -168,29 +168,46 @@ QDEF:AddConvo("starting_out")
                     This is the end of you!
             ]],
             DIALOG_ATTACK_WIN = [[
-                {dead?
-                    * You have killed the leader of the Boggers.
-                    player:
-                        I did it!
-                        I-
-                        !exit
+                player:
+                    !angry_point
+                    Had enough?
+                    Lift my madness, or I will lift your life!
+                agent:
+                {not handler_dead?
+                    You are mad, alright. But I have nothing to do with this.
                 }
-                {not dead?
-                    player:
-                        !angry_point
-                        Had enough?
-                        Lift my madness, or I will lift your life!
-                    agent:
-                    {not handler_dead?
-                        You are mad, alright. But I have nothing to do with this.
-                    }
-                    {handler_dead?
-                        The bog does not surrender. So neither will I.
-                    }
-                    player:
-                        Still have some fight in you, huh?
+                {handler_dead?
+                    The bog does not surrender. So neither will I.
                 }
+                player:
+                    Still have some fight in you, huh?
             ]],
         }
+        :Fn(function(cxt)
+            local core_arg = nil
+            cxt:RunLoop(function()
+                cxt:Opt("OPT_ATTACK_FAITH")
+                    :Dialog("DIALOG_ATTACK_FAITH")
+                    :Negotiation{
+                        flags = NEGOTIATION_FLAGS.NO_IMPATIENCE,
+                        enemy_resolve_required = 30,
+                        on_start_negotiation = function(minigame)
+                            core_arg = minigame.opponent_negotiator:FindCoreArgument()
+                        end,
+
+                        on_success = function(cxt, minigame)
+                            cxt.quest.param.boss_fight_cards_to_win = core_arg.cards_to_win
+                            cxt.quest.param.boss_fight_modifiers_to_remove = core_arg.modifiers_to_remove
+                            cxt:Dialog("DIALOG_ATTACK_FAITH_SUCCESS")
+                            AddAttackOption(cxt)
+                        end,
+
+                    }
+                    :OnFailure()
+                        :Dialog("DIALOG_ATTACK_FAITH_FAILURE")
+                AddAttackOption(cxt)
+            end)
+        end)
     :State("STATE_FLASHBACK")
     :State("STATE_POST_FIGHT_SPARE")
+    :State("STATE_POST_FIGHT_KILL")
