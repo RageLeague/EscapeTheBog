@@ -418,6 +418,7 @@ QDEF:AddConvo("starting_out")
                 cxt.enc:PresentAgent(cxt.player, SIDE.LEFT)
                 cxt.enc:PresentAgent(cxt:GetAgent(), SIDE.RIGHT)
                 cxt.enc.scratch.opfor = CreateCombatParty("BOGGER_PATROL", cxt.quest:GetRank(), cxt.location)
+                cxt.enc.ignore_obfuscation = true
                 cxt:ReassignCastMember("bogger", cxt.enc.scratch.opfor[1])
                 cxt:FadeIn()
                 cxt:Dialog("DIALOG_FLASH_INTRO")
@@ -432,8 +433,14 @@ QDEF:AddConvo("starting_out")
                     :Dialog("DIALOG_FLASH_DEFEND")
                     :FadeOut()
                     :Dialog("DIALOG_FLASH_DEFEND_PST", EscapeTheBogUtil.ObfuscateWords(cxt.player:GetName(), 1))
+                    :Fn(function(cxt)
+                        cxt.enc.ignore_obfuscation = nil
+                        StateGraphUtil.AddEndOption(cxt)
+                    end)
+
+            else
+                StateGraphUtil.AddEndOption(cxt)
             end
-            StateGraphUtil.AddEndOption(cxt)
         end)
     :State("STATE_POST_FIGHT_SPARE")
     :State("STATE_POST_FIGHT_KILL")

@@ -50,10 +50,12 @@ local QDEF = QuestDef.Define
     end,
 
     events = {
-        on_convo_speech = function(quest, params)
-            local agent, txt = table.unpack(params)
-            if not (agent:IsPlayer()) and agent:IsSentient() then
-                params[2] = EscapeTheBogUtil.ObfuscateWords(txt)
+        on_convo_speech = function(quest, screen, params)
+            if not screen.encounter.ignore_obfuscation then
+                local agent, txt = table.unpack(params)
+                if not (agent:IsPlayer()) and agent:IsSentient() then
+                    params[2] = EscapeTheBogUtil.ObfuscateWords(txt)
+                end
             end
         end,
         card_added = function( quest, card )
