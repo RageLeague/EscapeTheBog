@@ -103,6 +103,12 @@ function EscapeTheBogUtil.AddBogLocationQuest(quest_def, location_def, exit_defs
             end
             return true, selftag, othertag
         end,
+        ForceAttachLocation = function(quest, other_quest)
+            assert(quest.param.exits, "No exits params")
+            assert(other_quest.param.exits, "No exits params")
+            table.insert(quest.param.exits, other_quest)
+            table.insert(other_quest.param.exits, quest)
+        end,
         AttachLocation = function(quest, other_quest)
             if not other_quest:GetQuestDef().is_bog_location then
                 return false, "Not a bog location"
@@ -111,33 +117,14 @@ function EscapeTheBogUtil.AddBogLocationQuest(quest_def, location_def, exit_defs
             other_quest:DefFn("SetupLocationData")
             table.shuffle(quest.param.available_exits)
             table.shuffle(other_quest.param.available_exits)
-            -- local selftag
-            -- for i, tag in ipairs(quest.available_exits) do
-            --     if tag == "any" or other_quest:GetCastMember("main_location"):HasTag(tag) then
-            --         selftag = tag
-            --         break
-            --     end
-            -- end
-            -- if not selftag then
-            --     return false, "No matching tag"
-            -- end
-            -- local othertag
-            -- for i, tag in ipairs(other_quest.available_exits) do
-            --     if tag == "any" or quest:GetCastMember("main_location"):HasTag(tag) then
-            --         othertag = tag
-            --         break
-            --     end
-            -- end
-            -- if not othertag then
-            --     return false, "No matching tag"
-            -- end
             local ok, selftag, othertag = quest:DefFn("CanAttachLocation", other_quest)
             if not ok then
                 return false, selftag
             end
 
-            table.insert(quest.param.exits, other_quest)
-            table.insert(other_quest.param.exits, quest)
+            -- table.insert(quest.param.exits, other_quest)
+            -- table.insert(other_quest.param.exits, quest)
+            quest:DefFn("ForceAttachLocation", other_quest)
             table.arrayremove(quest.param.available_exits, selftag)
             table.arrayremove(other_quest.param.available_exits, othertag)
             return true

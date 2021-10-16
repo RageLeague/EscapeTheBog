@@ -22,7 +22,7 @@ local QDEF = QuestDef.Define
 
         quest.param.time_segment = 0
 
-        quest:DefFn("GenerateBogMap", 10, "ETB_LOC_STARTING_BOGCAVE")
+        quest:DefFn("GenerateBogMap", 10, "ETB_LOC_STARTING_BOGCAVE", {"ETB_LOC_ANCIENT_MINE_ENTRANCE"})
 
         local player = TheGame:GetGameState():GetPlayerAgent()
 
