@@ -373,10 +373,34 @@ QDEF:AddConvo("starting_out")
                 agent:
                     !right
                     Are you alright?
+                player:
+                    Yeah. I'm good. It is no big deal.
+                * But soon, you realized that it is, in fact, a big deal.
+                player:
+                    !injured
+                * You feel like you energy is draining out of your body.
+                agent:
+                    Seriously, {player}, you don't look so good.
+                    Do you want to-----------rest?
+                player:
+                    I- I'm fine.
+                * You know this is a complete lie.
+                * You feel your energy, your sanity, is twisted and drained from your mind.
+                * Whatever happened during the fight with the boggers must have caused this.
+                * Soon, you completely fainted.
+            ]],
+            DIALOG_FLASH_DEFEND_PST = [[
+                agent:
+                    !scared
+                    {player},---------alright?
+                    {player}?
+                    {1}!!!
+                * You don't remember much after that.
             ]],
         }
         :Fn(function(cxt)
-            cxt:Dialog("DIALOG_INTRO")
+            local current_day = math.floor( TheGame:GetGameState():GetDateTime() / 2 ) + 1
+            cxt:Dialog("DIALOG_INTRO", current_day)
             if cxt.enc:GetScreen():IsAutoSkip() then
                 cxt:Opt("OPT_SKIP")
                     :Dialog("DIALOG_SKIP")
@@ -389,8 +413,23 @@ QDEF:AddConvo("starting_out")
                 cxt:TalkTo(cxt:GetCastMember("handler"))
                 cxt.enc:PresentAgent(cxt.player, SIDE.LEFT)
                 cxt.enc:PresentAgent(cxt:GetAgent(), SIDE.RIGHT)
+                cxt.enc.scratch.opfor = CreateCombatParty("BOGGER_PATROL", cxt.quest:GetRank(), cxt.location)
+                cxt:ReassignCastMember("bogger", cxt.enc.scratch.opfor[1])
                 cxt:FadeIn()
+                cxt:Dialog("DIALOG_FLASH_INTRO")
+                local opt = cxt:Opt("OPT_DEFEND")
+                    :Fn(function(cxt)
+                        for i, agent in ipairs(cxt.enc.scratch.opfor) do
+                            if not agent:IsRetired() then
+                                agent:Retire()
+                            end
+                        end
+                    end)
+                    :Dialog("DIALOG_FLASH_DEFEND")
+                    :FadeOut()
+                    :Dialog("DIALOG_FLASH_DEFEND_PST", EscapeTheBogUtil.ObfuscateWords(cxt.player:GetName(), 1))
             end
+            StateGraphUtil.AddEndOption(cxt)
         end)
     :State("STATE_POST_FIGHT_SPARE")
     :State("STATE_POST_FIGHT_KILL")
