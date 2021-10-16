@@ -53,6 +53,47 @@ local QDEF = QuestDef.Define
 }
 
 local function AddAttackOptions(cxt)
+    cxt:Opt("OPT_ATTACK")
+        :Dialog("DIALOG_ATTACK")
+        :Battle{
+                flags = BATTLE_FLAGS.BOSS_FIGHT | BATTLE_FLAGS.ISOLATED | BATTLE_FLAGS.NO_BYSTANDERS | BATTLE_FLAGS.NO_REWARDS | BATTLE_FLAGS.NO_FLEE | BATTLE_FLAGS.NO_BURRS,
+
+                on_start_battle = function(battle)
+                    local fighter = battle:GetFighterForAgent(cxt.quest:GetCastMember("illusion_boss"))
+                    if fighter then
+                        fighter.behaviour.suppress_conditions = {}
+
+                        if cxt.quest.param.boss_fight_modifiers_to_remove then
+                            for _,condition_id in ipairs(cxt.quest.param.boss_fight_modifiers_to_remove) do
+                                fighter.behaviour.suppress_conditions[condition_id] = true
+                            end
+                        end
+
+                        if fighter.behaviour.AddBossConditions then
+                            fighter.behaviour:AddBossConditions(fighter)
+                        end
+
+                        if cxt.quest.param.boss_fight_cards_to_win then
+                            for _,won_card in ipairs( cxt.quest.param.boss_fight_cards_to_win ) do
+                                local card = Battle.Card( won_card, battle.player_team:Primary() )
+                                card.show_dealt = true
+                                battle:DealCard( card, battle:GetDrawDeck() )
+                            end
+                        end
+                    end
+                end
+
+            }
+            :OnWin()
+                :Fn(function()
+                    if cxt:GetAgent():IsDead() then
+                        cxt:Dialog("DIALOG_ATTACK_KILLED")
+                        cxt:GoTo("STATE_POST_FIGHT_KILL")
+                    else
+                        cxt:Dialog("DIALOG_ATTACK_WIN")
+                        cxt:GoTo("STATE_POST_FIGHT_SPARE")
+                    end
+                end)
 end
 
 QDEF:AddConvo("starting_out")
@@ -167,6 +208,9 @@ QDEF:AddConvo("starting_out")
                     !angry
                     This is the end of you!
             ]],
+            DIALOG_ATTACK_KILLED = [[
+                * You have killed the Bogger leader in battle.
+            ]],
             DIALOG_ATTACK_WIN = [[
                 player:
                     !angry_point
@@ -209,5 +253,48 @@ QDEF:AddConvo("starting_out")
             end)
         end)
     :State("STATE_FLASHBACK")
+        :Loc{
+            DIALOG_INTRO = [[
+                * Memories are flowing through you.
+                * Memories of who you are, and why you are here.
+                * It all started, {1} {1*day|days} ago...
+                *** Okay, if you are skipping the dialog, you are clearly not interested.
+                *** Yeah just skip the flashback, why don't you. You clearly don't want lore.
+                *** So why waste your time?
+            ]],
+            OPT_SKIP = "Skip dialog",
+            DIALOG_SKIP = [[
+                * Alright, then, I guess you remembered everything.
+                * Good.
+            ]],
+            OPT_FLASHBACK = "Continue Flashback",
+        }
+        :Fn(function(cxt)
+            cxt:Dialog("DIALOG_INTRO")
+            if cxt.enc:GetScreen():IsAutoSkip() then
+                cxt:Opt("OPT_SKIP")
+                    :Dialog("DIALOG_SKIP")
+                    :Fn(function(cxt)
+                        cxt.quest.param.skipped_flashback = true
+                    end)
+                cxt:Opt("OPT_FLASHBACK")
+            end
+            if cxt.quest.param.skipped_flashback then
+                return
+            end
+        end)
     :State("STATE_POST_FIGHT_SPARE")
     :State("STATE_POST_FIGHT_KILL")
+        :Loc{
+            DIALOG_INTRO = [[
+                player:
+                    I did it! I killed the leader of the bog!
+                    I-
+                * Suddenly, you passed out.
+            ]],
+        }
+        :Fn(function(cxt)
+            cxt:Dialog("DIALOG_INTRO")
+            cxt:FadeOut()
+            cxt:GoTo("STATE_FLASHBACK")
+        end)
