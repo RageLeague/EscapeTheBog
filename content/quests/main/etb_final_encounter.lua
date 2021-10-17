@@ -38,9 +38,6 @@ local QDEF = QuestDef.Define
     id = "starting_out",
     state = QSTATUS.ACTIVE,
 }
-:AddObjective{
-    id = "complete_flashback",
-}
 :AddCast{
     cast_id = "illusion_boss",
     when = QWHEN.MANUAL,
