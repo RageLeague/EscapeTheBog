@@ -82,7 +82,7 @@ local CONDITIONS =
         ctype = CTYPE.DEBUFF,
 
         ShouldAutoAttach = function( self, battle, fighter )
-            if fighter.agent and fighter.agent.etb_slow_flee then
+            if EscapeTheBogUtil.IsETBCampaign() and fighter.agent and fighter.agent.etb_slow_flee then
                 return 1
             end
         end,
