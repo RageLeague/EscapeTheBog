@@ -38,6 +38,9 @@ local QDEF = QuestDef.Define
     id = "starting_out",
     state = QSTATUS.ACTIVE,
 }
+:AddObjective{
+    id = "escape_bog",
+}
 :AddCast{
     cast_id = "illusion_boss",
     when = QWHEN.MANUAL,
@@ -452,11 +455,10 @@ QDEF:AddConvo("starting_out")
                     :Dialog("DIALOG_FLASH_DEFEND_PST", EscapeTheBogUtil.ObfuscateWords(cxt.player:GetName(), 1))
                     :Fn(function(cxt)
                         cxt.enc.ignore_obfuscation = nil
-                        StateGraphUtil.AddEndOption(cxt)
+                        cxt:GoTo("STATE_POST_FLASHBACK")
                     end)
-
             else
-                StateGraphUtil.AddEndOption(cxt)
+                cxt:GoTo("STATE_POST_FLASHBACK")
             end
         end)
     :State("STATE_POST_FIGHT_SPARE")
@@ -682,4 +684,67 @@ QDEF:AddConvo("starting_out")
             cxt:Dialog("DIALOG_INTRO")
             cxt:FadeOut()
             cxt:GoTo("STATE_FLASHBACK")
+        end)
+    :State("STATE_POST_FLASHBACK")
+        :Loc{
+            DIALOG_INTRO_ESCAPE = [[
+                * You feel like a curse has been lifted from you.
+                * All your misfortunes in the past few days have ended, because you have defeated the source of it all.
+                * With that out of your way, it is time for you to leave.
+            ]],
+            DIALOG_INTRO_FRIEND = [[
+                * You wake up to find {handler} by your side.
+                handler:
+                    Feeling better?
+                player:
+                    Yeah.
+                    In fact, I feel a huge weight just got lifted from my sholders.
+                handler:
+                    I gotta say, you are out for a long time.
+                    I thought you are dead. Again.
+                {handler_fellemo?
+                    {player_rook?
+                        But I knew you wouldn't die so easily.
+                    player:
+                        You don't say.
+                    }
+                    {player_arint?
+                        But I knew I could count on you, {player}.
+                    player:
+                        Thanks, I guess.
+                    }
+                    {not player_rook and not player_arint?
+                        You took a lot of time to slack off, don't you.
+                    player:
+                        Hey. In my defense, I couldn't help it.
+                    handler:
+                        Sure, that's what they all say.
+                    }
+                    Anyway, we should focus on our task ahead.
+                    We have a job to do.
+                }
+                {handler_kalandra?
+                    {player_sal?
+                        But I just can't believe it, you know.
+                        You've been through so much, {player}, and I can't imagine you would just die now.
+                    player:
+                        !bashful
+                        Can we just go back to finding the artifact now? You are making me blush.
+                    handler:
+                        !agree
+                        Yeah, of course.
+                    }
+                    {not player_sal?
+                        I'm glad you are okay in the end, though.
+                    player:
+                        Thanks.
+                    handler:
+                        Anyway, we should focus on our task ahead.
+                        We have a job to do.
+                    }
+                }
+            ]],
+        }
+        :Fn(function(cxt)
+
         end)
