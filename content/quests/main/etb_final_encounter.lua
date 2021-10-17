@@ -9,6 +9,15 @@ local ILLUSION_ID =
     fellemo = "BOGGER_BOSS_FELLEMO",
     kalandra = "BOGGER_BOSS_KALANDRA",
 }
+local PARASITE_VALUES =
+{
+    [CARD_RARITY.BASIC] = 3,
+    [CARD_RARITY.COMMON] = 6,
+    [CARD_RARITY.UNCOMMON] = 9,
+    [CARD_RARITY.RARE] = 12,
+    [CARD_RARITY.UNIQUE] = 15,
+    [CARD_RARITY.BOSS] = 15,
+}
 
 local QDEF = QuestDef.Define
 {
@@ -101,7 +110,7 @@ local function AddAttackOptions(cxt)
                         cxt:Dialog("DIALOG_ATTACK_KILLED")
                         cxt:GoTo("STATE_POST_FIGHT_KILL")
                     else
-                        cxt:Dialog("DIALOG_ATTACK_WIN")
+                        -- cxt:Dialog("DIALOG_ATTACK_WIN")
                         cxt:GoTo("STATE_POST_FIGHT_SPARE")
                     end
                 end)
@@ -223,21 +232,21 @@ QDEF:AddConvo("starting_out")
             DIALOG_ATTACK_KILLED = [[
                 * You have killed the Bogger leader in battle.
             ]],
-            DIALOG_ATTACK_WIN = [[
-                player:
-                    !angry_point
-                    Had enough?
-                    Lift my madness, or I will lift your life!
-                agent:
-                {not handler_dead?
-                    You are mad, alright. But I have nothing to do with this.
-                }
-                {handler_dead?
-                    The bog does not surrender. So neither will I.
-                }
-                player:
-                    Still have some fight in you, huh?
-            ]],
+            -- DIALOG_ATTACK_WIN = [[
+            --     player:
+            --         !angry_point
+            --         Had enough?
+            --         Lift my madness, or I will lift your life!
+            --     agent:
+            --     {not handler_dead?
+            --         You are mad, alright. But I have nothing to do with this.
+            --     }
+            --     {handler_dead?
+            --         The bog does not surrender. So neither will I.
+            --     }
+            --     player:
+            --         Still have some fight in you, huh?
+            -- ]],
         }
         :Fn(function(cxt)
             local core_arg = nil
@@ -267,6 +276,10 @@ QDEF:AddConvo("starting_out")
     :State("STATE_FLASHBACK")
         :Loc{
             DIALOG_INTRO = [[
+                left:
+                    !exit
+                right:
+                    !exit
                 * Memories are flowing through you.
                 * Memories of who you are, and why you are here.
                 * It all started, {1} {1*day|days} ago...
@@ -471,8 +484,11 @@ QDEF:AddConvo("starting_out")
             OPT_EXECUTE_STRONG = "<#PENALTY>Execute {agent.himher}</>",
             DIALOG_EXECUTE = [[
                 agent:
-                    !exit
+                    !right
+                    !scared
                 * You swiftly executed the High Priest.
+                agent:
+                    !exit
             ]],
             OPT_QUESTION_1 = "Ask the High Priest why you shouldn't just kill {agent.himher} right now",
             DIALOG_QUESTION_1 = [[
@@ -494,7 +510,7 @@ QDEF:AddConvo("starting_out")
                     Terrible reasoning. I'm afraid this can only end one way.
                 }
             ]],
-            DIALOG_QUESTION_1_PT1 = "The Bog must have you corrupted your mind.",
+            DIALOG_QUESTION_1_PT1 = "The Bog must have corrupted your mind.",
             DIALOG_QUESTION_1_PT2 = "You don't even seem to recognize me, {handler.name}.",
             OPT_QUESTION_2 = "Ask about {handler}",
             DIALOG_QUESTION_2 = [[
@@ -519,7 +535,7 @@ QDEF:AddConvo("starting_out")
                 * Suddenly, you heard a strange voice, a most <b><i>TERRIFYING</></> voice.
                 bog_monster:
                     !right
-                    <#PENALTY>KILL {handler.gender:HIM|HER|THEM}!</>
+                    <#PENALTY>KILL {agent.gender:HIM|HER|THEM}!</>
                     <#PENALTY>THE BOG DEMANDS SACRIFICE!</>
             ]],
             OPT_BREAK_FREE = "Break free of the bog's influence",
@@ -536,6 +552,9 @@ QDEF:AddConvo("starting_out")
             ]],
             DIALOG_BREAK_FREE_SUCCESS_PST = [[
                 agent:
+                    !right
+                    !scared
+                    {1}, you--------?
                     {1}?
                     {player.name}!!!
             ]],
@@ -556,6 +575,9 @@ QDEF:AddConvo("starting_out")
                 * The execution is over in a blink of an eye.
                 * The leader of the boggers drops dead at your feet.
             ]],
+
+            SIT_MOD = "The Bog's influence is very strong",
+            SIT_MOD_PARASITE = "You have bog parasites on you",
         }
         :SetLooping(true)
         :Fn(function(cxt)
@@ -566,15 +588,18 @@ QDEF:AddConvo("starting_out")
                 cxt:Opt("OPT_QUESTION_1")
                     :Fn(function(cxt)
                         if not cxt.quest.param.handler_dead then
-                            cxt.enc.scratch.ignore_obfuscation = true
-                            local str = { cxt:GetLocString( "DIALOG_QUESTION_1_PT1" ), cxt:GetLocString( "DIALOG_QUESTION_1_PT2" )}
+                            cxt.enc.ignore_obfuscation = true
+                            local str = {
+                                EscapeTheBogUtil.TryMainQuestFn("DoObfuscateText", cxt:GetLocString( "DIALOG_QUESTION_1_PT1" )),
+                                EscapeTheBogUtil.TryMainQuestFn("DoObfuscateText", cxt:GetLocString( "DIALOG_QUESTION_1_PT2" ))
+                            }
                             local handler_name = cxt:GetCastMember("handler"):GetName()
-                            local display_str = EscapeTheBogUtil.TryMainQuestFn("DoObfuscateText", table.concat( str, "\n" ))
+                            local display_str = table.concat( str, "\n" )
                             if display_str:find(handler_name) then
                                 cxt.quest.param.heard_handler_name = true
                             end
                             cxt:Dialog("DIALOG_QUESTION_1", display_str)
-                            cxt.enc.scratch.ignore_obfuscation = nil
+                            cxt.enc.ignore_obfuscation = nil
                         else
                             cxt:Dialog("DIALOG_QUESTION_1")
                         end
@@ -583,21 +608,47 @@ QDEF:AddConvo("starting_out")
             elseif (cxt.enc.scratch.question_state or 0) == 1 and cxt.quest.param.heard_handler_name then
                 cxt:Opt("OPT_QUESTION_2")
                     :Fn(function(cxt)
-                        cxt.enc.scratch.ignore_obfuscation = true
+                        cxt.enc.ignore_obfuscation = true
                         cxt:Dialog("DIALOG_QUESTION_2")
-                        cxt.enc.scratch.ignore_obfuscation = nil
+                        cxt.enc.ignore_obfuscation = nil
                         cxt.enc.scratch.question_state = 2
                     end)
             elseif (cxt.enc.scratch.question_state or 0) == 3 then
-                cxt:BasicNegotiation("BREAK_FREE", {
+                local sit_mods = {
+                    { value = 20, text = cxt:GetLocString("SIT_MOD") }
+                }
+                -- Calculate parasites
+                local parasite_values = 0
 
+                local battle_defs = require "battle/battle_defs"
+                for i, card in ipairs(cxt.player.battler.cards.cards) do
+                    if card:IsFlagged( battle_defs.CARD_FLAGS.PARASITE ) then
+                        parasite_values = parasite_values + (PARASITE_VALUES[card.rarity] or 15)
+                    end
+                end
+
+                local negotiation_defs = require "negotiation/negotiation_defs"
+                for i, card in ipairs(cxt.player.negotiator.cards.cards) do
+                    if card:IsFlagged( negotiation_defs.CARD_FLAGS.PARASITE ) then
+                        parasite_values = parasite_values + (PARASITE_VALUES[card.rarity] or 15)
+                    end
+                end
+
+                if parasite_values then
+                    table.insert(sit_mods, { valule = parasite_values, text = cxt:GetLocString("SIT_MOD_PARASITE")})
+                end
+
+                -- Actual option
+                cxt:BasicNegotiation("BREAK_FREE", {
+                    target_agent = cxt:GetCastMember("bog_monster"),
+                    situation_modifiers = sit_mods,
                 })
                     :OnSuccess()
                         :FadeOut()
                         :Fn(function(cxt)
-                            cxt.enc.scratch.ignore_obfuscation = true
+                            cxt.enc.ignore_obfuscation = true
                             cxt:Dialog("DIALOG_BREAK_FREE_SUCCESS_PST", EscapeTheBogUtil.TryMainQuestFn("DoObfuscateText", cxt.player:GetName()))
-                            cxt.enc.scratch.ignore_obfuscation = nil
+                            cxt.enc.ignore_obfuscation = nil
                         end)
                         :GoTo("STATE_FLASHBACK")
                     :OnFailure()
