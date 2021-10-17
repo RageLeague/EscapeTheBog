@@ -1,3 +1,5 @@
+local BOGBERRY_ID = "etb_mixed_bogberries"
+
 local QDEF
 QDEF = EscapeTheBogUtil.AddBogLocationQuest(
     {
