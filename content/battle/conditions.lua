@@ -1,5 +1,8 @@
 local battle_defs = require "battle/battle_defs"
-local BATTLE_EVENT = battle_defs.EVENT
+local BATTLE_EVENT = ExtendEnum( battle_defs.EVENT,
+{
+    "CALC_CAN_FLEE"
+})
 local CARD_FLAGS = battle_defs.CARD_FLAGS
 
 local CONDITIONS =
@@ -68,6 +71,27 @@ local CONDITIONS =
                             self.owner:RemoveCondition( self.id, 1, self )
                         end
                     end
+                end
+            end,
+        },
+    },
+    ETB_SLOW_FLEE = {
+        name = "Slow Flee",
+        desc = "If this fighter flees flees on another fighter's turn, gain {RUNNING} instead.",
+
+        ctype = CTYPE.DEBUFF,
+
+        ShouldAutoAttach = function( self, battle, fighter )
+            if fighter.agent and fighter.agent.etb_slow_flee then
+                return 1
+            end
+        end,
+
+        event_handlers =
+        {
+            [ BATTLE_EVENT.CALC_CAN_FLEE ] = function( self, acc, fighter )
+                if fighter == self.owner then
+                    acc:ModifyValue(false, self)
                 end
             end,
         },
