@@ -18,7 +18,7 @@ local GENERATORS =
             table.insert(monsters, table.arraypick{"GRAWKIT", "LUMINTHIAN"})
             difficulty_level = difficulty_level - 3
         end
-        local normal_monster = table.arraypick{{"FLEAD"}, {"ERCHIN"}, {"VROC"}}
+        local normal_monster = table.arraypick{{"FLEAD"}, {"ERCHIN"}, {"VROC"}, {"LUMICYTE"}}
         for i = 1, math.min(difficulty_level, 4 - #monsters) do
             table.insert(monsters, table.arraypick(normal_monster))
         end
