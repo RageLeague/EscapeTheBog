@@ -54,7 +54,7 @@ local QDEF = QuestDef.Define
             if not screen.encounter.ignore_obfuscation then
                 local agent, txt = table.unpack(params)
                 if not (agent:IsPlayer()) and agent:IsSentient() then
-                    params[2] = EscapeTheBogUtil.ObfuscateWords(txt)
+                    params[2] = quest:DefFn("DoObfuscateText", txt)
                 end
             end
         end,
@@ -83,6 +83,10 @@ local QDEF = QuestDef.Define
             params.state_id = "STATE_RAN"
         end,
     },
+
+    DoObfuscateText = function(quest, txt)
+        return EscapeTheBogUtil.ObfuscateWords(txt)
+    end,
 
     AddUsageLimitToCard = function(quest, card)
         if is_instance(card, Negotiation.Card) then

@@ -20,7 +20,7 @@ local QDEF = QuestDef.Define
         local current_day = math.floor( TheGame:GetGameState():GetDateTime() / 2 ) + 1
         quest.param.handler_dead = quest:GetCastMember("handler"):IsDead() or current_day >= 6
         if quest.param.handler_dead and not quest:GetCastMember("handler"):IsRetired() then
-            quest:GetCastMember("handler"):Kill()
+            -- quest:GetCastMember("handler"):Kill()
         end
         quest:AssignCastMember("illusion_boss")
     end,
@@ -52,6 +52,13 @@ local QDEF = QuestDef.Define
         quest.param.handler_id = quest.param.handler_id or table.arraypick(available_handlers)
         local agent = AgentUtil.GetOrSpawnAgentbyAlias(HANDLER_ID[quest.param.handler_id])
         table.insert(t, agent)
+    end,
+    no_validation = true,
+}
+:AddCast{
+    cast_id = "bog_monster",
+    cast_fn = function(quest, t)
+        table.insert(t, TheGame:GetGameState():GetMainQuest():GetCastMember("bog_monster"))
     end,
     no_validation = true,
 }
@@ -443,6 +450,177 @@ QDEF:AddConvo("starting_out")
             end
         end)
     :State("STATE_POST_FIGHT_SPARE")
+        :Loc{
+            DIALOG_INTRO = [[
+                player:
+                    !angry_point
+                    Had enough?
+                    Lift my madness, or I will lift your life.
+                agent:
+                {not handler_dead?
+                    You are mad, alright, and I have nothing to do with it.
+                }
+                {handler_dead?
+                    The Bog does not surrender, grifter, and neither will I.
+                }
+                player:
+                    Seems like you are unwilling to cooperate.
+                    Perhaps I should end you, right here, right now.
+            ]],
+            OPT_EXECUTE = "Execute the High Priest",
+            OPT_EXECUTE_STRONG = "<#PENALTY>Execute {agent.himher}</>",
+            DIALOG_EXECUTE = [[
+                agent:
+                    !exit
+                * You swiftly executed the High Priest.
+            ]],
+            OPT_QUESTION_1 = "Ask the High Priest why you shouldn't just kill {agent.himher} right now",
+            DIALOG_QUESTION_1 = [[
+                player:
+                    Give me a reason I shouldn't just kill you right now.
+                agent:
+                {not handler_dead?
+                    {1}
+                }
+                {handler_dead?
+                    You cannot kill me. I am one with the Bog.
+                }
+                player:
+                {heard_handler_name?
+                    {handler}? Why are you bringing up that name?
+                    Is that your pathetic attempt to upset me?
+                }
+                {not heard_handler_name?
+                    Terrible reasoning. I'm afraid this can only end one way.
+                }
+            ]],
+            DIALOG_QUESTION_1_PT1 = "The Bog must have you corrupted your mind.",
+            DIALOG_QUESTION_1_PT2 = "You don't even seem to recognize me, {handler.name}.",
+            OPT_QUESTION_2 = "Ask about {handler}",
+            DIALOG_QUESTION_2 = [[
+                player:
+                    What do you know about {handler}?
+                agent:
+                {handler_fellemo?
+                    Don't--------, {player.name}.---am {handler.name}.
+                }
+                {handler_kalandra?
+                    ----serious? You-----------------me, {handler.name}?
+                }
+                player:
+                    You mean, you are {handler}?
+                    I don't believe you!
+            ]],
+            DIALOG_SPARE = [[
+                * You couldn't do it. There are so many doubts in your mind that you just couldn't do it.
+                * You dropped your weapons.
+                agent:
+                    Looks like you finally come to your senses.
+                * Suddenly, you heard a strange voice, a most <b><i>TERRIFYING</></> voice.
+                bog_monster:
+                    !right
+                    <#PENALTY>KILL {handler.gender:HIM|HER|THEM}!</>
+                    <#PENALTY>THE BOG DEMANDS SACRIFICE!</>
+            ]],
+            OPT_BREAK_FREE = "Break free of the bog's influence",
+            DIALOG_BREAK_FREE = [[
+                player:
+                    No! I will not follow your command!
+            ]],
+            DIALOG_BREAK_FREE_SUCCESS = [[
+                player:
+                    I will not listen to you!
+                    So just leave me alone!
+                * Your resolve has overcome the Bog's influence.
+                * It has taken a lot of toll on you though, and you passed out shortly.
+            ]],
+            DIALOG_BREAK_FREE_SUCCESS_PST = [[
+                agent:
+                    {1}?
+                    {player.name}!!!
+            ]],
+            DIALOG_BREAK_FREE_FAILURE = [[
+                bog_monster:
+                    <#PENALTY>DO IT!</>
+                player:
+                    No! I-
+                agent:
+                    !right
+                    !scared
+                player:
+                    I'LL DO IT!
+                    !cruel
+                    <#PENALTY>EXCELLENT!</>
+                agent:
+                    !exit
+                * The execution is over in a blink of an eye.
+                * The leader of the boggers drops dead at your feet.
+            ]],
+        }
+        :SetLooping(true)
+        :Fn(function(cxt)
+            if cxt:FirstLoop() then
+                cxt:Dialog("DIALOG_INTRO")
+            end
+            if (cxt.enc.scratch.question_state or 0) == 0 then
+                cxt:Opt("OPT_QUESTION_1")
+                    :Fn(function(cxt)
+                        if not cxt.quest.param.handler_dead then
+                            cxt.enc.scratch.ignore_obfuscation = true
+                            local str = { cxt:GetLocString( "DIALOG_QUESTION_1_PT1" ), cxt:GetLocString( "DIALOG_QUESTION_1_PT2" )}
+                            local handler_name = cxt:GetCastMember("handler"):GetName()
+                            local display_str = EscapeTheBogUtil.TryMainQuestFn("DoObfuscateText", table.concat( str, "\n" ))
+                            if display_str:find(handler_name) then
+                                cxt.quest.param.heard_handler_name = true
+                            end
+                            cxt:Dialog("DIALOG_QUESTION_1", display_str)
+                            cxt.enc.scratch.ignore_obfuscation = nil
+                        else
+                            cxt:Dialog("DIALOG_QUESTION_1")
+                        end
+                        cxt.enc.scratch.question_state = 1
+                    end)
+            elseif (cxt.enc.scratch.question_state or 0) == 1 and cxt.quest.param.heard_handler_name then
+                cxt:Opt("OPT_QUESTION_2")
+                    :Fn(function(cxt)
+                        cxt.enc.scratch.ignore_obfuscation = true
+                        cxt:Dialog("DIALOG_QUESTION_2")
+                        cxt.enc.scratch.ignore_obfuscation = nil
+                        cxt.enc.scratch.question_state = 2
+                    end)
+            elseif (cxt.enc.scratch.question_state or 0) == 3 then
+                cxt:BasicNegotiation("BREAK_FREE", {
+
+                })
+                    :OnSuccess()
+                        :FadeOut()
+                        :Fn(function(cxt)
+                            cxt.enc.scratch.ignore_obfuscation = true
+                            cxt:Dialog("DIALOG_BREAK_FREE_SUCCESS_PST", EscapeTheBogUtil.TryMainQuestFn("DoObfuscateText", cxt.player:GetName()))
+                            cxt.enc.scratch.ignore_obfuscation = nil
+                        end)
+                        :GoTo("STATE_FLASHBACK")
+                    :OnFailure()
+                        :Fn(function(cxt)
+                            cxt:GetAgent():Kill()
+                        end)
+                        :GoTo("STATE_POST_FIGHT_KILL")
+            end
+            cxt:Opt(cxt.enc.scratch.question_state and "OPT_EXECUTE_STRONG" or "OPT_EXECUTE")
+                :Dialog("DIALOG_EXECUTE")
+                :Fn(function(cxt)
+                    cxt:GetAgent():Kill()
+                end)
+                :GoTo("STATE_POST_FIGHT_KILL")
+            if (cxt.enc.scratch.question_state or 0) == 2 then
+                cxt:Opt("OPT_BACK_BUTTON")
+                    :MakeUnder()
+                    :Dialog("DIALOG_SPARE")
+                    :Fn(function(cxt)
+                        cxt.enc.scratch.question_state = 3
+                    end)
+            end
+        end)
     :State("STATE_POST_FIGHT_KILL")
         :Loc{
             DIALOG_INTRO = [[
