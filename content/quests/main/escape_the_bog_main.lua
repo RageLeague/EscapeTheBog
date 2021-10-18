@@ -51,7 +51,7 @@ local QDEF = QuestDef.Define
 
     events = {
         on_convo_speech = function(quest, screen, params)
-            if not screen.encounter.ignore_obfuscation then
+            if not screen.encounter.ignore_obfuscation and not quest.param.madness_cured then
                 local agent, txt = table.unpack(params)
                 if not (agent:IsPlayer()) and agent:IsSentient() then
                     params[2] = quest:DefFn("DoObfuscateText", txt)

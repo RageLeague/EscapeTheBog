@@ -41,6 +41,9 @@ local QDEF = QuestDef.Define
 :AddObjective{
     id = "escape_bog",
 }
+:AddObjective{
+    id = "investigate_further",
+}
 :AddCast{
     cast_id = "illusion_boss",
     when = QWHEN.MANUAL,
@@ -690,6 +693,9 @@ QDEF:AddConvo("starting_out")
             DIALOG_INTRO_ESCAPE = [[
                 * You feel like a curse has been lifted from you.
                 * All your misfortunes in the past few days have ended, because you have defeated the source of it all.
+                {is_hungry?
+                    * Strangely, you don't feel as hungry as you were before.
+                }
                 * With that out of your way, it is time for you to leave.
             ]],
             DIALOG_INTRO_FRIEND = [[
@@ -743,8 +749,37 @@ QDEF:AddConvo("starting_out")
                         We have a job to do.
                     }
                 }
+                {is_hungry?
+                handler:
+                    !give
+                    But before we do anything, eat this.
+                    We can't do this on an empty stomach.
+                player:
+                    !take
+                    Thanks.
+                    Actually, it's really weird, but I don't feel as hungry as before.
+                handler:
+                    Good for you, then.
+                }
             ]],
         }
         :Fn(function(cxt)
+            TheGame:GetGameState():GetMainQuest().param.madness_cured = true
+            cxt.player:RemoveAspect("etb_fatigue")
+            cxt.player:RemoveAspect("etb_hunger")
+            if cxt.quest.param.handler_dead or cxt:GetCastMember("illusion_boss"):IsDead() then
+                -- The default ending
+                cxt:Dialog("DIALOG_INTRO_ESCAPE")
+                cxt.quest:Complete("starting_out")
+                cxt.quest:Activate("escape_bog")
 
+                StateGraphUtil.AddEndOption(cxt)
+            else
+                -- The better ending
+                cxt:Dialog("DIALOG_INTRO_FRIEND")
+                cxt.quest:Complete("starting_out")
+                cxt.quest:Activate("investigate_further")
+
+                StateGraphUtil.AddEndOption(cxt)
+            end
         end)
