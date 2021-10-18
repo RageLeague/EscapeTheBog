@@ -452,6 +452,9 @@ QDEF:AddConvo("starting_out")
             ]],
         }
         :Fn(function(cxt)
+            if not cxt:GetCastMember("illusion_boss"):IsRetired() then
+                cxt:GetCastMember("illusion_boss"):Retire()
+            end
             local current_day = math.floor( TheGame:GetGameState():GetDateTime() / 2 ) + 1
             cxt:Dialog("DIALOG_INTRO", current_day)
             if cxt.enc:GetScreen():IsAutoSkip() then
@@ -467,6 +470,7 @@ QDEF:AddConvo("starting_out")
                 end)
             end
             if not cxt.quest.param.skipped_flashback then
+                cxt.location:SetPlax("INT_Bog_Cave_01")
                 cxt:TalkTo(cxt:GetCastMember("handler"))
                 cxt.enc:PresentAgent(cxt.player, SIDE.LEFT)
                 cxt.enc:PresentAgent(cxt:GetAgent(), SIDE.RIGHT)
@@ -488,6 +492,8 @@ QDEF:AddConvo("starting_out")
                     :Dialog("DIALOG_FLASH_DEFEND_PST", EscapeTheBogUtil.ObfuscateWords(cxt.player:GetName(), 1))
                     :Fn(function(cxt)
                         cxt.enc.ignore_obfuscation = nil
+                        cxt.location:SetPlax()
+                        cxt:GetAgent():MoveToLimbo()
                         cxt:GoTo("STATE_POST_FLASHBACK")
                     end)
             else
@@ -679,7 +685,7 @@ QDEF:AddConvo("starting_out")
                         :FadeOut()
                         :Fn(function(cxt)
                             cxt.enc.ignore_obfuscation = true
-                            cxt:Dialog("DIALOG_BREAK_FREE_SUCCESS_PST", EscapeTheBogUtil.TryMainQuestFn("DoObfuscateText", cxt.player:GetName()))
+                            cxt:Dialog("DIALOG_BREAK_FREE_SUCCESS_PST", EscapeTheBogUtil.TryMainQuestFn("DoObfuscateText", cxt.player:GetName(), 1))
                             cxt.enc.ignore_obfuscation = nil
                         end)
                         :GoTo("STATE_FLASHBACK")
@@ -813,6 +819,7 @@ QDEF:AddConvo("starting_out")
 
                 StateGraphUtil.AddEndOption(cxt)
             else
+                cxt:TalkTo(cxt:GetCastMember("handler"))
                 cxt.enc:PresentAgent(cxt:GetCastMember("handler"), SIDE.RIGHT)
                 cxt.enc:Emote(cxt:GetCastMember("handler"), "neutral")
                 -- The better ending
@@ -835,18 +842,21 @@ QDEF:AddConvo("escape_bog")
                     end )
             end
             cxt:Opt("OPT_TRAVEL_ETB")
+                :MakeUnder()
                 :Fn( function(cxt)
                     UIHelpers.DoSpecificConvo( nil, cxt.convodef.id, "STATE_LEAVE_1" , nil, nil, cxt.quest)
                 end )
         end
         if cxt.location == cxt:GetCastMember("exit_1") then
             cxt:Opt("OPT_TRAVEL_ETB")
+                :MakeUnder()
                 :Fn( function(cxt)
                     UIHelpers.DoSpecificConvo( nil, cxt.convodef.id, "STATE_LEAVE_2" , nil, nil, cxt.quest)
                 end )
         end
         if cxt.location == cxt:GetCastMember("exit_2") then
             cxt:Opt("OPT_TRAVEL_ETB")
+                :MakeUnder()
                 :Fn( function(cxt)
                     UIHelpers.DoSpecificConvo( nil, cxt.convodef.id, "STATE_LEAVE_3" , nil, nil, cxt.quest)
                 end )
@@ -899,8 +909,12 @@ QDEF:AddConvo("escape_bog")
             ]],
         }
         :Fn(function(cxt)
+            cxt:TalkTo(cxt.player)
             cxt:Dialog("DIALOG_INTRO")
             cxt.quest.param.searched_for_poi = true
+            if cxt:GetCastMember("handler"):IsAlive() then
+                cxt:GetCastMember("handler"):Kill()
+            end
             EscapeTheBogUtil.TryMainQuestFn("AdvanceTime", 1, "SEARCH")
             StateGraphUtil.AddEndOption(cxt)
         end)

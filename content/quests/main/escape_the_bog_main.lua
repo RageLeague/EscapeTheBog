@@ -84,8 +84,11 @@ local QDEF = QuestDef.Define
         end,
     },
 
-    DoObfuscateText = function(quest, txt)
-        return EscapeTheBogUtil.ObfuscateWords(txt)
+    DoObfuscateText = function(quest, txt, frequency)
+        if type(frequency) ~= "number" then
+            frequency = nil
+        end
+        return EscapeTheBogUtil.ObfuscateWords(txt, frequency)
     end,
 
     AddUsageLimitToCard = function(quest, card)
