@@ -767,19 +767,88 @@ QDEF:AddConvo("starting_out")
             TheGame:GetGameState():GetMainQuest().param.madness_cured = true
             cxt.player:RemoveAspect("etb_fatigue")
             cxt.player:RemoveAspect("etb_hunger")
+            cxt.enc:PresentAgent(cxt.player, SIDE.LEFT)
             if cxt.quest.param.handler_dead or cxt:GetCastMember("illusion_boss"):IsDead() then
                 -- The default ending
+                cxt:FadeIn()
                 cxt:Dialog("DIALOG_INTRO_ESCAPE")
                 cxt.quest:Complete("starting_out")
                 cxt.quest:Activate("escape_bog")
 
                 StateGraphUtil.AddEndOption(cxt)
             else
+                cxt.enc:PresentAgent(cxt:GetCastMember("handler"), SIDE.RIGHT)
                 -- The better ending
+                cxt:FadeIn()
                 cxt:Dialog("DIALOG_INTRO_FRIEND")
                 cxt.quest:Complete("starting_out")
                 cxt.quest:Activate("investigate_further")
 
                 StateGraphUtil.AddEndOption(cxt)
             end
+        end)
+
+QDEF:AddConvo("escape_bog")
+    :Hub_Location(function(cxt)
+        if cxt.location ~= cxt.quest.param.location then
+            return
+        end
+        if not cxt.quest.param.searched_for_poi then
+            cxt:Opt("OPT_FIND_POI_ETB")
+                :Fn( function(cxt)
+                    UIHelpers.DoSpecificConvo( nil, cxt.convodef.id, "STATE_POI" , nil, nil, cxt.quest)
+                end )
+        end
+    end)
+    :State("STATE_POI")
+        :Loc{
+            DIALOG_INTRO = [[
+                * While you searched around the mine, you found {handler}'s body lying on the ground.
+                * The Bogger priest must have killed {handler.himher} before you arrived.
+                {heard_handler_name?
+                    * <i>That must have been what happened</>, you keep telling yourself.
+                    * <i>The priest must have killed {handler.himher}</>, you believe.
+                }
+                {not heard_handler_name?
+                    * If only you have arrived sooner. If only you could stop {illusion_boss.himher}.
+                    * Maybe things could turn out differently.
+                    * Maybe {handler} would still be alive, searching for the ancient artifact with you.
+                }
+                {handler_fellemo?
+                    {player_sal?
+                        * While your alliance with {handler} was found on shaky grounds, you still feel a bit sad seeing {handler.himher} like this.
+                    }
+                    {player_rook?
+                        * {handler} was the closest thing that you could consider a friend.
+                        * You have fought many battles alongside {handler.himher}, but the moment you weren't fighting alongside {handler.himher}, {handler.heshe} perished.
+                    }
+                    {player_arint?
+                        * While you don't agree with {handler} a lot of times, {handler.heshe} was still your boss.
+                        * And {handler.heshe} thinks very highly of your skills.
+                        * Seeing {handler} like this fills you with melancholy.
+                    }
+                    {not player_sal and not player_rook and not player_arint?
+                        * Your relationship with {handler} was purely contractual, yet you still feel a bit sad seeing {handler.himher} like this.
+                    }
+                }
+                {handler_kalandra?
+                    {player_sal?
+                        * You haven't seen Prindo in years, yet when you are finally reunited, {handler.heshe} died.
+                        * Unable to protect {handler.himher}, you feel like a failure.
+                    }
+                    {not player_sal?
+                        * Your relationship with {handler} was purely contractual, yet you still feel a bit sad seeing {handler.himher} like this.
+                    }
+                }
+                * At least you revenged {handler} by killing {handler.hisher} killer.
+                {heard_handler_name?
+                    * Then... <b><i>Why do you feel a chill down your spine, as if something is wrong?</></>
+                }
+            ]],
+        }
+        :Fn(function(cxt)
+            cxt:Dialog("DIALOG_INTRO")
+            cxt.quest.param.searched_for_poi = true
+            EscapeTheBogUtil.TryMainQuestFn("AdvanceTime", 1, "SEARCH")
+            StateGraphUtil.AddEndOption(cxt)
         end)
