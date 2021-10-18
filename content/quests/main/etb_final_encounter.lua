@@ -448,6 +448,7 @@ QDEF:AddConvo("starting_out")
                     {player}?
                     {1}!!!
                 * You don't remember much after that.
+                * ...
             ]],
         }
         :Fn(function(cxt)
@@ -720,7 +721,9 @@ QDEF:AddConvo("starting_out")
     :State("STATE_POST_FLASHBACK")
         :Loc{
             DIALOG_INTRO_ESCAPE = [[
-                * You feel like a curse has been lifted from you.
+                player:
+                    !tired
+                * As you regain consciousness, you feel like a curse has been lifted from you.
                 * All your misfortunes in the past few days have ended, because you have defeated the source of it all.
                 {is_hungry?
                     * Strangely, you don't feel as hungry as you were before.
@@ -728,6 +731,8 @@ QDEF:AddConvo("starting_out")
                 * With that out of your way, it is time for you to leave.
             ]],
             DIALOG_INTRO_FRIEND = [[
+                player:
+                    !tired
                 * You wake up to find {handler} by your side.
                 handler:
                     Feeling better?
@@ -797,7 +802,9 @@ QDEF:AddConvo("starting_out")
             cxt.player:RemoveAspect("etb_fatigue")
             cxt.player:RemoveAspect("etb_hunger")
             cxt.enc:PresentAgent(cxt.player, SIDE.LEFT)
+            cxt.enc:Emote(cxt.player, "neutral")
             if cxt.quest.param.handler_dead or cxt:GetCastMember("illusion_boss"):IsDead() then
+                cxt.enc:PresentAgent(nil, SIDE.RIGHT)
                 -- The default ending
                 cxt:FadeIn()
                 cxt:Dialog("DIALOG_INTRO_ESCAPE")
@@ -807,6 +814,7 @@ QDEF:AddConvo("starting_out")
                 StateGraphUtil.AddEndOption(cxt)
             else
                 cxt.enc:PresentAgent(cxt:GetCastMember("handler"), SIDE.RIGHT)
+                cxt.enc:Emote(cxt:GetCastMember("handler"), "neutral")
                 -- The better ending
                 cxt:FadeIn()
                 cxt:Dialog("DIALOG_INTRO_FRIEND")
