@@ -831,6 +831,18 @@ QDEF:AddConvo("escape_bog")
                     UIHelpers.DoSpecificConvo( nil, cxt.convodef.id, "STATE_LEAVE_1" , nil, nil, cxt.quest)
                 end )
         end
+        if cxt.location == cxt:GetCastMember("exit_1") then
+            cxt:Opt("OPT_TRAVEL_ETB")
+                :Fn( function(cxt)
+                    UIHelpers.DoSpecificConvo( nil, cxt.convodef.id, "STATE_LEAVE_2" , nil, nil, cxt.quest)
+                end )
+        end
+        if cxt.location == cxt:GetCastMember("exit_2") then
+            cxt:Opt("OPT_TRAVEL_ETB")
+                :Fn( function(cxt)
+                    UIHelpers.DoSpecificConvo( nil, cxt.convodef.id, "STATE_LEAVE_3" , nil, nil, cxt.quest)
+                end )
+        end
     end)
     :State("STATE_POI")
         :Loc{
