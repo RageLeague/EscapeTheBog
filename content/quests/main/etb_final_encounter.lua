@@ -74,6 +74,35 @@ local QDEF = QuestDef.Define
     end,
     no_validation = true,
 }
+:AddQuestLocation{
+    cast_id = "exit_1",
+    show_player = true,
+    name = "Ancient Mine Entrance",
+    desc = "An entrance to an ancient mine. The exit of your current location, and a path to civilization.",
+    plax = "INT_Bog_Cave_01",
+    show_agents = true,
+    tags = {"cave", "bog", "mine_entrance"},
+    indoors = true,
+}
+:AddQuestLocation{
+    cast_id = "exit_2",
+    show_player = true,
+    name = "Bog Road",
+    desc = "A path to civilization. You remember it clearly.",
+    plax = "EXT_Bog_Road_01",
+    show_agents = true,
+    tags = {"bog", "deepbog", "road"},
+}
+:AddQuestLocation{
+    cast_id = "exit_3",
+    show_player = true,
+    name = "Bog Gate",
+    desc = "Your destination. Civilization.",
+    plax = "EXT_TerritoryGate_Entrance",
+    show_agents = true,
+    tags = {"bog", "gate"},
+    indoors = true,
+}
 
 local function AddAttackOptions(cxt)
     cxt:Opt("OPT_ATTACK")
@@ -790,13 +819,16 @@ QDEF:AddConvo("starting_out")
 
 QDEF:AddConvo("escape_bog")
     :Hub_Location(function(cxt)
-        if cxt.location ~= cxt.quest.param.location then
-            return
-        end
-        if not cxt.quest.param.searched_for_poi then
-            cxt:Opt("OPT_FIND_POI_ETB")
+        if cxt.location == cxt.quest.param.location then
+            if not cxt.quest.param.searched_for_poi then
+                cxt:Opt("OPT_FIND_POI_ETB")
+                    :Fn( function(cxt)
+                        UIHelpers.DoSpecificConvo( nil, cxt.convodef.id, "STATE_POI" , nil, nil, cxt.quest)
+                    end )
+            end
+            cxt:Opt("OPT_TRAVEL_ETB")
                 :Fn( function(cxt)
-                    UIHelpers.DoSpecificConvo( nil, cxt.convodef.id, "STATE_POI" , nil, nil, cxt.quest)
+                    UIHelpers.DoSpecificConvo( nil, cxt.convodef.id, "STATE_LEAVE_1" , nil, nil, cxt.quest)
                 end )
         end
     end)
@@ -851,4 +883,130 @@ QDEF:AddConvo("escape_bog")
             cxt.quest.param.searched_for_poi = true
             EscapeTheBogUtil.TryMainQuestFn("AdvanceTime", 1, "SEARCH")
             StateGraphUtil.AddEndOption(cxt)
+        end)
+    :State("STATE_LEAVE_1")
+        :Loc{
+            DIALOG_INTRO = [[
+                {searched_for_poi?
+                    * With {handler} dead, there is no point in finding the artifact anymore.
+                }
+                {not searched_for_poi?
+                    * With {handler} nowhere to be found, there is no point in finding the artifact anymore.
+                }
+                * You leave the mine.
+            ]],
+            DIALOG_INTRO_PST = [[
+                * Thinking back now, a lot has happened in the past few days.
+                * You started in the middle of the Bog.
+                {bog_influence?
+                    * No faith, no purpose, no knowledge, nothing.
+                    * Yet, you manage to find faith in the Bog.
+                    {kill_many?
+                        * And as the Bog provide you with blessings, you too, provide the Bog many tributes.
+                        * The Bog grows strong, just as you grow strong.
+                    }
+                    {not kill_many and good_survival?
+                        * You have believed in the Bog, depended on the Bog.
+                        * And now, you carry the strength of the Bog.
+                    }
+                    {not good_survival?
+                        * And despite the many hardship you face in the Bog, you nevertheless believed in it and depended on it.
+                        * And now, you carry its will.
+                    }
+                }
+                {not bog_influence and kill_many?
+                    * Pathetic, weak, defenseless.
+                    * The Bog, and to an extension, the world, is an unforgiving place. Either you become the predator, or you become the prey.
+                    {good_survival?
+                        * And you? You have become the apex predator.
+                    }
+                    {not good_survival?
+                        * And while you fight alongside the predators, you were never the strongest.
+                    }
+                }
+                {not kill_many and not bog_influence?
+                    * No knowledge, no supplies, no friends, nothing.
+                    {good_survival?
+                        * Yet, despite that, you adapted. You survived. You flourished.
+                    }
+                    {not good_survival?
+                        * Yet, despite that, you adapted. You survived. Barely.
+                        * That is not a luxury many can share.
+                    }
+                }
+                * Either way, your life is changed forever.
+            ]],
+        }
+        :Fn(function(cxt)
+            cxt:Dialog("DIALOG_INTRO")
+            cxt.encounter:DoLocationTransition( cxt:GetCastMember("exit_1") )
+            EscapeTheBogUtil.TryMainQuestFn("AdvanceTime", 1, "TRAVEL")
+            cxt:Dialog("DIALOG_INTRO_PST")
+            StateGraphUtil.AddEndOption(cxt)
+        end)
+    :State("STATE_LEAVE_2")
+        :Loc{
+            DIALOG_INTRO = [[
+                * With your mind as sharp as ever, you are able to find your way around the bog easily.
+                * You can finally return to civilization, and-
+                * Well, you can never live too comfortably in Havaria, but it beats living in the Bog.
+                {bog_influence?
+                    player:
+                        !cruel
+                    * <i>DOES IT, THOUGH? DOES IT REALLY?</>
+                }
+                {searched_for_poi?
+                    * It is a shame that {handler} cannot see it through.
+                }
+                {not searched_for_poi?
+                    * {handler} is probably waiting for you somewhere comfortably. At least, you hope.
+                    * <i>But you have a strange feeling that it is not going to be the case.</>
+                }
+                {heard_handler_name?
+                    * <i>IT'S NOT MY FAULT IT'S NOT MY FAULT IT'S NOT MY FAULT IT'S NOT MY FAULT IT'S NOT MY FAULT IT'S NOT MY FAULT IT'S NOT MY FAULT IT'S NOT MY FAULT IT'S NOT MY FAULT IT'S NOT MY FAULT</>
+                    * Your head hurts just thinking about it.
+                }
+            ]],
+        }
+        :Fn(function(cxt)
+            cxt.encounter:DoLocationTransition( cxt:GetCastMember("exit_2") )
+            EscapeTheBogUtil.TryMainQuestFn("AdvanceTime", 1, "TRAVEL")
+            cxt:Dialog("DIALOG_INTRO")
+            StateGraphUtil.AddEndOption(cxt)
+        end)
+    :State("STATE_LEAVE_3")
+        :Loc{
+            DIALOG_INTRO = [[
+                * The front gate to the bog lies just before you.
+                * Finally, after many days, you have reached your destination.
+                {sunrise?
+                    * A new day awaits you, and a new beginning awaits.
+                }
+                {midday?
+                    * The sun is shining, and so is your future.
+                }
+                {sunset?
+                    * As the sun sets on this chapter of your life, a new chapter rises.
+                }
+                {midnight?
+                    * Darkness covers the bog, but soon, the light will arrive.
+                }
+            ]],
+        }
+        :Fn(function(cxt)
+            cxt.encounter:DoLocationTransition( cxt:GetCastMember("exit_3") )
+            EscapeTheBogUtil.TryMainQuestFn("AdvanceTime", 1, "TRAVEL")
+            local day_phases =
+            {
+                "sunrise", "midday", "midday", "midday", "midday", "sunset"
+            }
+            local night_phases =
+            {
+                "sunset", "midnight", "midnight", "midnight", "midnight", "sunrise"
+            }
+            local phase_table = TheGame:GetGameState():GetDayPhase() == DAY_PHASE.NIGHT and night_phases or day_phases
+            cxt.enc.scratch[phase_table[(TheGame:GetGameState():GetMainQuest().param.time_segment or 0) + 1]] = true
+            cxt:Dialog("DIALOG_INTRO")
+            StateGraphUtil.AddEndOption(cxt)
+                :Fn(function() TheGame:Win() end)
         end)

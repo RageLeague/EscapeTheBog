@@ -147,60 +147,54 @@ function EscapeTheBogUtil.AddBogLocationQuest(quest_def, location_def, exit_defs
         id = "start",
         state = QSTATUS.ACTIVE,
     }
-
-    QDEF:AddConvo()
-        :Hub_Location( function( cxt, who )
-            if cxt.location ~= cxt:GetCastMember("main_location") then
-                return
-            end
-
-            -- cxt:Opt("OPT_SLEEP_ETB")
-            --     :ReqCondition(not cxt.player.etb_fatigue or cxt.player.etb_fatigue:CanSleep(), "REQ_CAN_SLEEP_ETB")
-            --     :Fn( function(cxt)
-            --         UIHelpers.DoSpecificConvo( nil, cxt.convodef.id, "STATE_SLEEP" , nil, nil, cxt.quest)
-            --     end )
-
-            cxt:Opt("OPT_TRAVEL_ETB")
-                :MakeUnder()
-                :Fn( function(cxt)
-                    UIHelpers.DoSpecificConvo( nil, cxt.convodef.id, "STATE_MOVE" , nil, nil, cxt.quest)
-                end )
-        end )
-        :State("STATE_MOVE")
-            :Fn(function(cxt)
-                local function AddExitOption(exit)
-                    local location = exit:GetCastMember("main_location")
-                    cxt:Opt(cxt.quest.param.previous_location == exit and "OPT_RETURN_TO_ETB" or "OPT_MOVE_TO_ETB", location)
-                        :PostText(exit:DefFn("GetPathDesc"))
-                        :Dialog("DIALOG_MOVE_TO_ETB", location)
-                        :Fn( function(cxt)
-                            exit.param.previous_location = cxt.quest
-                            cxt.encounter:DoLocationTransition( location )
-                            EscapeTheBogUtil.TryMainQuestFn("AdvanceTime", 1, "TRAVEL")
-
-                            -- TheGame:GetGameState():GetCaravan():MoveToLocation( location )
-                            cxt:End()
-                        end )
+    if not QDEF.no_default_leave then
+        QDEF:AddConvo()
+            :Hub_Location( function( cxt, who )
+                if cxt.location ~= cxt:GetCastMember("main_location") then
+                    return
                 end
-                local exit_length = #cxt.quest.param.exits
-                local end_idx = table.arrayfind(cxt.quest.param.exits, cxt.quest.param.previous_location) or exit_length
-                for i = end_idx + 1, exit_length do
-                    local exit = cxt.quest.param.exits[i]
-                    AddExitOption(exit)
-                end
-                for i = 1, end_idx do
-                    local exit = cxt.quest.param.exits[i]
-                    AddExitOption(exit)
-                end
-                StateGraphUtil.AddBackButton(cxt)
-            end)
-        -- :State("STATE_SLEEP")
-        --     :Fn(function(cxt)
-        --         cxt:Dialog("DIALOG_SLEEP_ETB")
-        --         cxt:FadeOut()
 
-        --         EscapeTheBogUtil.DoSleepConvo(cxt)
-        --     end)
+                -- cxt:Opt("OPT_SLEEP_ETB")
+                --     :ReqCondition(not cxt.player.etb_fatigue or cxt.player.etb_fatigue:CanSleep(), "REQ_CAN_SLEEP_ETB")
+                --     :Fn( function(cxt)
+                --         UIHelpers.DoSpecificConvo( nil, cxt.convodef.id, "STATE_SLEEP" , nil, nil, cxt.quest)
+                --     end )
+
+                cxt:Opt("OPT_TRAVEL_ETB")
+                    :MakeUnder()
+                    :Fn( function(cxt)
+                        UIHelpers.DoSpecificConvo( nil, cxt.convodef.id, "STATE_MOVE" , nil, nil, cxt.quest)
+                    end )
+            end )
+            :State("STATE_MOVE")
+                :Fn(function(cxt)
+                    local function AddExitOption(exit)
+                        local location = exit:GetCastMember("main_location")
+                        cxt:Opt(cxt.quest.param.previous_location == exit and "OPT_RETURN_TO_ETB" or "OPT_MOVE_TO_ETB", location)
+                            :PostText(exit:DefFn("GetPathDesc"))
+                            :Dialog("DIALOG_MOVE_TO_ETB", location)
+                            :Fn( function(cxt)
+                                exit.param.previous_location = cxt.quest
+                                cxt.encounter:DoLocationTransition( location )
+                                EscapeTheBogUtil.TryMainQuestFn("AdvanceTime", 1, "TRAVEL")
+
+                                -- TheGame:GetGameState():GetCaravan():MoveToLocation( location )
+                                cxt:End()
+                            end )
+                    end
+                    local exit_length = #cxt.quest.param.exits
+                    local end_idx = table.arrayfind(cxt.quest.param.exits, cxt.quest.param.previous_location) or exit_length
+                    for i = end_idx + 1, exit_length do
+                        local exit = cxt.quest.param.exits[i]
+                        AddExitOption(exit)
+                    end
+                    for i = 1, end_idx do
+                        local exit = cxt.quest.param.exits[i]
+                        AddExitOption(exit)
+                    end
+                    StateGraphUtil.AddBackButton(cxt)
+                end)
+    end
     assert(QDEF.GetPathDesc, "No GetPathDesc defined")
     return QDEF
 end
