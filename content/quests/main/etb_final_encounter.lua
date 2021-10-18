@@ -904,14 +904,16 @@ QDEF:AddConvo("escape_bog")
                     {kill_many?
                         * And as the Bog provide you with blessings, you too, provide the Bog many tributes.
                         * The Bog grows strong, just as you grow strong.
+                        * <#PENALTY>Now, you shall carry its will.</>
                     }
                     {not kill_many and good_survival?
                         * You have believed in the Bog, depended on the Bog.
-                        * And now, you carry the strength of the Bog.
+                        * And now, you carry the strength and the will of the Bog.
+                        * <b>You shall do its bidding.</>
                     }
                     {not good_survival?
                         * And despite the many hardship you face in the Bog, you nevertheless believed in it and depended on it.
-                        * And now, you carry its will.
+                        * And now, <#PENALTY>you shall carry its will and do its bidding</>.
                     }
                 }
                 {not bog_influence and kill_many?
