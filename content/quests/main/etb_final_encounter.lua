@@ -138,6 +138,7 @@ local function AddAttackOptions(cxt)
             }
             :OnWin()
                 :Fn(function()
+                    cxt.quest.param.fought_illusion_boss = true
                     if cxt:GetAgent():IsDead() then
                         cxt:Dialog("DIALOG_ATTACK_KILLED")
                         cxt:GoTo("STATE_POST_FIGHT_KILL")
@@ -264,21 +265,6 @@ QDEF:AddConvo("starting_out")
             DIALOG_ATTACK_KILLED = [[
                 * You have killed the Bogger leader in battle.
             ]],
-            -- DIALOG_ATTACK_WIN = [[
-            --     player:
-            --         !angry_point
-            --         Had enough?
-            --         Lift my madness, or I will lift your life!
-            --     agent:
-            --     {not handler_dead?
-            --         You are mad, alright. But I have nothing to do with this.
-            --     }
-            --     {handler_dead?
-            --         The bog does not surrender. So neither will I.
-            --     }
-            --     player:
-            --         Still have some fight in you, huh?
-            -- ]],
         }
         :Fn(function(cxt)
             local core_arg = nil
@@ -614,7 +600,7 @@ QDEF:AddConvo("starting_out")
                 * The leader of the boggers drops dead at your feet.
             ]],
 
-            SIT_MOD = "The Bog's influence is very strong",
+
             SIT_MOD_PARASITE = "You have bog parasites on you",
         }
         :SetLooping(true)
@@ -653,7 +639,7 @@ QDEF:AddConvo("starting_out")
                     end)
             elseif (cxt.enc.scratch.question_state or 0) == 3 then
                 local sit_mods = {
-                    { value = 20, text = cxt:GetLocString("SIT_MOD") }
+                    --{ value = 20, text = cxt:GetLocString("SIT_MOD") }
                 }
                 -- Calculate parasites
                 local parasite_values = 0
@@ -743,8 +729,29 @@ QDEF:AddConvo("starting_out")
                 handler:
                     Feeling better?
                 player:
+                    !agree
                     Yeah.
                     In fact, I feel a huge weight just got lifted from my sholders.
+                handler:
+                    !agree
+                    That sounds good.
+                {fought_illusion_boss?
+                    I almost forgive you for beating me up earlier.
+                player:
+                    !surprised
+                    Wait, that was you?
+                    I was fighting a Bogger priest earlier.
+                handler:
+                    !dubious
+                    Uh, yeah, that was me.
+                    That is what kept trying to tell you.
+                player:
+                    !bashful
+                    You did?
+                    Oops.
+                }
+            ]],
+            DIALOG_INTRO_FRIEND_PST = [[
                 handler:
                     I gotta say, you are out for a long time.
                     I thought you are dead. Again.
@@ -825,6 +832,10 @@ QDEF:AddConvo("starting_out")
                 -- The better ending
                 cxt:FadeIn()
                 cxt:Dialog("DIALOG_INTRO_FRIEND")
+                -- if cxt.quest.param.fought_illusion_boss then
+                --     cxt:GetCastMember("handler"):OpinionEvent(OPINION.ATTACKED)
+                -- end
+                cxt:Dialog("DIALOG_INTRO_FRIEND_PST")
                 cxt.quest:Complete("starting_out")
                 cxt.quest:Activate("investigate_further")
 
@@ -1045,4 +1056,92 @@ QDEF:AddConvo("escape_bog")
             cxt:Dialog("DIALOG_INTRO")
             StateGraphUtil.AddEndOption(cxt)
                 :Fn(function() TheGame:Win() end)
+        end)
+
+QDEF:AddConvo("investigate_further")
+    :Hub_Location(function(cxt)
+        if cxt.location == cxt.quest.param.location then
+            if not cxt.quest.param.searched_for_poi then
+                cxt:Opt("OPT_FIND_POI_ETB")
+                    :Fn( function(cxt)
+                        UIHelpers.DoSpecificConvo( nil, cxt.convodef.id, "STATE_POI" , nil, nil, cxt.quest)
+                    end )
+            end
+        end
+    end)
+    :State("STATE_POI")
+        :Loc{
+            DIALOG_INTRO = [[
+                * It's not long before you find your target.
+                player:
+                    !left
+                bog_monster:
+                    !right
+                * The artifact that you are seeking, clearly embedded in the giant monster's eye.
+                * You remember it clearly. The monster who whispers in your ears, giving you all the irrational thoughts you had before.
+                handler:
+                    !left
+                    !scared
+                    So that's what we are dealing with.
+                    !fight
+                    Well, time to end this!
+                player:
+                    !left
+                    !scared
+                * But something is not right. The monster faces you, and speaks in a <i>TERRIFYING</> voice.
+                * A voice that you have heard many times before.
+                bog_monster:
+                    YOU HAVE RESISTED MY WILL.
+                    BUT SOON, YOU SHALL RESIST NO MORE.
+                * It is invoking your deepest fears!
+            ]],
+            OPT_ATTACK = "Attack the monster directly",
+            TT_ATTACK = "<#PENALTY>You will start with all your weaknesses!</>",
+            DIALOG_ATTACK = [[
+                player:
+                    !fight
+                    $scaredFearful
+                    Sh-shut up! I'm not scared of you!
+                * Your tone clearly indicates otherwise.
+            ]],
+            OPT_FACE_FEAR = "Face your fears",
+            DIALOG_FACE_FEAR = [[
+                player:
+                    !angry
+                    You will not scare me!
+            ]],
+            DIALOG_FACE_FEAR_SUCCESS = [[
+                player:
+                    !fight
+                {some_weakness?
+                    $scaredFearful
+                    I- I will not be scared by the likes of you!
+                * Your tone clearly indicates otherwise.
+                }
+                {not some_weakness?
+                    I will not be scared by the likes of you!
+                }
+            ]],
+            DIALOG_FACE_FEAR_FAILURE = [[
+                player:
+                    !scared
+                * Your fear has overtaken you. You didn't even notice the incoming attack!
+            ]],
+        }
+        :Fn(function(cxt)
+            cxt:Dialog("DIALOG_INTRO")
+
+            cxt:Opt("OPT_FACE_FEAR")
+                :Dialog("DIALOG_FACE_FEAR")
+                :Negotiation{
+                    target_agent = cxt:GetCastMember("bog_monster"),
+                }
+                    :OnSuccess()
+                        :Fn(function(cxt)
+
+                        end)
+                    :OnFailure()
+                        :Fn(function(cxt)
+
+                        end)
         end)

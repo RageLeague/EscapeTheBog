@@ -6,6 +6,9 @@ Convo("ETB_CAMP_ACTIONS")
         if not EscapeTheBogUtil.IsETBCampaign() then
             return
         end
+        if TheGame:GetGameState():GetActiveQuestWithContentID("ETB_FINAL_ENCOUNTER") then
+            return
+        end
         cxt:Opt("OPT_CAMP_ACTIONS")
             :Fn(function(cxt)
                 UIHelpers.DoSpecificConvo( nil, cxt.convodef.id, "STATE_CAMP" , nil, nil, cxt.quest)
