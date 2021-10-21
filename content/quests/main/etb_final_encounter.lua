@@ -836,6 +836,7 @@ QDEF:AddConvo("starting_out")
                 --     cxt:GetCastMember("handler"):OpinionEvent(OPINION.ATTACKED)
                 -- end
                 cxt:Dialog("DIALOG_INTRO_FRIEND_PST")
+                cxt:GetCastMember("handler"):Recruit(PARTY_MEMBER_TYPE.CREW)
                 cxt.quest:Complete("starting_out")
                 cxt.quest:Activate("investigate_further")
 
@@ -846,7 +847,7 @@ QDEF:AddConvo("starting_out")
 QDEF:AddConvo("escape_bog")
     :Hub_Location(function(cxt)
         if cxt.location == cxt.quest.param.location then
-            if not cxt.quest.param.searched_for_poi then
+            if not cxt.quest.param.searched_for_poi and not cxt.quest.param.fought_bog_monster then
                 cxt:Opt("OPT_FIND_POI_ETB")
                     :Fn( function(cxt)
                         UIHelpers.DoSpecificConvo( nil, cxt.convodef.id, "STATE_POI" , nil, nil, cxt.quest)
@@ -932,15 +933,31 @@ QDEF:AddConvo("escape_bog")
     :State("STATE_LEAVE_1")
         :Loc{
             DIALOG_INTRO = [[
-                {searched_for_poi?
-                    * With {handler} dead, there is no point in finding the artifact anymore.
+                {not fought_bog_monster?
+                    {searched_for_poi?
+                        * With {handler} dead, there is no point in finding the artifact anymore.
+                    }
+                    {not searched_for_poi?
+                        * With {handler} nowhere to be found, there is no point in finding the artifact anymore.
+                    }
+                    * You leave the mine.
                 }
-                {not searched_for_poi?
-                    * With {handler} nowhere to be found, there is no point in finding the artifact anymore.
+                {fought_bog_monster?
+                    {handler_survived?
+                        * You have found the artifact. There is nothing else for you to do.
+                        * You leave the mine with {handler}.
+                    }
+                    {not handler_survived?
+                        * You have found the artifact, but {handler} tragically died during the battle.
+                        * There is nothing else for you to do here.
+                        * Even though you have no idea what to do with the artifact, you brought it with you and leave the mine.
+                    }
                 }
-                * You leave the mine.
             ]],
             DIALOG_INTRO_PST = [[
+                player:
+                    !left
+                    !thought
                 * Thinking back now, a lot has happened in the past few days.
                 * You started in the middle of the Bog.
                 {bog_influence?
@@ -970,6 +987,12 @@ QDEF:AddConvo("escape_bog")
                     {not good_survival?
                         * And while you fight alongside the predators, you were never the strongest.
                     }
+                    {handler_survived?
+                        handler:
+                            !right
+                            !happy
+                        * However, even the strongest predator doesn't fight alone, and neither do you.
+                    }
                 }
                 {not kill_many and not bog_influence?
                     * No knowledge, no supplies, no friends, nothing.
@@ -979,6 +1002,12 @@ QDEF:AddConvo("escape_bog")
                     {not good_survival?
                         * Yet, despite that, you adapted. You survived. Barely.
                         * That is not a luxury many can share.
+                    }
+                    {handler_survived?
+                        handler:
+                            !right
+                            !happy
+                        * It is not a journey that you can make alone, though. You have help on your side.
                     }
                 }
                 * Either way, your life is changed forever.
@@ -994,6 +1023,8 @@ QDEF:AddConvo("escape_bog")
     :State("STATE_LEAVE_2")
         :Loc{
             DIALOG_INTRO = [[
+                player:
+                    !left
                 * With your mind as sharp as ever, you are able to find your way around the bog easily.
                 * You can finally return to civilization, and-
                 * Well, you can never live too comfortably in Havaria, but it beats living in the Bog.
@@ -1002,16 +1033,34 @@ QDEF:AddConvo("escape_bog")
                         !cruel
                     * <i>DOES IT, THOUGH? DOES IT REALLY?</>
                 }
-                {searched_for_poi?
-                    * It is a shame that {handler} cannot see it through.
+                {not fought_bog_monster?
+                    {searched_for_poi?
+                        * It is a shame that {handler} cannot see it through.
+                    }
+                    {not searched_for_poi?
+                        * {handler} is probably waiting for you somewhere comfortably. At least, you hope.
+                        * <i>But you have a strange feeling that it is not going to be the case.</>
+                    }
+                    {heard_handler_name?
+                        * <i>IT'S NOT MY FAULT IT'S NOT MY FAULT IT'S NOT MY FAULT IT'S NOT MY FAULT IT'S NOT MY FAULT IT'S NOT MY FAULT IT'S NOT MY FAULT IT'S NOT MY FAULT IT'S NOT MY FAULT IT'S NOT MY FAULT</>
+                        * Your head hurts just thinking about it.
+                    }
                 }
-                {not searched_for_poi?
-                    * {handler} is probably waiting for you somewhere comfortably. At least, you hope.
-                    * <i>But you have a strange feeling that it is not going to be the case.</>
-                }
-                {heard_handler_name?
-                    * <i>IT'S NOT MY FAULT IT'S NOT MY FAULT IT'S NOT MY FAULT IT'S NOT MY FAULT IT'S NOT MY FAULT IT'S NOT MY FAULT IT'S NOT MY FAULT IT'S NOT MY FAULT IT'S NOT MY FAULT IT'S NOT MY FAULT</>
-                    * Your head hurts just thinking about it.
+                {fought_bog_monster?
+                    {handler_survived?
+                        handler:
+                            !right
+                            !happy
+                        * And {handler} is here with you, along with the artifact that you've found.
+                        * Although, you still have no idea what {handler} plans to do with it.
+                        * Something to puzzle over later. Right now, you are just happy that you both survived.
+                    }
+                    {not handler_survived?
+                        * It is a shame that {handler} cannot see it through.
+                        * And with {handler} gone, you have no idea what to do with the artifact.
+                        * Perhaps you could sell it. Or figure out what it does on your own.
+                        * Either way, it doesn't matter right now.
+                    }
                 }
             ]],
         }
@@ -1024,6 +1073,9 @@ QDEF:AddConvo("escape_bog")
     :State("STATE_LEAVE_3")
         :Loc{
             DIALOG_INTRO = [[
+                player:
+                    !left
+                    !happy
                 * The front gate to the bog lies just before you.
                 * Finally, after many days, you have reached your destination.
                 {sunrise?
@@ -1178,12 +1230,14 @@ QDEF:AddConvo("investigate_further")
             -- ]],
         }
         :Fn(function(cxt)
+            cxt.quest.param.fought_bog_monster = true
+
             cxt:Dialog("DIALOG_INTRO")
 
             cxt:Opt("OPT_ATTACK")
                 :Dialog("DIALOG_ATTACK")
                 :Battle{
-                    allies = {"handler"},
+                    -- allies = {"handler"},
                     enemies = {"bog_monster"},
                     flags = BATTLE_FLAGS.SELF_DEFENCE | BATTLE_FLAGS.BOSS_FIGHT | BATTLE_FLAGS.ISOLATED,
                 }
@@ -1191,4 +1245,8 @@ QDEF:AddConvo("investigate_further")
                         :Fn(function(cxt)
                             cxt.quest.param.handler_survived = cxt:GetCastMember("handler"):IsAlive()
                         end)
+                        :Dialog("DIALOG_ATTACK_WIN")
+                        :CompleteQuest("investigate_further")
+                        :ActivateQuest("escape_bog")
+                        :DoneConvo()
         end)
