@@ -209,6 +209,10 @@ function EscapeTheBogUtil.IsETBCampaign(act_id)
     return string.find(act_id, "ESCAPE_THE_BOG")
 end
 
+function EscapeTheBogUtil.ETBActFilter(self, act_id)
+    return EscapeTheBogUtil.IsETBCampaign(act_id)
+end
+
 function EscapeTheBogUtil.NullEncounterTable()
     return {
         ETB_NO_EVENT = 1,
