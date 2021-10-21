@@ -19,6 +19,70 @@ local PARASITE_VALUES =
     [CARD_RARITY.BOSS] = 15,
 }
 
+local BOGGER_BOSS_BEHAVIOUR =
+{
+    bog_buffs = {"eyes_of_the_bog_faith", "brain_of_the_bog_faith", "heart_of_the_bog_faith"},
+    bog_debuffs = {"eyes_of_the_bog_doubt", "brain_of_the_bog_doubt", "heart_of_the_bog_doubt"},
+    CUSTOM_FIGHT_FORMATIONS =
+    {
+        [1] = BOGGER_BOSS_FORMATION,
+        [2] = BOGGER_BOSS_FORMATION,
+        [3] = BOGGER_BOSS_FORMATION,
+        [4] = BOGGER_BOSS_FORMATION,
+        [5] = BOGGER_BOSS_FORMATION,
+        [6] = BOGGER_BOSS_FORMATION,
+    },
+
+    AddBossConditions = function( self, fighter )
+        for i,con_id in ipairs(self.bog_buffs) do
+            if not (self.suppress_conditions and self.suppress_conditions[con_id]) then
+                self.fighter:AddCondition(con_id, 1, self)
+            else
+                self.fighter:AddCondition(self.bog_debuffs[i], 1, self)
+            end
+        end
+    end,
+
+    OnActivate = function( self, fighter )
+        self.fighter.stat_bounds[ COMBAT_STAT.HEALTH ].min = 1 -- cannot be killed
+        self.shoot = self:AddCard("bogger_boss_shoot")
+        self.bail = self:AddCard("bogger_boss_bail")
+        self.summon = self:AddCard("bogger_boss_summon_boss")
+        self.rally = self:AddCard("bogger_boss_rally_burrs")
+        self.incept_burs = self:AddCard("bogger_boss_burr")
+
+        self.attacks = self:MakePicker()
+            :AddID("bogger_boss_shoot", 1)
+
+        self.fighter:AddCondition("bogger_boss_health_tracker")
+
+        if CheckBits(self.engine:GetFlags(), BATTLE_FLAGS.BOSS_FIGHT) then
+            self.fighter:GetTeam():SetCustomFormation( self.CUSTOM_FIGHT_FORMATIONS )
+            self:SetPattern(self.Cycle)
+        else
+            self:SetPattern(self.SingleShot)
+        end
+    end,
+
+    Cycle = function( self )
+        if self.battle:GetTurns() - (self.last_turn or -1) > 0 then
+            self.turns = (self.turns or 0) + 1
+            self.last_turn = self.battle:GetTurns()
+        end
+        self.attacks:ChooseCard()
+        if self.turns % 4 == 1 then
+            self:ChooseCard(self.incept_burs)
+        elseif self.turns % 4 == 2 then
+            self:ChooseCard(self.rally)
+        end
+    end,
+
+    SingleShot = function( self )
+        self:ChooseCard(self.shoot)
+        self:ChooseCard(self.bail)
+    end
+}
+
 local QDEF = QuestDef.Define
 {
     qtype = QTYPE.STORY,
