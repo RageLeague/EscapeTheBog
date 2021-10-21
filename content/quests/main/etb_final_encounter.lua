@@ -33,6 +33,26 @@ local QDEF = QuestDef.Define
         end
         quest:AssignCastMember("illusion_boss")
     end,
+    CalculateBogInfluence = function(quest)
+        -- Calculate parasites
+        local parasite_values = 0
+
+        local battle_defs = require "battle/battle_defs"
+        for i, card in ipairs(cxt.player.battler.cards.cards) do
+            if card:IsFlagged( battle_defs.CARD_FLAGS.PARASITE ) then
+                parasite_values = parasite_values + (PARASITE_VALUES[card.rarity] or 15)
+            end
+        end
+
+        local negotiation_defs = require "negotiation/negotiation_defs"
+        for i, card in ipairs(cxt.player.negotiator.cards.cards) do
+            if card:IsFlagged( negotiation_defs.CARD_FLAGS.PARASITE ) then
+                parasite_values = parasite_values + (PARASITE_VALUES[card.rarity] or 15)
+            end
+        end
+
+        return parasite_values
+    end,
 }
 :AddObjective{
     id = "starting_out",
@@ -642,23 +662,9 @@ QDEF:AddConvo("starting_out")
                     --{ value = 20, text = cxt:GetLocString("SIT_MOD") }
                 }
                 -- Calculate parasites
-                local parasite_values = 0
+                local parasite_values = cxt.quest:DefFn("CalculateBogInfluence") or 0
 
-                local battle_defs = require "battle/battle_defs"
-                for i, card in ipairs(cxt.player.battler.cards.cards) do
-                    if card:IsFlagged( battle_defs.CARD_FLAGS.PARASITE ) then
-                        parasite_values = parasite_values + (PARASITE_VALUES[card.rarity] or 15)
-                    end
-                end
-
-                local negotiation_defs = require "negotiation/negotiation_defs"
-                for i, card in ipairs(cxt.player.negotiator.cards.cards) do
-                    if card:IsFlagged( negotiation_defs.CARD_FLAGS.PARASITE ) then
-                        parasite_values = parasite_values + (PARASITE_VALUES[card.rarity] or 15)
-                    end
-                end
-
-                if parasite_values then
+                if parasite_values and parasite_values > 0 then
                     table.insert(sit_mods, { valule = parasite_values, text = cxt:GetLocString("SIT_MOD_PARASITE")})
                 end
 
@@ -1014,6 +1020,20 @@ QDEF:AddConvo("escape_bog")
             ]],
         }
         :Fn(function(cxt)
+            cxt.quest.param.bog_influence = not cxt.quest.param.fought_bog_monster and (cxt.quest:DefFn("CalculateBogInfluence") >= 20)
+            local kill_count = 0
+            for k, agent in pairs( TheGame:GetGameState().removed_agents or {} ) do
+                if agent:IsDead() then
+                    kill_count = kill_count + 1
+                end
+            end
+            cxt.quest.param.kill_many = kill_count >= 12
+            local max_health = {TheGame:GetGameState():GetPlayerAgent():GetHealth()}[2] or 0
+            local max_resolve = {TheGame:GetGameState():GetCaravan():GetResolve()}[2] or 0
+            local starting_health = TheGame:GetGameState():GetMainQuest().param.starting_health or 0
+            local starting_resolve = TheGame:GetGameState():GetMainQuest().param.starting_resolve or 0
+            cxt.quest.param.good_survival = max_health >= starting_health and max_resolve >= starting_resolve
+
             cxt:Dialog("DIALOG_INTRO")
             cxt.encounter:DoLocationTransition( cxt:GetCastMember("exit_1") )
             EscapeTheBogUtil.TryMainQuestFn("AdvanceTime", 1, "TRAVEL")

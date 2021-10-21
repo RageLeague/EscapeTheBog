@@ -112,7 +112,7 @@ local DEFS = {
     })
 }
 
-for _, def in pairs(DEFS) do
+for _, def in ipairs(DEFS) do
     Content.AddCharacterDef( def )
     -- character_def:InheritBaseDef()
     Content.GetCharacterDef(def.id):InheritBaseDef()

@@ -120,157 +120,157 @@ local DEFS = {
             }
         },
 
-        fight_data =
-        {
-            MAX_HEALTH = 300,
-            battle_scale = 1.2,
+        -- fight_data =
+        -- {
+        --     MAX_HEALTH = 300,
+        --     battle_scale = 1.2,
 
-            status_widget_dx = 2.5,
-            status_widget_head_dx = 4,
-            status_widget_head_dy = 5,
-            -- death_fade_delay = 2.5,
-            shadow_scale = 0.0,
-            death_fade_time = -1,
-            formation = FIGHTER_FORMATION.FRONT_X,
+        --     status_widget_dx = 2.5,
+        --     status_widget_head_dx = 4,
+        --     status_widget_head_dy = 5,
+        --     -- death_fade_delay = 2.5,
+        --     shadow_scale = 0.0,
+        --     death_fade_time = -1,
+        --     formation = FIGHTER_FORMATION.FRONT_X,
 
-            stationary = true,
-            approach_distance = 6,
-            no_despawn = true,
+        --     stationary = true,
+        --     approach_distance = 6,
+        --     no_despawn = true,
 
-            ranged_riposte = true,
+        --     ranged_riposte = true,
 
-            OnJoinBattle = function( fighter, anim_fighter, fight_screen )
-                local x, z = anim_fighter:GetHomePosition()
-                anim_fighter.entity.cmp.AnimController:SetXFlip(fighter:GetTeamID() == TEAM.RED)
-                anim_fighter.entity:SetLocalPosition( x, 0, z )
-                anim_fighter:CoroDelay(.6)
-                fight_screen:ScreenShake( CAMERA_SHAKE_PARAMS )
-                anim_fighter:CoroDelay(1.2)
-                anim_fighter:PlayAnim( "emerge" )
-                anim_fighter:WaitAnim()
-            end,
+        --     OnJoinBattle = function( fighter, anim_fighter, fight_screen )
+        --         local x, z = anim_fighter:GetHomePosition()
+        --         anim_fighter.entity.cmp.AnimController:SetXFlip(fighter:GetTeamID() == TEAM.RED)
+        --         anim_fighter.entity:SetLocalPosition( x, 0, z )
+        --         anim_fighter:CoroDelay(.6)
+        --         fight_screen:ScreenShake( CAMERA_SHAKE_PARAMS )
+        --         anim_fighter:CoroDelay(1.2)
+        --         anim_fighter:PlayAnim( "emerge" )
+        --         anim_fighter:WaitAnim()
+        --     end,
 
-            behaviour =
-            {
-                CUSTOM_FIGHT_FORMATIONS =
-                {
-                    [1] = BURR_BOSS_FORMATION,
-                    [2] = BURR_BOSS_FORMATION,
-                    [3] = BURR_BOSS_FORMATION,
-                    [4] = BURR_BOSS_FORMATION,
-                    [5] = BURR_BOSS_FORMATION,
-                    [6] = BURR_BOSS_FORMATION,
-                },
+        --     behaviour =
+        --     {
+        --         CUSTOM_FIGHT_FORMATIONS =
+        --         {
+        --             [1] = BURR_BOSS_FORMATION,
+        --             [2] = BURR_BOSS_FORMATION,
+        --             [3] = BURR_BOSS_FORMATION,
+        --             [4] = BURR_BOSS_FORMATION,
+        --             [5] = BURR_BOSS_FORMATION,
+        --             [6] = BURR_BOSS_FORMATION,
+        --         },
 
-                OnActivate = function( self )
-                    self.fighter:GetTeam():SetCustomFormation( self.CUSTOM_FIGHT_FORMATIONS )
-                    self.chosen_order = { self.EyeStalkCycle, self.TreasureCycle, self.KnuckleCycle}
-                    local has_eyes = false
-                    for i,ally in self.fighter:GetTeam():Fighters() do
-                        if ally.agent:GetContentID() == "GROUT_EYE" then
-                            has_eyes = true
-                            self.fighter:AddCondition("burr_boss_eye_tracker")
-                            break
-                        end
-                    end
-                    if has_eyes then
-                        table.shuffle(self.chosen_order, 2) -- always start with the eyestalk
-                    else
-                        table.shuffle(self.chosen_order) -- Random!
-                    end
+        --         OnActivate = function( self )
+        --             self.fighter:GetTeam():SetCustomFormation( self.CUSTOM_FIGHT_FORMATIONS )
+        --             self.chosen_order = { self.EyeStalkCycle, self.TreasureCycle, self.KnuckleCycle}
+        --             local has_eyes = false
+        --             for i,ally in self.fighter:GetTeam():Fighters() do
+        --                 if ally.agent:GetContentID() == "GROUT_EYE" then
+        --                     has_eyes = true
+        --                     self.fighter:AddCondition("burr_boss_eye_tracker")
+        --                     break
+        --                 end
+        --             end
+        --             if has_eyes then
+        --                 table.shuffle(self.chosen_order, 2) -- always start with the eyestalk
+        --             else
+        --                 table.shuffle(self.chosen_order) -- Random!
+        --             end
 
-                    self.spawn_treasure = self:AddCard("burr_boss_card_steal")
-                    self.spawn_eyes = self:AddCard("summon_eye_stalks")
-                    self.spawn_knuckles = self:AddCard("summon_knuckles")
+        --             self.spawn_treasure = self:AddCard("burr_boss_card_steal")
+        --             self.spawn_eyes = self:AddCard("summon_eye_stalks")
+        --             self.spawn_knuckles = self:AddCard("summon_knuckles")
 
-                    self.eye_stage_moves = self:MakePicker()
-                        :AddID("burr_boss_projectile", 2)
-                        :AddID("burr_boss_taunt", 1)
+        --             self.eye_stage_moves = self:MakePicker()
+        --                 :AddID("burr_boss_projectile", 2)
+        --                 :AddID("burr_boss_taunt", 1)
 
-                    self.treasure_stage_moves = self:MakePicker()
-                        :AddID("burr_boss_rage_attack", 3)
-                        :AddID("burr_boss_taunt_heal", 1)
+        --             self.treasure_stage_moves = self:MakePicker()
+        --                 :AddID("burr_boss_rage_attack", 3)
+        --                 :AddID("burr_boss_taunt_heal", 1)
 
-                    self.knuckle_stage_moves = self:MakePicker()
-                        :AddID("burr_boss_projectile_knuckle", 2)
-                        :AddID("burr_boss_taunt", 1)
+        --             self.knuckle_stage_moves = self:MakePicker()
+        --                 :AddID("burr_boss_projectile_knuckle", 2)
+        --                 :AddID("burr_boss_taunt", 1)
 
-                    self.stage_position = 1
-                    self:SetPattern(self.chosen_order[self.stage_position])
-                end,
+        --             self.stage_position = 1
+        --             self:SetPattern(self.chosen_order[self.stage_position])
+        --         end,
 
-                CheckForStageSwitch = function( self )
-                    if self.battle:GetTurns() - (self.last_turn or -1) > 0 then
-                        self.stage_turns = (self.stage_turns or 0) + 1
-                        self.last_turn = self.battle:GetTurns()
-                    end
-                    if self.fighter:GetTeam():NumActiveFighters() == 1 and self.stage_turns > 1 then
-                        -- Always leave the player with at least 6 cards after stealing (minimum steal is 6)
-                        if #self.battle:GetCardsOwnedBy(self.battle:GetPlayerFighter()) < 12 then
-                            table.arrayremove(self.chosen_order, self.TreasureCycle)
-                        end
-                        self.stage_turns = 1
-                        self.stage_position = self.stage_position + 1
-                        if self.stage_position > #self.chosen_order then
-                            table.shuffle(self.chosen_order)
-                            self.stage_position = 1
-                        end
-                        self:SetPattern(self.chosen_order[self.stage_position ])
-                        return true
-                    else
-                        return false
-                    end
-                end,
+        --         CheckForStageSwitch = function( self )
+        --             if self.battle:GetTurns() - (self.last_turn or -1) > 0 then
+        --                 self.stage_turns = (self.stage_turns or 0) + 1
+        --                 self.last_turn = self.battle:GetTurns()
+        --             end
+        --             if self.fighter:GetTeam():NumActiveFighters() == 1 and self.stage_turns > 1 then
+        --                 -- Always leave the player with at least 6 cards after stealing (minimum steal is 6)
+        --                 if #self.battle:GetCardsOwnedBy(self.battle:GetPlayerFighter()) < 12 then
+        --                     table.arrayremove(self.chosen_order, self.TreasureCycle)
+        --                 end
+        --                 self.stage_turns = 1
+        --                 self.stage_position = self.stage_position + 1
+        --                 if self.stage_position > #self.chosen_order then
+        --                     table.shuffle(self.chosen_order)
+        --                     self.stage_position = 1
+        --                 end
+        --                 self:SetPattern(self.chosen_order[self.stage_position ])
+        --                 return true
+        --             else
+        --                 return false
+        --             end
+        --         end,
 
-                EyeStalkCycle = function( self )
-                    if not self:CheckForStageSwitch() then
-                        if self.stage_turns <= 1 and not self.fighter:HasCondition("burr_boss_eye_tracker") then
-                            self:ChooseCard(self.spawn_eyes)
-                        else
-                            self.eye_stage_moves:ChooseCard()
-                        end
-                    else
-                        self:RunBehaviour( self.battle )
-                    end
-                end,
+        --         EyeStalkCycle = function( self )
+        --             if not self:CheckForStageSwitch() then
+        --                 if self.stage_turns <= 1 and not self.fighter:HasCondition("burr_boss_eye_tracker") then
+        --                     self:ChooseCard(self.spawn_eyes)
+        --                 else
+        --                     self.eye_stage_moves:ChooseCard()
+        --                 end
+        --             else
+        --                 self:RunBehaviour( self.battle )
+        --             end
+        --         end,
 
-                TreasureCycle = function( self )
-                    if not self:CheckForStageSwitch() then
-                        if self.stage_turns <= 1 then
-                            self:ChooseCard(self.spawn_treasure)
-                        else
-                            self.treasure_stage_moves:ChooseCard()
-                        end
-                    else
-                        self:RunBehaviour( self.battle )
-                    end
-                end,
+        --         TreasureCycle = function( self )
+        --             if not self:CheckForStageSwitch() then
+        --                 if self.stage_turns <= 1 then
+        --                     self:ChooseCard(self.spawn_treasure)
+        --                 else
+        --                     self.treasure_stage_moves:ChooseCard()
+        --                 end
+        --             else
+        --                 self:RunBehaviour( self.battle )
+        --             end
+        --         end,
 
-                KnuckleCycle = function( self )
-                    if not self:CheckForStageSwitch() then
-                        if self.stage_turns <= 1 then
-                            self:ChooseCard(self.spawn_knuckles)
-                        else
-                            self.knuckle_stage_moves:ChooseCard()
-                        end
-                    else
-                        self:RunBehaviour( self.battle )
-                    end
-                end
-            },
+        --         KnuckleCycle = function( self )
+        --             if not self:CheckForStageSwitch() then
+        --                 if self.stage_turns <= 1 then
+        --                     self:ChooseCard(self.spawn_knuckles)
+        --                 else
+        --                     self.knuckle_stage_moves:ChooseCard()
+        --                 end
+        --             else
+        --                 self:RunBehaviour( self.battle )
+        --             end
+        --         end
+        --     },
 
-            anim_mapping =
-            {
-                idle = "idle2",
-                hit_mid_pst_idle = "hit_mid_pst_idle2",
-                defend_pst = "defend_pst2",
-                stunned_pst = "stunned_pst2",
-            },
+        --     anim_mapping =
+        --     {
+        --         idle = "idle2",
+        --         hit_mid_pst_idle = "hit_mid_pst_idle2",
+        --         defend_pst = "defend_pst2",
+        --         stunned_pst = "stunned_pst2",
+        --     },
 
-            eye_closed_anim_mapping =
-            {
-            },
-        },
+        --     eye_closed_anim_mapping =
+        --     {
+        --     },
+        -- },
     })
 }
 

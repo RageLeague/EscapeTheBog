@@ -20,6 +20,9 @@ local QDEF = QuestDef.Define
 
         TheGame:GetGameState():SetMainQuest(quest)
 
+        quest.param.starting_health = {TheGame:GetGameState():GetPlayerAgent():GetHealth()}[2]
+        quest.param.starting_resolve = {TheGame:GetGameState():GetCaravan():GetResolve()}[2]
+
         quest.param.time_segment = 0
 
         quest:DefFn("GenerateBogMap", 10, "ETB_LOC_STARTING_BOGCAVE", {"ETB_LOC_ANCIENT_MINE_ENTRANCE"})
