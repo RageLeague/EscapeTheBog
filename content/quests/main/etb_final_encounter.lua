@@ -1085,18 +1085,20 @@ QDEF:AddConvo("investigate_further")
                     So that's what we are dealing with.
                     !fight
                     Well, time to end this!
-                player:
-                    !left
-                    !scared
-                * But something is not right. The monster faces you, and speaks in a <i>TERRIFYING</> voice.
-                * A voice that you have heard many times before.
-                bog_monster:
-                    YOU HAVE RESISTED MY WILL.
-                    BUT SOON, YOU SHALL RESIST NO MORE.
-                * It is invoking your deepest fears!
             ]],
-            OPT_ATTACK = "Attack the monster directly",
-            TT_ATTACK = "<#PENALTY>You will start with all your weaknesses!</>",
+            -- DIALOG_INTRO_SCARED = [[
+            --     player:
+            --         !left
+            --         !scared
+            --     * But something is not right. The monster faces you, and speaks in a <i>TERRIFYING</> voice.
+            --     * A voice that you have heard many times before.
+            --     bog_monster:
+            --         YOU HAVE RESISTED MY WILL.
+            --         BUT SOON, YOU SHALL RESIST NO MORE.
+            --     * It is invoking your deepest fears!
+            -- ]]
+            OPT_ATTACK = "Attack the monster",
+            -- TT_ATTACK = "<#PENALTY>You will start with all your weaknesses!</>",
             DIALOG_ATTACK = [[
                 player:
                     !fight
@@ -1104,29 +1106,31 @@ QDEF:AddConvo("investigate_further")
                     Sh-shut up! I'm not scared of you!
                 * Your tone clearly indicates otherwise.
             ]],
-            OPT_FACE_FEAR = "Face your fears",
-            DIALOG_FACE_FEAR = [[
-                player:
-                    !angry
-                    You will not scare me!
-            ]],
-            DIALOG_FACE_FEAR_SUCCESS = [[
-                player:
-                    !fight
-                {some_weakness?
-                    $scaredFearful
-                    I- I will not be scared by the likes of you!
-                * Your tone clearly indicates otherwise.
-                }
-                {not some_weakness?
-                    I will not be scared by the likes of you!
-                }
-            ]],
-            DIALOG_FACE_FEAR_FAILURE = [[
-                player:
-                    !scared
-                * Your fear has overtaken you. You didn't even notice the incoming attack!
-            ]],
+            -- Too much work
+
+            -- OPT_FACE_FEAR = "Face your fears",
+            -- DIALOG_FACE_FEAR = [[
+            --     player:
+            --         !angry
+            --         You will not scare me!
+            -- ]],
+            -- DIALOG_FACE_FEAR_SUCCESS = [[
+            --     player:
+            --         !fight
+            --     {some_weakness?
+            --         $scaredFearful
+            --         I- I will not be scared by the likes of you!
+            --     * Your tone clearly indicates otherwise.
+            --     }
+            --     {not some_weakness?
+            --         I will not be scared by the likes of you!
+            --     }
+            -- ]],
+            -- DIALOG_FACE_FEAR_FAILURE = [[
+            --     player:
+            --         !scared
+            --     * Your fear has overtaken you. You didn't even notice the incoming attack!
+            -- ]],
         }
         :Fn(function(cxt)
             cxt:Dialog("DIALOG_INTRO")
