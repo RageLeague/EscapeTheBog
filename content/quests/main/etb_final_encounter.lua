@@ -121,7 +121,7 @@ local QDEF = QuestDef.Define
     plax = "EXT_TerritoryGate_Entrance",
     show_agents = true,
     tags = {"bog", "gate"},
-    indoors = true,
+    -- indoors = true,
 }
 
 local function AddAttackOptions(cxt)
