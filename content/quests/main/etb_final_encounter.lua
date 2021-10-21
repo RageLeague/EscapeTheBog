@@ -1101,10 +1101,55 @@ QDEF:AddConvo("investigate_further")
             -- TT_ATTACK = "<#PENALTY>You will start with all your weaknesses!</>",
             DIALOG_ATTACK = [[
                 player:
+                    !left
                     !fight
-                    $scaredFearful
-                    Sh-shut up! I'm not scared of you!
-                * Your tone clearly indicates otherwise.
+                    This is the end!
+            ]],
+            DIALOG_ATTACK_WIN = [[
+                * You finally defeated the bog monster. Its corpse disappears, leaving a shiny artifact where its eyes were.
+                player:
+                    We did it!
+                {handler_survived?
+                handler:
+                    !right
+                    That's right.
+                * {handler} picked up the artifact.
+                handler:
+                    Now, I think it is time for us to leave.
+                    I don't want to spend another minute here.
+                * With that, it is time for you to leave.
+                }
+                {not handler_survived?
+                    * You realized that {handler} didn't survive the battle.
+                    * You turn towards {handler}, who lies on the ground of the bog.
+                    {handler_fellemo?
+                        {player_sal?
+                            * While your alliance with {handler} was found on shaky grounds, you still feel a bit sad seeing {handler.himher} like this.
+                        }
+                        {player_rook?
+                            * {handler} was the closest thing that you could consider a friend.
+                            * You have fought many battles alongside {handler.himher}, but the moment you weren't fighting alongside {handler.himher}, {handler.heshe} perished.
+                        }
+                        {player_arint?
+                            * While you don't agree with {handler} a lot of times, {handler.heshe} was still your boss.
+                            * And {handler.heshe} thinks very highly of your skills.
+                            * Seeing {handler} like this fills you with melancholy.
+                        }
+                        {not player_sal and not player_rook and not player_arint?
+                            * Your relationship with {handler} was purely contractual, yet you still feel a bit sad seeing {handler.himher} like this.
+                        }
+                    }
+                    {handler_kalandra?
+                        {player_sal?
+                            * You haven't seen Prindo in years, yet when you are finally reunited, {handler.heshe} died.
+                            * Unable to protect {handler.himher}, you feel like a failure.
+                        }
+                        {not player_sal?
+                            * Your relationship with {handler} was purely contractual, yet you still feel a bit sad seeing {handler.himher} like this.
+                        }
+                    }
+                    * You have no idea what to do with the artifact now. It is time for you to leave.
+                }
             ]],
             -- Too much work
 
@@ -1135,17 +1180,15 @@ QDEF:AddConvo("investigate_further")
         :Fn(function(cxt)
             cxt:Dialog("DIALOG_INTRO")
 
-            cxt:Opt("OPT_FACE_FEAR")
-                :Dialog("DIALOG_FACE_FEAR")
-                :Negotiation{
-                    target_agent = cxt:GetCastMember("bog_monster"),
+            cxt:Opt("OPT_ATTACK")
+                :Dialog("DIALOG_ATTACK")
+                :Battle{
+                    allies = {"handler"},
+                    enemies = {"bog_monster"},
+                    flags = BATTLE_FLAGS.SELF_DEFENCE | BATTLE_FLAGS.BOSS_FIGHT | BATTLE_FLAGS.ISOLATED,
                 }
-                    :OnSuccess()
+                    :OnWin()
                         :Fn(function(cxt)
-
-                        end)
-                    :OnFailure()
-                        :Fn(function(cxt)
-
+                            cxt.quest.param.handler_survived = cxt:GetCastMember("handler"):IsAlive()
                         end)
         end)
