@@ -6,8 +6,8 @@ local HANDLER_ID =
 }
 local ILLUSION_ID =
 {
-    fellemo = "BOGGER_BOSS_FELLEMO",
-    kalandra = "BOGGER_BOSS_KALANDRA",
+    fellemo = "ETB_BOGGER_BOSS_FELLEMO",
+    kalandra = "ETB_BOGGER_BOSS_KALANDRA",
 }
 local PARASITE_VALUES =
 {
@@ -17,6 +17,15 @@ local PARASITE_VALUES =
     [CARD_RARITY.RARE] = 12,
     [CARD_RARITY.UNIQUE] = 15,
     [CARD_RARITY.BOSS] = 15,
+}
+
+local BOGGER_BOSS_FORMATION =
+{
+    { 7, 1.4, FIGHTER_FORMATION.FRONT_X },  -- Bogger Priest (same as burr boss but X is 7.5 less)
+
+    { 4, -5, nil },
+    { 6, 5, nil },
+    { 2, 1, nil },
 }
 
 local BOGGER_BOSS_BEHAVIOUR =
@@ -44,7 +53,11 @@ local BOGGER_BOSS_BEHAVIOUR =
     end,
 
     OnActivate = function( self, fighter )
-        self.fighter.stat_bounds[ COMBAT_STAT.HEALTH ].min = 1 -- cannot be killed
+        -- self.fighter.stat_bounds[ COMBAT_STAT.HEALTH ].min = 1 -- cannot be killed
+        if fighter:GetMorale() == nil then
+            fighter:CreateStat(COMBAT_STAT.MORALE, 0, 0, 1)
+            fighter:DeltaStat(COMBAT_STAT.MORALE, MAX_MORALE_LOOKUP.MEDIUM )
+        end
         self.shoot = self:AddCard("bogger_boss_shoot")
         self.bail = self:AddCard("bogger_boss_bail")
         self.summon = self:AddCard("bogger_boss_summon_boss")
@@ -54,14 +67,10 @@ local BOGGER_BOSS_BEHAVIOUR =
         self.attacks = self:MakePicker()
             :AddID("bogger_boss_shoot", 1)
 
-        self.fighter:AddCondition("bogger_boss_health_tracker")
+        -- self.fighter:AddCondition("bogger_boss_health_tracker")
 
-        if CheckBits(self.engine:GetFlags(), BATTLE_FLAGS.BOSS_FIGHT) then
-            self.fighter:GetTeam():SetCustomFormation( self.CUSTOM_FIGHT_FORMATIONS )
-            self:SetPattern(self.Cycle)
-        else
-            self:SetPattern(self.SingleShot)
-        end
+        self.fighter:GetTeam():SetCustomFormation( self.CUSTOM_FIGHT_FORMATIONS )
+        self:SetPattern(self.Cycle)
     end,
 
     Cycle = function( self )
@@ -77,10 +86,10 @@ local BOGGER_BOSS_BEHAVIOUR =
         end
     end,
 
-    SingleShot = function( self )
-        self:ChooseCard(self.shoot)
-        self:ChooseCard(self.bail)
-    end
+    -- SingleShot = function( self )
+    --     self:ChooseCard(self.shoot)
+    --     self:ChooseCard(self.bail)
+    -- end
 }
 
 local QDEF = QuestDef.Define
@@ -91,7 +100,7 @@ local QDEF = QuestDef.Define
         quest.param["handler_" .. quest.param.handler_id] = true
         quest:AssignCastMember("handler")
         local current_day = math.floor( TheGame:GetGameState():GetDateTime() / 2 ) + 1
-        quest.param.handler_dead = quest:GetCastMember("handler"):IsDead() or current_day >= 6
+        quest.param.handler_dead = true -- quest:GetCastMember("handler"):IsDead() or current_day >= 6
         if quest.param.handler_dead and not quest:GetCastMember("handler"):IsRetired() then
             -- quest:GetCastMember("handler"):Kill()
         end
@@ -191,6 +200,11 @@ local QDEF = QuestDef.Define
 local function AddAttackOptions(cxt)
     cxt:Opt("OPT_ATTACK")
         :Dialog("DIALOG_ATTACK")
+        :Fn(function(cxt)
+            if cxt.quest.param.handler_dead then
+                cxt:GetCastMember("illusion_boss"):SetTempFighterBehaviour(BOGGER_BOSS_BEHAVIOUR)
+            end
+        end)
         :Battle{
                 flags = BATTLE_FLAGS.BOSS_FIGHT | BATTLE_FLAGS.ISOLATED | BATTLE_FLAGS.NO_BYSTANDERS | BATTLE_FLAGS.NO_REWARDS | BATTLE_FLAGS.NO_FLEE | BATTLE_FLAGS.NO_BURRS,
 
@@ -1092,8 +1106,8 @@ QDEF:AddConvo("escape_bog")
                 end
             end
             cxt.quest.param.kill_many = kill_count >= 12
-            local max_health = {TheGame:GetGameState():GetPlayerAgent():GetHealth()}[2] or 0
-            local max_resolve = {TheGame:GetGameState():GetCaravan():GetResolve()}[2] or 0
+            local _, max_health = TheGame:GetGameState():GetPlayerAgent():GetHealth()
+            local _, max_resolve = TheGame:GetGameState():GetCaravan():GetResolve()
             local starting_health = TheGame:GetGameState():GetMainQuest().param.starting_health or 0
             local starting_resolve = TheGame:GetGameState():GetMainQuest().param.starting_resolve or 0
             cxt.quest.param.good_survival = max_health >= starting_health and max_resolve >= starting_resolve

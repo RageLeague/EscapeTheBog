@@ -20,8 +20,10 @@ local QDEF = QuestDef.Define
 
         TheGame:GetGameState():SetMainQuest(quest)
 
-        quest.param.starting_health = {TheGame:GetGameState():GetPlayerAgent():GetHealth()}[2]
-        quest.param.starting_resolve = {TheGame:GetGameState():GetCaravan():GetResolve()}[2]
+        local _
+
+        _, quest.param.starting_health = TheGame:GetGameState():GetPlayerAgent():GetHealth()
+        _, quest.param.starting_resolve = TheGame:GetGameState():GetCaravan():GetResolve()
 
         quest.param.time_segment = 0
 
