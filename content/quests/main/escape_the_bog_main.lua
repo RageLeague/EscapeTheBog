@@ -97,21 +97,45 @@ local QDEF = QuestDef.Define
     end,
 
     AddUsageLimitToCard = function(quest, card)
+        if quest.param.card_curse_cured then
+            return
+        end
         if is_instance(card, Negotiation.Card) then
             local negotiation_defs = require "negotiation/negotiation_defs"
-            if CheckBits( card.flags, negotiation_defs.CARD_FLAGS.CONSUME ) then
+            if CheckBits( card.flags, negotiation_defs.CARD_FLAGS.CONSUME ) and not card:IsHatched() then
                 return
             end
         end
         if is_instance(card, Battle.Card) then
             local battle_defs = require "battle/battle_defs"
-            if CheckBits( card.flags, battle_defs.CARD_FLAGS.CONSUME ) then
+            if CheckBits( card.flags, battle_defs.CARD_FLAGS.CONSUME ) and not card:IsHatched() then
                 return
             end
         end
         if (not card.userdata.charges) then
             card.userdata.max_charges = 15
             card.userdata.charges = card.userdata.charges or card.userdata.max_charges
+            card.userdata.etb_is_cursed_use_limit = true
+        end
+    end,
+
+    ClearUsageLimitToCard = function(quest, card)
+        if card.userdata.etb_is_cursed_use_limit then
+            card.userdata.max_charges = nil
+            card.userdata.charges = nil
+        end
+    end,
+
+    CureCurseUseLimit = function(quest)
+        quest.param.card_curse_cured = true
+        local player = TheGame:GetGameState():GetPlayerAgent()
+
+        for i, card in ipairs(player.negotiator:GetCards()) do
+            quest:DefFn("ClearUsageLimitToCard", card)
+        end
+
+        for i, card in ipairs(player.battler:GetCards()) do
+            quest:DefFn("ClearUsageLimitToCard", card)
         end
     end,
 
