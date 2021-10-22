@@ -11,76 +11,78 @@ local DEFS = {
 	    {
 	        MAX_MORALE = MAX_MORALE_LOOKUP.MEDIUM,
 	        MAX_HEALTH = MAX_HEALTH_LOOKUP.LOW,
-        },
-        attacks =
-        {
-            etb_clobber_shield_bash = table.extend(NPC_ATTACK)
+
+            attacks =
             {
-                name = "Shield Bash",
-                anim = "attack2",
-                flags = battle_defs.CARD_FLAGS.DEBUFF | battle_defs.CARD_FLAGS.MELEE,
-
-                damage_mult = 0.5,
-
-                features =
+                etb_clobber_shield_bash = table.extend(NPC_ATTACK)
                 {
-                    DEFECT = 1,
-                }
-            },
-            etb_clobber_swing = table.extend(NPC_ATTACK)
-            {
-                name = "Swing",
-                anim = "attack1",
-                damage_mult = 1,
+                    name = "Shield Bash",
+                    anim = "attack2",
+                    flags = battle_defs.CARD_FLAGS.DEBUFF | battle_defs.CARD_FLAGS.MELEE,
 
-                flags = battle_defs.CARD_FLAGS.MELEE,
-            },
-            etb_clobber_incite = table.extend(NPC_BUFF)
-            {
-                name = "Incite",
-                desc = "Apply 3 {POWER} to an ally with less than 50% health.",
-                anim = "taunt",
-                flags = battle_defs.CARD_FLAGS.SKILL | battle_defs.CARD_FLAGS.BUFF,
-                target_type = TARGET_TYPE.FRIENDLY_OR_SELF,
+                    damage_mult = 0.5,
 
-                CanPlayCard = function( self, battle, target )
-                    if target then
-                        return target:GetHealthPercent() < 0.5
-                    else
-                        return true
+                    features =
+                    {
+                        DEFECT = 1,
+                    }
+                },
+                etb_clobber_swing = table.extend(NPC_ATTACK)
+                {
+                    name = "Swing",
+                    anim = "attack1",
+                    damage_mult = 1,
+
+                    flags = battle_defs.CARD_FLAGS.MELEE,
+                },
+                etb_clobber_incite = table.extend(NPC_BUFF)
+                {
+                    name = "Incite",
+                    desc = "Apply 3 {POWER} to an ally with less than 50% health.",
+                    anim = "taunt",
+                    flags = battle_defs.CARD_FLAGS.SKILL | battle_defs.CARD_FLAGS.BUFF,
+                    target_type = TARGET_TYPE.FRIENDLY_OR_SELF,
+
+                    CanPlayCard = function( self, battle, target )
+                        if target then
+                            return target:GetHealthPercent() < 0.5
+                        else
+                            return true
+                        end
+                    end,
+
+                    OnPostResolve = function( self, battle, attack )
+                        attack:AddCondition( "POWER", 2 + GetAdvancementModifier( ADVANCEMENT_OPTION.NPC_ABILITY_STRENGTH ))
                     end
+                },
+            },
+
+            behaviour =
+            {
+                OnActivate = function( self, fighter )
+                    self.moves = self:MakePicker()
+                        :AddID( "etb_clobber_incite", 1 )
+                        :AddID( "etb_clobber_swing", 2 )
+                        :AddID( "etb_clobber_shield_bash", 1 + GetAdvancementModifier( ADVANCEMENT_OPTION.NPC_ABILITY_STRENGTH ))
+                        :AddID( "ai_defend_med", 1 )
+
+                    self:SetPattern( self.Cycle )
+
+                    local base_stacks = 6 - 2 * GetAdvancementModifier( ADVANCEMENT_OPTION.NPC_ABILITY_STRENGTH )
+                    if self.fighter:GetTeamID() == TEAM.RED then
+                        local shield_bash = self.fighter:AddCondition("shield_bash", base_stacks , self)
+                        shield_bash.base_stacks = base_stacks
+                    end
+
+                    self.fighter:AddCondition("ARMOURED", 3 + GetAdvancementModifier( ADVANCEMENT_OPTION.NPC_ABILITY_STRENGTH ), self)
                 end,
 
-                OnPostResolve = function( self, battle, attack )
-                    attack:AddCondition( "POWER", 2 + GetAdvancementModifier( ADVANCEMENT_OPTION.NPC_ABILITY_STRENGTH ))
+                Cycle = function( self )
+                    self.moves:ChooseCard(1)
                 end
-            },
+        },
         },
 
-        behaviour =
-        {
-            OnActivate = function( self, fighter )
-                self.moves = self:MakePicker()
-                    :AddID( "etb_clobber_incite", 1 )
-                    :AddID( "etb_clobber_swing", 2 )
-                    :AddID( "etb_clobber_shield_bash", 1 + GetAdvancementModifier( ADVANCEMENT_OPTION.NPC_ABILITY_STRENGTH ))
-                    :AddID( "ai_defend_med", 1 )
-
-                self:SetPattern( self.Cycle )
-
-                local base_stacks = 6 - 2 * GetAdvancementModifier( ADVANCEMENT_OPTION.NPC_ABILITY_STRENGTH )
-                if self.fighter:GetTeamID() == TEAM.RED then
-                    local shield_bash = self.fighter:AddCondition("shield_bash", base_stacks , self)
-                    shield_bash.base_stacks = base_stacks
-                end
-
-                self.fighter:AddCondition("ARMOURED", 3 + GetAdvancementModifier( ADVANCEMENT_OPTION.NPC_ABILITY_STRENGTH ), self)
-            end,
-
-            Cycle = function( self )
-                self.moves:ChooseCard(1)
-            end
-        },
     }),
     CharacterDef("ETB_BOGGER_CULTIVATOR_RADICAL",
     {
@@ -90,76 +92,78 @@ local DEFS = {
 	    {
 	        MAX_MORALE = MAX_MORALE_LOOKUP.MEDIUM,
 	        MAX_HEALTH = MAX_HEALTH_LOOKUP.LOW,
-        },
-        attacks =
-        {
-            etb_cultivator_fire_in_the_hole = table.extend(NPC_ATTACK)
+            attacks =
             {
-                name = "Throw",
-                anim = "throw",
-                flags = CARD_FLAGS.RANGED,
+                etb_cultivator_fire_in_the_hole = table.extend(NPC_ATTACK)
+                {
+                    name = "Throw",
+                    anim = "throw",
+                    flags = CARD_FLAGS.RANGED,
 
-                target_mod = TARGET_MOD.TEAM,
+                    target_mod = TARGET_MOD.TEAM,
+                },
+                etb_cultivator_disrupt = table.extend(NPC_ATTACK)
+                {
+                    name = "Disrupt",
+                    anim = "attack1",
+                    flags = battle_defs.CARD_FLAGS.MELEE | battle_defs.CARD_FLAGS.DEBUFF,
+
+                    CanPlayCard = function( self, battle, target )
+                        if target then
+                            if not target:IsPlayer() then
+                                return false
+                            end
+                            if target:GetConditionStacks( "disrupt" ) >= 5 then
+                                return false
+                            end
+                        end
+                        return true
+                    end,
+
+                    OnPostResolve = function( self, battle, attack )
+                        attack:AddCondition( "disrupt", 2 + GetAdvancementModifier( ADVANCEMENT_OPTION.NPC_ABILITY_STRENGTH ))
+                    end,
+                },
+                etb_cultivator_demoralize =
+                {
+                    name = "Demoralize",
+                    anim = "taunt",
+                    flags = battle_defs.CARD_FLAGS.SKILL | battle_defs.CARD_FLAGS.DEBUFF,
+                    target_mod = TARGET_MOD.TEAM,
+
+                    OnPostResolve = function( self, battle, attack )
+                        local morale = 0.2 + 0.05 * GetAdvancementModifier( ADVANCEMENT_OPTION.NPC_ABILITY_STRENGTH )
+                        for i, hit in attack:Hits() do
+                            if hit.target:HasMorale() then
+                                hit.target:DeltaMorale( morale )
+                            end
+                        end
+                    end,
+                }
             },
-            etb_cultivator_disrupt = table.extend(NPC_ATTACK)
+
+            behaviour =
             {
-                name = "Disrupt",
-                anim = "attack1",
-                flags = battle_defs.CARD_FLAGS.MELEE | battle_defs.CARD_FLAGS.DEBUFF,
+                OnActivate = function( self, fighter )
+                    print(" loaded Cultivator?")
+                    self.moves = self:MakePicker()
+                        :AddID( "etb_cultivator_fire_in_the_hole", 1 )
+                        :AddID( "etb_cultivator_disrupt", 1 )
+                        :AddID( "etb_cultivator_demoralize", 1, 1 )
+                        :AddID( "ai_power_boost", 1, 2 )
 
-                CanPlayCard = function( self, battle, target )
-                    if target then
-                        if not target:IsPlayer() then
-                            return false
-                        end
-                        if target:GetConditionStacks( "disrupt" ) >= 5 then
-                            return false
-                        end
-                    end
-                    return true
+                    self:SetPattern( self.Cycle )
+
+                    self.fighter:AddCondition("leeching_blade", 1 + GetAdvancementModifier( ADVANCEMENT_OPTION.NPC_ABILITY_STRENGTH ), self)
+                    print("SUccessfully loaded Cultivator?")
                 end,
 
-                OnPostResolve = function( self, battle, attack )
-                    attack:AddCondition( "disrupt", 2 + GetAdvancementModifier( ADVANCEMENT_OPTION.NPC_ABILITY_STRENGTH ))
-                end,
+                Cycle = function( self )
+                    self.moves:ChooseCard(1)
+                end
             },
-            etb_cultivator_demoralize =
-            {
-                name = "Demoralize",
-                anim = "taunt",
-                flags = battle_defs.CARD_FLAGS.SKILL | battle_defs.CARD_FLAGS.DEBUFF,
-                target_mod = TARGET_MOD.TEAM,
-
-                OnPostResolve = function( self, battle, attack )
-                    local morale = 0.2 + 0.05 * GetAdvancementModifier( ADVANCEMENT_OPTION.NPC_ABILITY_STRENGTH )
-                    for i, hit in attack:Hits() do
-                        if hit.target:HasMorale() then
-                            hit.target:DeltaMorale( morale )
-                        end
-                    end
-                end,
-            }
         },
 
-        behaviour =
-        {
-            OnActivate = function( self, fighter )
-                self.moves = self:MakePicker()
-                    :AddID( "etb_cultivator_fire_in_the_hole", 1 )
-                    :AddID( "etb_cultivator_disrupt", 1 )
-                    :AddID( "etb_cultivator_demoralize", 1, 1 )
-                    :AddID( "ai_power_boost", 1, 2 )
-
-                self:SetPattern( self.Cycle )
-
-                self.fighter:AddCondition("leeching_blade", 1 + GetAdvancementModifier( ADVANCEMENT_OPTION.NPC_ABILITY_STRENGTH ), self)
-
-            end,
-
-            Cycle = function( self )
-                self.moves:ChooseCard(1)
-            end
-        },
     }),
     CharacterDef("ETB_BOGGER_BOSS_KALANDRA",
     {
