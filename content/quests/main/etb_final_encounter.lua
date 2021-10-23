@@ -108,6 +108,7 @@ local QDEF = QuestDef.Define
             -- quest:GetCastMember("handler"):Kill()
         end
         quest:AssignCastMember("illusion_boss")
+        quest:SetRank(5)
     end,
     CalculateBogInfluence = function(quest)
         -- Calculate parasites
@@ -304,6 +305,7 @@ QDEF:AddConvo("starting_out")
             ]],
         }
         :Fn(function(cxt)
+            -- cxt.quest:SetRank(5)
             -- If you don't have madness removed, the name of the handler will never be shown.
             cxt:TalkTo(cxt:GetCastMember("illusion_boss"))
             cxt:Dialog("DIALOG_INTRO", EscapeTheBogUtil.ObfuscateWords(cxt:GetCastMember("handler"):GetName(), 1))

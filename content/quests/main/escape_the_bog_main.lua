@@ -107,20 +107,20 @@ local QDEF = QuestDef.Define
         end
         if is_instance(card, Negotiation.Card) then
             local negotiation_defs = require "negotiation/negotiation_defs"
-            if CheckBits( card.flags, negotiation_defs.CARD_FLAGS.CONSUME ) and not card:IsHatched() then
+            if CheckBits( card.flags, negotiation_defs.CARD_FLAGS.CONSUME ) or card:IsHatched() then
                 return
             end
         end
         if is_instance(card, Battle.Card) then
             local battle_defs = require "battle/battle_defs"
-            if CheckBits( card.flags, battle_defs.CARD_FLAGS.CONSUME ) and not card:IsHatched() then
+            if CheckBits( card.flags, battle_defs.CARD_FLAGS.CONSUME ) or card:IsHatched() then
                 return
             end
         end
         if (not card.userdata.charges) then
-            card.userdata.max_charges = card.userdata.etb_persistent_charges or 15
+            card.userdata.max_charges = 15
+            card.userdata.charges = card.userdata.etb_persistent_charges or card.userdata.charges or card.userdata.max_charges
             card.userdata.etb_persistent_charges = nil
-            card.userdata.charges = card.userdata.charges or card.userdata.max_charges
             card.userdata.etb_is_cursed_use_limit = true
         end
     end,

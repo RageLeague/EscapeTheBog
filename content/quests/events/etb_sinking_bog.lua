@@ -74,6 +74,7 @@ QDEF:AddConvo()
 
             cxt:BasicNegotiation("RESIST", {
                 cooldown = 0,
+                flags = NEGOTIATION_FLAGS.WORDSMITH,
             })
                 :OnSuccess()
                     :Fn(function(cxt, minigame)

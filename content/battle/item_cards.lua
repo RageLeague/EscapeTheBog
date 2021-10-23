@@ -125,7 +125,7 @@ local ITEMS =
 
         OnPostResolve = function( self, battle, attack)
             self.target:HealHealth( self.heal_amt, self )
-            self.target:AddCondition("DISEASED", self.heal_amt, self)
+            self.target:AddCondition("DISEASED", self.diseased_amt, self)
         end,
     },
     etb_big_game_meat =

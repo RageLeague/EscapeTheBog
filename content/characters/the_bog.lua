@@ -44,7 +44,7 @@ local DEFS = {
                             self.tentacle:ChooseCards(self.difficulty >= 3 and 2 or 1)
                             self.boil:ChooseCards(1)
                         end
-                        self:ChooseGrowingNumbers( 2, 1 )
+                        self:ChooseGrowingNumbers( 2, -1 )
                     end,
 
                     -- Blinding
@@ -53,8 +53,10 @@ local DEFS = {
                             self:ChooseCard(self.spore)
                             self.fume:ChooseCards(1 + math.floor (self.difficulty / 2))
                         end
-                        self:ChooseGrowingNumbers( 1, 1 )
-                        self:ChooseComposure( 1, 2, 3 )
+                        self:ChooseGrowingNumbers( 1, 0 )
+                        if self.cycle_turns % 2 == 1 then
+                            self:ChooseComposure( 1, math.floor(self.difficulty / 2) + 1, math.ceil(self.difficulty / 2) + 2 )
+                        end
                     end,
 
                     -- Rash
@@ -68,7 +70,11 @@ local DEFS = {
                         if self.difficulty >= 2 or self.cycle_turns % 2 == 0 then
                             self.rash:ChooseCards(1)
                         end
-                        self:ChooseComposure( 2, 2, 3 )
+                        if self.cycle_turns % 2 == 1 then
+                            self:ChooseComposure( 2, math.floor(self.difficulty / 2) + 1, math.ceil(self.difficulty / 2) + 1 )
+                        else
+                            self:ChooseComposure( 1, math.floor(self.difficulty / 2) + 1, math.ceil(self.difficulty / 2) + 2 )
+                        end
                     end,
                 },
 
