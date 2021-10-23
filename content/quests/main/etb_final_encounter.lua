@@ -100,7 +100,10 @@ local QDEF = QuestDef.Define
         quest.param["handler_" .. quest.param.handler_id] = true
         quest:AssignCastMember("handler")
         local current_day = math.floor( TheGame:GetGameState():GetDateTime() / 2 ) + 1
-        quest.param.handler_dead = quest:GetCastMember("handler"):IsDead() or current_day >= 6
+        quest.param.handler_dead = quest:GetCastMember("handler"):IsDead() -- or current_day >= 6
+        for i = 5, current_day do
+            quest.param.handler_dead = quest.param.handler_dead or math.random() < 0.75
+        end
         if quest.param.handler_dead and not quest:GetCastMember("handler"):IsRetired() then
             -- quest:GetCastMember("handler"):Kill()
         end
