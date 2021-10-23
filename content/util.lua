@@ -473,3 +473,22 @@ function EscapeTheBogUtil.DraftItemCardScreen(cxt)
     TheGame:FE():InsertScreen( draft_popup )
     cxt.enc:YieldEncounter()
 end
+
+function EscapeTheBogUtil.GetPooledGrafts(difficulty, num, graft_pool)
+    local grafts = {}
+    local prob = GRAFT_DROP_RARITY[math.max(1, math.min( difficulty, #GRAFT_DROP_RARITY))]
+    local owner = TheGame:GetGameState():GetPlayerAgent()
+
+    for k = 1, num do
+        local rarity = weighted_arraypick(prob)
+        local pool = graft_pool[ rarity ]
+        local idx = math.random(1, #pool)
+        local graft_id = pool[idx]
+        pool[idx] = table.remove(pool)
+        if graft_id then
+            local graft = GraftInstance( graft_id )
+            table.insert(grafts, graft)
+        end
+    end
+    return grafts
+end

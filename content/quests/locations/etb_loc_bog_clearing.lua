@@ -357,7 +357,7 @@ QDEF:AddConvo()
         :Fn(function(cxt)
             cxt:Dialog("DIALOG_INTRO")
             cxt.quest.param.searched_for_poi = true
-            cxt.quest.param.ritual_level = cxt.quest.param.sacrificed_creatures
+            cxt.quest.param.ritual_level = cxt.quest.param.sacrificed_creatures * 2
             cxt.quest.param.sacrificed_creatures = nil
             cxt:GoTo("STATE_RITUAL_REWARD")
         end)
@@ -378,7 +378,7 @@ QDEF:AddConvo()
             cxt.enc:WaitOnLine()
 
             local grafts
-            grafts = RewardUtil.GetPooledGrafts(cxt.quest.param.ritual_level or 3, TheGame:GetGameState():GetGraftDraftDetails().count, EscapeTheBogUtil.GetSocialBoonPool())
+            grafts = EscapeTheBogUtil.GetPooledGrafts(cxt.quest.param.ritual_level or 3, TheGame:GetGameState():GetGraftDraftDetails().count, EscapeTheBogUtil.GetSocialBoonPool())
             local popup = Screen.PickGraftScreen(grafts, false, function(...) cxt.enc:ResumeEncounter(...) end)
             TheGame:FE():InsertScreen( popup )
             local chosen_graft = cxt.enc:YieldEncounter()
