@@ -2,6 +2,10 @@ local QDEF = QuestDef.Define
 {
     qtype = QTYPE.EVENT,
     act_filter = EscapeTheBogUtil.ETBActFilter,
+
+    on_init = function(quest)
+
+    end,
 }
 
 QDEF:AddConvo()

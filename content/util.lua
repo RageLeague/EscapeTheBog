@@ -53,6 +53,11 @@ function EscapeTheBogUtil.AddBogLocationQuest(quest_def, location_def, exit_defs
             if not q then
                 q = QuestUtil.SpawnQuest("ETB_NO_EVENT", {parameters = {location = location}})
             end
+            if not q or q:GetContentID() == "ETB_NO_EVENT" then
+                TheGame:GetGameState():GetMainQuest().param.free_travel = not (TheGame:GetGameState():GetMainQuest().param.free_travel)
+            else
+                TheGame:GetGameState():GetMainQuest().param.free_travel = false
+            end
             quest.param.current_event = q
             quest.param.visited_location = true
         end
@@ -170,14 +175,21 @@ function EscapeTheBogUtil.AddBogLocationQuest(quest_def, location_def, exit_defs
                 :Fn(function(cxt)
                     local function AddExitOption(exit)
                         local location = exit:GetCastMember("main_location")
-                        cxt:Opt(cxt.quest.param.previous_location == exit and "OPT_RETURN_TO_ETB" or "OPT_MOVE_TO_ETB", location)
+                        local opt = cxt:Opt(cxt.quest.param.previous_location == exit and "OPT_RETURN_TO_ETB" or "OPT_MOVE_TO_ETB", location)
                             :PostText(exit:DefFn("GetPathDesc"))
-                            :Dialog("DIALOG_MOVE_TO_ETB", location)
+
+                        if exit.param.visited_location then
+                            opt:PostText("TT_BEEN_HERE_BEFORE_ETB")
+                        end
+
+                        opt:Dialog("DIALOG_MOVE_TO_ETB", location)
                             :Fn( function(cxt)
                                 exit.param.previous_location = cxt.quest
                                 cxt.encounter:DoLocationTransition( location )
-                                EscapeTheBogUtil.TryMainQuestFn("AdvanceTime", 1, "TRAVEL")
 
+                                if not TheGame:GetGameState():GetMainQuest().param.free_travel then
+                                    EscapeTheBogUtil.TryMainQuestFn("AdvanceTime", 1, "TRAVEL")
+                                end
                                 -- TheGame:GetGameState():GetCaravan():MoveToLocation( location )
                                 cxt:End()
                             end )
@@ -354,7 +366,7 @@ function EscapeTheBogUtil.DoSleepConvo(cxt)
 
         sleep_segments = sleep_segments + 1
         if fatigue then
-            fatigue:DeltaStat(-1)
+            fatigue:DeltaStat((sleep_segments % 2 == 0) and -2 or -1)
         end
         EscapeTheBogUtil.TryMainQuestFn("AdvanceTime", 1, "SLEEP")
 
@@ -470,7 +482,7 @@ end
 function EscapeTheBogUtil.DraftItemCardScreen(cxt)
     local draft_popup = Screen.DraftChoicePopup()
     local cards = RewardUtil.ETBGetMixedItems( 1, 3, cxt.player )
-    draft_popup:DraftCards( cxt.player, nil, cards, function(cxt) cxt.encounter:ResumeEncounter() end )
+    draft_popup:DraftCards( cxt.player, nil, cards, function() cxt.encounter:ResumeEncounter() end )
     TheGame:FE():InsertScreen( draft_popup )
     cxt.enc:YieldEncounter()
 end

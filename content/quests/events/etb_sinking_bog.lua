@@ -15,7 +15,16 @@ QDEF:AddConvo()
                 tags = "bog_intro",
                 [[
                     * You must have lost more memory than you thought, because it seems like you have forgotten how to walk.
-                    * You walked straight into a s
+                    * You walked to a wrong spot in the Bog and starts to sink into the mud!
+                ]],
+                [[
+                    * You know what they say: "eyes on the road".
+                    * {player} clearly doesn't the meaning of that sentence, because {player.heshe} starts to sink into the bog!
+                ]],
+                [[
+                    * Walking in the bog is always dangerous.
+                    * You never know where the ground is solid, and where it will swallow you whole.
+                    * For example, right now, you are currently sinking into the bog!
                 ]],
             },
         }
@@ -63,7 +72,9 @@ QDEF:AddConvo()
 
             cxt:Dialog("DIALOG_INTRO")
 
-            cxt:BasicNegotiation("RESIST", {})
+            cxt:BasicNegotiation("RESIST", {
+                cooldown = 0,
+            })
                 :OnSuccess()
                     :Fn(function(cxt, minigame)
                         local parasites = {}
