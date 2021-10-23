@@ -440,20 +440,21 @@ function EscapeTheBogUtil.GetSocialBoonPool()
         [ CARD_RARITY.RARE ] = {},
     }
     local existing_ids = {}
-    for i, def in pairs(Content.GetAllCharacterDefs()) do
-        if def.loved_graft and def.loved_graft ~= "" and not existing_ids[def.loved_graft] then
+    for i, id, def in sorted_pairs(Content.GetAllCharacterDefs()) do
+        local loved_graft = def.loved_graft
+        if loved_graft and loved_graft ~= "" and not existing_ids[loved_graft] then
             local gift_cost_idx = math.max(def.renown or 1, def.combat_strength or 1)
             if def.boss then
                 -- Boon of bosses are always rare
-                table.insert(SOCIAL_BOON_CACHE[CARD_RARITY.RARE], def.loved_graft)
+                table.insert(SOCIAL_BOON_CACHE[CARD_RARITY.RARE], loved_graft)
             elseif gift_cost_idx <= 2 then
-                table.insert(SOCIAL_BOON_CACHE[CARD_RARITY.COMMON], def.loved_graft)
+                table.insert(SOCIAL_BOON_CACHE[CARD_RARITY.COMMON], loved_graft)
             elseif gift_cost_idx <= 4 then
-                table.insert(SOCIAL_BOON_CACHE[CARD_RARITY.UNCOMMON], def.loved_graft)
+                table.insert(SOCIAL_BOON_CACHE[CARD_RARITY.UNCOMMON], loved_graft)
             else
-                table.insert(SOCIAL_BOON_CACHE[CARD_RARITY.RARE], def.loved_graft)
+                table.insert(SOCIAL_BOON_CACHE[CARD_RARITY.RARE], loved_graft)
             end
-            existing_ids[def.loved_graft] = true
+            existing_ids[loved_graft] = true
         end
     end
     -- Just because
