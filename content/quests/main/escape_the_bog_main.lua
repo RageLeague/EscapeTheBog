@@ -7,7 +7,7 @@ local QDEF = QuestDef.Define
     qtype = QTYPE.STORY,
     desc = "Find a way to get out of this place.",
 
-    difficulty_ranks = {1, 2, 3, 4, 5},
+    -- difficulty_ranks = {1, 2, 3, 4, 5},
     monster_meat = {
         ERCHIN = "etb_mixed_monster_meat",
         FLEAD = "etb_mixed_monster_meat",
@@ -145,10 +145,10 @@ local QDEF = QuestDef.Define
         while quest.param.time_segment >= 6 do
             quest.param.time_segment = (quest.param.time_segment or 0) - 6
             TheGame:GetGameState():AdvanceTime()
-            local current_day = math.floor( TheGame:GetGameState():GetDateTime() / 2 ) + 1
-            local ranks = quest:GetQuestDef().difficulty_ranks
+            -- local current_day = math.floor( TheGame:GetGameState():GetDateTime() / 2 ) + 1
+            -- local ranks = quest:GetQuestDef().difficulty_ranks
 
-            TheGame:GetGameState():SetDifficulty(ranks[math.min(current_day, #ranks)])
+            TheGame:GetGameState():SetDifficulty(math.min(math.floor( TheGame:GetGameState():GetDateTime() / 3 ) + 1, 5))
         end
         local new_time = {datetime = TheGame:GetGameState():GetDateTime(), segment = (quest.param.time_segment or 0)}
         for i, agent in TheGame:GetGameState():GetCaravan():Members() do

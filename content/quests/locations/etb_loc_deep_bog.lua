@@ -73,18 +73,27 @@ QDEF:AddConvo()
             {
                 tags = "found_nothing",
                 [[
-                    * You find nothing of note here.
+                    * You find some random items scattered on the ground.
+                    * Perhaps a convoy dropped it during a skirmish?
+                    * Either way, the items are yours now.
                 ]],
                 [[
-                    * You find a cool rock. It is shaped like a perfect disc.
-                    * It doesn't help you, though.
+                    * You find the remains of an unfortunate person.
+                    * Perhaps some wild animals got them. Or perhaps they got lost in the bog and starved to death.
+                    * You feel bad for looting from a corpse, but it's the only way if you wish to not succumb to the same fate as them.
+                    {player_sal?
+                        * (No, <i>{player}</>, you can't just eat them.)
+                    }
                 ]],
                 [[
-                    * You find that this is a huge waste of time.
+                    * You found what seems to be a stash of items.
+                    * Somebody must have left them here in order to pick them up later.
+                    * Well, finders keepers, I guess.
                 ]],
                 [[
-                    * You find an extremely tall tree.
-                    * That's cool, I guess?
+                    * You found an item stash with the Spark Baron logo on them buried loosely in the mud.
+                    * The Barons must have discarded them here.
+                    * This seems like a terrible waste disposal method, but it works out in your favor this time.
                 ]],
             },
         }
@@ -100,6 +109,7 @@ QDEF:AddConvo()
                 cxt:Dialog("DIALOG_BOGBERRIES")
             else
                 cxt:Quip( cxt.player, "found_nothing")
+                EscapeTheBogUtil.DraftItemCardScreen(cxt)
             end
             cxt.quest.param.searched_for_poi = true
             EscapeTheBogUtil.TryMainQuestFn("AdvanceTime", 1, "SEARCH")

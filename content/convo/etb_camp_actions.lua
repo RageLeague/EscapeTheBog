@@ -6,7 +6,7 @@ Convo("ETB_CAMP_ACTIONS")
         if not EscapeTheBogUtil.IsETBCampaign() then
             return
         end
-        if TheGame:GetGameState():GetActiveQuestWithContentID("ETB_FINAL_ENCOUNTER") then
+        if #TheGame:GetGameState():GetActiveQuestWithContentID("ETB_FINAL_ENCOUNTER") > 0 then
             return
         end
         cxt:Opt("OPT_CAMP_ACTIONS")

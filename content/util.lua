@@ -465,3 +465,11 @@ function EscapeTheBogUtil.GetSocialBoonPool()
     end
     return SOCIAL_BOON_CACHE
 end
+
+function EscapeTheBogUtil.DraftItemCardScreen(cxt)
+    local draft_popup = Screen.DraftChoicePopup()
+    local cards = RewardUtil.ETBGetBattleItems( 1, 3, cxt.player )
+    draft_popup:DraftCards( cxt.player, Battle.Card, cards, function(cxt) cxt.encounter:ResumeEncounter() end )
+    TheGame:FE():InsertScreen( draft_popup )
+    cxt.enc:YieldEncounter()
+end

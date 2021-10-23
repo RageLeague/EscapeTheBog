@@ -63,16 +63,8 @@ QDEF:AddConvo("starting_out")
 
                         local skip_count = TheGame:GetGameState().card_skip_count or 0
 
-                        local function OnDone()
-                            cxt.encounter:ResumeEncounter()
-                        end
-
                         for i = 1, 2 do
-                            local draft_popup = Screen.DraftChoicePopup()
-                            local cards = RewardUtil.ETBGetBattleItems( 1, 3, cxt.player )
-                            draft_popup:DraftCards( cxt.player, Battle.Card, cards, OnDone )
-                            TheGame:FE():InsertScreen( draft_popup )
-                            cxt.enc:YieldEncounter()
+                            EscapeTheBogUtil.DraftItemCardScreen(cxt)
                         end
 
                         local skip_delta = (TheGame:GetGameState().card_skip_count or 0) - skip_count

@@ -8,9 +8,9 @@ local DEFS = {
         base_def = "BOGGER_CLOBBER",
         hide_in_compendium = true,
         fight_data =
-	    {
-	        MAX_MORALE = MAX_MORALE_LOOKUP.MEDIUM,
-	        MAX_HEALTH = MAX_HEALTH_LOOKUP.LOW,
+        {
+            MAX_MORALE = MAX_MORALE_LOOKUP.MEDIUM,
+            MAX_HEALTH = MAX_HEALTH_LOOKUP.LOW,
 
             attacks =
             {
@@ -89,9 +89,9 @@ local DEFS = {
         base_def = "BOGGER_CULTIVATOR",
         hide_in_compendium = true,
         fight_data =
-	    {
-	        MAX_MORALE = MAX_MORALE_LOOKUP.MEDIUM,
-	        MAX_HEALTH = MAX_HEALTH_LOOKUP.LOW,
+        {
+            MAX_MORALE = MAX_MORALE_LOOKUP.MEDIUM,
+            MAX_HEALTH = MAX_HEALTH_LOOKUP.LOW,
             attacks =
             {
                 etb_cultivator_fire_in_the_hole = table.extend(NPC_ATTACK)
@@ -151,6 +151,133 @@ local DEFS = {
                         :AddID( "etb_cultivator_disrupt", 1 )
                         :AddID( "etb_cultivator_demoralize", 1, 1 )
                         :AddID( "ai_power_boost", 1, 2 )
+
+                    self:SetPattern( self.Cycle )
+
+                    self.fighter:AddCondition("leeching_blade", 1 + GetAdvancementModifier( ADVANCEMENT_OPTION.NPC_ABILITY_STRENGTH ), self)
+                    print("SUccessfully loaded Cultivator?")
+                end,
+
+                Cycle = function( self )
+                    self.moves:ChooseCard(1)
+                end
+            },
+        },
+
+    }),
+    CharacterDef("ETB_BOGGER_CLOBBER_PROFESSIONAL",
+    {
+        base_def = "BOGGER_CLOBBER",
+        hide_in_compendium = true,
+        fight_data =
+        {
+            MAX_MORALE = MAX_MORALE_LOOKUP.MEDIUM,
+            MAX_HEALTH = MAX_HEALTH_LOOKUP.LOW,
+
+            attacks =
+            {
+                etb_clobber_whack = table.extend(NPC_ATTACK)
+                {
+                    name = "Whack",
+                    anim = "attack1",
+                    flags = CARD_FLAGS.MELEE,
+                    damage_mult = 1,
+                },
+                etb_clobber_bracing_stance = table.extend(NPC_BUFF)
+                {
+                    name = "Bracing Stance",
+                    anim = "taunt",
+
+                    flags = CARD_FLAGS.SKILL | CARD_FLAGS.BUFF,
+                    target_type = TARGET_TYPE.SELF,
+
+                    features =
+                    {
+                        DEFEND = 8,
+                    },
+                    OnPostResolve = function( self, battle, attack )
+                        self.owner:AddCondition("CHARGED_STRIKES", 2, self)
+                    end,
+                },
+            },
+
+            behaviour =
+            {
+                OnActivate = function( self, fighter )
+                    self.moves = self:MakePicker()
+                        :AddID( "etb_clobber_whack", 3 )
+                    self.taunt = self:AddCard("etb_clobber_bracing_stance")
+
+                    self:SetPattern( self.Cycle )
+
+                    local base_stacks = 6 - 2 * GetAdvancementModifier( ADVANCEMENT_OPTION.NPC_ABILITY_STRENGTH )
+                    if self.fighter:GetTeamID() == TEAM.RED then
+                        local shield_bash = self.fighter:AddCondition("shield_bash", base_stacks , self)
+                        shield_bash.base_stacks = base_stacks
+                    end
+
+                    self.fighter:AddCondition("ARMOURED", 3 + GetAdvancementModifier( ADVANCEMENT_OPTION.NPC_ABILITY_STRENGTH ), self)
+                end,
+
+                Cycle = function( self )
+                    if not self.fighter:HasCondition("CHARGED_STRIKES") then
+                        self:ChooseCard(self.taunt)
+                    else
+                        self.moves:ChooseCard()
+                    end
+                end,
+            },
+        },
+
+    }),
+    CharacterDef("ETB_BOGGER_CULTIVATOR_GOON",
+    {
+        base_def = "BOGGER_CULTIVATOR",
+        hide_in_compendium = true,
+        fight_data =
+        {
+            MAX_MORALE = MAX_MORALE_LOOKUP.MEDIUM,
+            MAX_HEALTH = MAX_HEALTH_LOOKUP.LOW,
+            attacks =
+            {
+                etb_cultivator_slash = table.extend(NPC_ATTACK)
+                {
+                    name = "Slash",
+                    anim = "attack1",
+
+                    flags = CARD_FLAGS.MELEE,
+                },
+                etb_cultivator_billy_scimitar = table.extend(NPC_ATTACK)
+                {
+                    name = "Billy Scimitar",
+                    anim = "attack1",
+
+                    flags = CARD_FLAGS.MELEE | CARD_FLAGS.DEBUFF,
+
+                    damage_mult = .65,
+
+                    OnPostResolve = function( self, battle, attack )
+                        for i, hit in attack:Hits() do
+                            if not hit.evaded and not hit.defended then
+                                if hit.target:IsPlayer() then
+                                    hit.target:AddCondition("static_shock", 2 + GetAdvancementModifier( ADVANCEMENT_OPTION.NPC_ABILITY_STRENGTH ))
+                                elseif math.random() < 0.5 then
+                                    hit.target:AddCondition( "STUN", 1 )
+                                end
+                            end
+                        end
+                    end,
+                },
+            },
+
+            behaviour =
+            {
+                OnActivate = function( self, fighter )
+                    print(" loaded Cultivator?")
+                    self.moves = self:MakePicker()
+                        :AddID( "etb_cultivator_slash", 1 )
+                        :AddID( "etb_cultivator_billy_scimitar", 1 )
+                        :AddID( "ai_spark_baron_goon_buff", 1 )
 
                     self:SetPattern( self.Cycle )
 
@@ -348,8 +475,8 @@ local DEFS = {
                     target_type = TARGET_TYPE.SELF,
 
                     OnPostResolve = function( self, battle, attack )
-                        self.owner:GetTeam():AddFighter( Fighter.CreateFromAgent( Agent("BOGGER_CLOBBER"), 1 ) )
-                        self.owner:GetTeam():AddFighter( Fighter.CreateFromAgent( Agent("BOGGER_CULTIVATOR"), 1 ) )
+                        self.owner:GetTeam():AddFighter( Fighter.CreateFromAgent( Agent("ETB_BOGGER_CLOBBER_PROFESSIONAL"), 1 ) )
+                        self.owner:GetTeam():AddFighter( Fighter.CreateFromAgent( Agent("ETB_BOGGER_CULTIVATOR_GOON"), 1 ) )
                         self.owner:GetTeam():ActivateNewFighters()
                         self.have_played = true
                     end,
