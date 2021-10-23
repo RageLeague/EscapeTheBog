@@ -432,7 +432,7 @@ local SOCIAL_BOON_CACHE
 
 function EscapeTheBogUtil.GetSocialBoonPool()
     if SOCIAL_BOON_CACHE then
-        return SOCIAL_BOON_CACHE
+        return deepcopy(SOCIAL_BOON_CACHE)
     end
     SOCIAL_BOON_CACHE = {
         [ CARD_RARITY.COMMON ] = {},
