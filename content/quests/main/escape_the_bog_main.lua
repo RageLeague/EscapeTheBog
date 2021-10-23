@@ -66,6 +66,11 @@ local QDEF = QuestDef.Define
         card_added = function( quest, card )
             quest:DefFn("AddUsageLimitToCard", card)
         end,
+        on_pre_card_upgrade = function( quest, card, upgrade_id )
+            if card.userdata.etb_is_cursed_use_limit then
+                card.userdata.etb_persistent_charges = card.userdata.charges
+            end
+        end,
         card_upgraded = function( quest, card )
             quest:DefFn("AddUsageLimitToCard", card)
         end,
@@ -113,7 +118,8 @@ local QDEF = QuestDef.Define
             end
         end
         if (not card.userdata.charges) then
-            card.userdata.max_charges = 15
+            card.userdata.max_charges = card.userdata.etb_persistent_charges or 15
+            card.userdata.etb_persistent_charges = nil
             card.userdata.charges = card.userdata.charges or card.userdata.max_charges
             card.userdata.etb_is_cursed_use_limit = true
         end
