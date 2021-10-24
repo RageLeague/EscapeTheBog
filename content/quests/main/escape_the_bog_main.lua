@@ -95,6 +95,9 @@ local QDEF = QuestDef.Define
     },
 
     DoObfuscateText = function(quest, txt, frequency)
+        if quest.param.madness_cured then
+            return txt
+        end
         if type(frequency) ~= "number" then
             frequency = nil
         end

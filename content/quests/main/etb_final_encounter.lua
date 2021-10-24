@@ -294,21 +294,35 @@ QDEF:AddConvo("starting_out")
                     I thought you would be long dead before that, but I guess I underestimated your strength.
                 }
                 player:
+                    !angry_point
                     Oh yeah? Well jokes on you, I am here to end your reign of madness!
                 illusion_boss:
                 {not handler_dead?
+                    !thumb
                     What are you talking about? You don't recognize {1}?
                 }
                 {handler_dead?
+                    !angry
                     Hah, you are just like the ones before. Soon, you shall join them.
                 }
+            ]],
+            DIALOG_INTRO_UNDERSTAND = [[
+                player:
+                    Wait, you are {handler}?
+                    Don't make me laugh. You look nothing like {handler.himher}.
+                illusion_boss:
+                    What the Hesh are you talking about?
             ]],
         }
         :Fn(function(cxt)
             -- cxt.quest:SetRank(5)
             -- If you don't have madness removed, the name of the handler will never be shown.
             cxt:TalkTo(cxt:GetCastMember("illusion_boss"))
-            cxt:Dialog("DIALOG_INTRO", EscapeTheBogUtil.ObfuscateWords(cxt:GetCastMember("handler"):GetName(), 1))
+            cxt:Dialog("DIALOG_INTRO", EscapeTheBogUtil.TryMainQuestFn("DoObfuscateText", cxt:GetCastMember("handler"):GetName(), 1))
+            cxt.quest.param.madness_cured_before = TheGame:GetGameState():GetMainQuest().param.madness_cured
+            if cxt.quest.param.madness_cured_before then
+                cxt:Dialog("DIALOG_INTRO_UNDERSTAND")
+            end
             cxt:GoTo("STATE_FIGHT")
         end)
     :State("STATE_FIGHT")
@@ -316,6 +330,7 @@ QDEF:AddConvo("starting_out")
             OPT_ATTACK_FAITH = "Attack {illusion_boss}'s faith",
             DIALOG_ATTACK_FAITH = [[
                 player:
+                    !cruel
                     $miscMocking
                     Ah, you sure the Bog is on your side?
                 agent:
@@ -368,6 +383,64 @@ QDEF:AddConvo("starting_out")
             DIALOG_ATTACK_KILLED = [[
                 * You have killed the Bogger leader in battle.
             ]],
+
+            OPT_NO_ATTACK = "Do not attack the priest",
+            DIALOG_NO_ATTACK = [[
+                player:
+                    !angry_shrug
+                    Fine. Maybe you really are {handler}.
+                * You dropped your weapons.
+                agent:
+                    Looks like you finally come to your senses.
+                * Suddenly, you heard a strange voice, a most <b><i>TERRIFYING</></> voice.
+                player:
+                    !injured
+                bog_monster:
+                    !right
+                    <#PENALTY>KILL {agent.gender:HIM|HER|THEM}!</>
+                    <#PENALTY>THE BOG DEMANDS SACRIFICE!</>
+                agent:
+                    !right
+                    !scared
+                    {player}? What's going on?
+            ]],
+            OPT_BREAK_FREE = "Break free of the bog's influence",
+            DIALOG_BREAK_FREE = [[
+                player:
+                    No! I will not follow your command!
+            ]],
+            DIALOG_BREAK_FREE_SUCCESS = [[
+                player:
+                    I will not listen to you!
+                    So just leave me alone!
+                * Your resolve has overcome the Bog's influence.
+                * It has taken a lot of toll on you though, and you passed out shortly.
+            ]],
+            DIALOG_BREAK_FREE_SUCCESS_PST = [[
+                agent:
+                    !right
+                    !scared
+                    {player}, you alright?
+                    {player}?
+                    {player}!!!
+            ]],
+            DIALOG_BREAK_FREE_FAILURE = [[
+                bog_monster:
+                    <#PENALTY>DO IT!</>
+                player:
+                    No! I-
+                agent:
+                    !right
+                    !scared
+                player:
+                    I'LL DO IT!
+                    !cruel
+                    <#PENALTY>EXCELLENT!</>
+                    !fight
+                * You ready your weapon.
+            ]],
+
+            SIT_MOD_PARASITE = "The bog has strong influence on you",
         }
         :Fn(function(cxt)
             local core_arg = nil
@@ -392,6 +465,40 @@ QDEF:AddConvo("starting_out")
                     :OnFailure()
                         :Dialog("DIALOG_ATTACK_FAITH_FAILURE")
                 AddAttackOptions(cxt)
+                if cxt.quest.param.madness_cured_before and not cxt.quest.param.tried_break_free then
+                    if not cxt.quest.param.tried_no_attack then
+                        cxt:Opt("OPT_NO_ATTACK")
+                            :Dialog("DIALOG_NO_ATTACK")
+                            :Fn(function(cxt)
+                                cxt.quest.param.tried_no_attack = true
+                            end)
+                    else
+                        local sit_mods = {
+                            --{ value = 20, text = cxt:GetLocString("SIT_MOD") }
+                        }
+                        -- Calculate parasites
+                        local parasite_values = cxt.quest:DefFn("CalculateBogInfluence") or 0
+
+                        if parasite_values and parasite_values > 0 then
+                            table.insert(sit_mods, { valule = parasite_values, text = cxt:GetLocString("SIT_MOD_PARASITE")})
+                        end
+
+                        -- Actual option
+                        cxt:BasicNegotiation("BREAK_FREE", {
+                            target_agent = cxt:GetCastMember("bog_monster"),
+                            situation_modifiers = sit_mods,
+                        })
+                            :OnSuccess()
+                                :FadeOut()
+                                :Dialog("DIALOG_BREAK_FREE_SUCCESS_PST")
+                                :GoTo("STATE_FLASHBACK")
+                            :OnFailure()
+                                :Fn(function(cxt)
+                                    cxt.quest.param.tried_break_free = true
+                                end)
+                                -- :GoTo("STATE_POST_FIGHT_KILL")
+                    end
+                end
             end)
         end)
     :State("STATE_FLASHBACK")
@@ -660,6 +767,8 @@ QDEF:AddConvo("starting_out")
                 agent:
                     Looks like you finally come to your senses.
                 * Suddenly, you heard a strange voice, a most <b><i>TERRIFYING</></> voice.
+                player:
+                    !injured
                 bog_monster:
                     !right
                     <#PENALTY>KILL {agent.gender:HIM|HER|THEM}!</>
@@ -704,7 +813,7 @@ QDEF:AddConvo("starting_out")
             ]],
 
 
-            SIT_MOD_PARASITE = "You have bog parasites on you",
+            SIT_MOD_PARASITE = "The bog has strong influence on you",
         }
         :SetLooping(true)
         :Fn(function(cxt)
