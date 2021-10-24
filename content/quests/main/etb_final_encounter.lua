@@ -115,14 +115,14 @@ local QDEF = QuestDef.Define
         local parasite_values = 0
 
         local battle_defs = require "battle/battle_defs"
-        for i, card in ipairs(cxt.player.battler.cards.cards) do
+        for i, card in ipairs(TheGame:GetGameState():GetPlayerAgent().battler.cards.cards) do
             if card:IsFlagged( battle_defs.CARD_FLAGS.PARASITE ) then
                 parasite_values = parasite_values + (PARASITE_VALUES[card.rarity] or 15)
             end
         end
 
         local negotiation_defs = require "negotiation/negotiation_defs"
-        for i, card in ipairs(cxt.player.negotiator.cards.cards) do
+        for i, card in ipairs(TheGame:GetGameState():GetPlayerAgent().negotiator.cards.cards) do
             if card:IsFlagged( negotiation_defs.CARD_FLAGS.PARASITE ) then
                 parasite_values = parasite_values + (PARASITE_VALUES[card.rarity] or 15)
             end
