@@ -294,7 +294,7 @@ QDEF:AddConvo("starting_out")
                     I thought you would be long dead before that, but I guess I underestimated your strength.
                 }
                 player:
-                    !angry_point
+                    !angry_accuse
                     Oh yeah? Well jokes on you, I am here to end your reign of madness!
                 illusion_boss:
                 {not handler_dead?
@@ -308,7 +308,9 @@ QDEF:AddConvo("starting_out")
             ]],
             DIALOG_INTRO_UNDERSTAND = [[
                 player:
+                    !surprised
                     Wait, you are {handler}?
+                    !angry_accuse
                     Don't make me laugh. You look nothing like {handler.himher}.
                 illusion_boss:
                     What the Hesh are you talking about?
@@ -391,6 +393,7 @@ QDEF:AddConvo("starting_out")
                     Fine. Maybe you really are {handler}.
                 * You dropped your weapons.
                 agent:
+                    !hips
                     Looks like you finally come to your senses.
                 * Suddenly, you heard a strange voice, a most <b><i>TERRIFYING</></> voice.
                 player:
@@ -411,6 +414,7 @@ QDEF:AddConvo("starting_out")
             ]],
             DIALOG_BREAK_FREE_SUCCESS = [[
                 player:
+                    !angry_accuse
                     I will not listen to you!
                     So just leave me alone!
                 * Your resolve has overcome the Bog's influence.
@@ -700,7 +704,7 @@ QDEF:AddConvo("starting_out")
         :Loc{
             DIALOG_INTRO = [[
                 player:
-                    !angry_point
+                    !angry_accuse
                     Had enough?
                     Lift my madness, or I will lift your life.
                 agent:
@@ -717,6 +721,9 @@ QDEF:AddConvo("starting_out")
             OPT_EXECUTE = "Execute the High Priest",
             OPT_EXECUTE_STRONG = "<#PENALTY>Execute {agent.himher}</>",
             DIALOG_EXECUTE = [[
+                player:
+                    !neutral
+                    !fight
                 agent:
                     !right
                     !scared
@@ -749,22 +756,38 @@ QDEF:AddConvo("starting_out")
             OPT_QUESTION_2 = "Ask about {handler}",
             DIALOG_QUESTION_2 = [[
                 player:
+                    !angry_accuse
                     What do you know about {handler}?
                 agent:
                 {handler_fellemo?
-                    Don't--------, {player.name}.---am {handler.name}.
+                    !angry
+                    {madness_cured_before?
+                        Don't be daft, {player}. I am {handler}.
+                    }
+                    {not madness_cured_before?
+                        Don't--------, {player.name}.---am {handler.name}.
+                    }
                 }
                 {handler_kalandra?
-                    ----serious? You-----------------me, {handler.name}?
+                    !dubious
+                    {madness_cured_before?
+                        You serious? You don't recognize me, {handler}?
+                    }
+                    {not madness_cured_before?
+                        ----serious? You-----------------me, {handler.name}?
+                    }
                 }
                 player:
+                    !dubious
                     You mean, you are {handler}?
+                    !angry
                     I don't believe you!
             ]],
             DIALOG_SPARE = [[
                 * You couldn't do it. There are so many doubts in your mind that you just couldn't do it.
                 * You dropped your weapons.
                 agent:
+                    !hips
                     Looks like you finally come to your senses.
                 * Suddenly, you heard a strange voice, a most <b><i>TERRIFYING</></> voice.
                 player:
@@ -773,6 +796,15 @@ QDEF:AddConvo("starting_out")
                     !right
                     <#PENALTY>KILL {agent.gender:HIM|HER|THEM}!</>
                     <#PENALTY>THE BOG DEMANDS SACRIFICE!</>
+                {tried_break_free?
+                    * It's no use! You have failed your chance of breaking free of the Bog's influence!
+                    player:
+                        !cruel
+                    agent:
+                        !right
+                        !scared
+                    * There is only one thing for you to do...
+                }
             ]],
             OPT_BREAK_FREE = "Break free of the bog's influence",
             DIALOG_BREAK_FREE = [[
@@ -781,6 +813,7 @@ QDEF:AddConvo("starting_out")
             ]],
             DIALOG_BREAK_FREE_SUCCESS = [[
                 player:
+                    !angry_accuse
                     I will not listen to you!
                     So just leave me alone!
                 * Your resolve has overcome the Bog's influence.
@@ -790,9 +823,16 @@ QDEF:AddConvo("starting_out")
                 agent:
                     !right
                     !scared
+                {madness_cured_before?
+                    {player}, you alright?
+                    {player}?
+                    {player}!!!
+                }
+                {not madness_cured_before?
                     {1}, you--------?
                     {1}?
                     {player.name}!!!
+                }
             ]],
             DIALOG_BREAK_FREE_FAILURE = [[
                 bog_monster:
@@ -849,7 +889,7 @@ QDEF:AddConvo("starting_out")
                         cxt.enc.ignore_obfuscation = nil
                         cxt.enc.scratch.question_state = 2
                     end)
-            elseif (cxt.enc.scratch.question_state or 0) == 3 then
+            elseif (cxt.enc.scratch.question_state or 0) == 3 and not cxt.quest.param.tried_break_free then
                 local sit_mods = {
                     --{ value = 20, text = cxt:GetLocString("SIT_MOD") }
                 }
