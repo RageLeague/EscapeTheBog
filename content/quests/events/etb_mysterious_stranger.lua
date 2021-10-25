@@ -201,6 +201,7 @@ QDEF:AddConvo()
             ]],
         }
         :Fn(function(cxt)
+            TheGame:GetGameState():GetMainQuest().param.did_mysterious_stranger = true
             cxt:TalkTo(cxt:GetCastMember("sampler"))
             cxt:Dialog("DIALOG_INTRO")
 

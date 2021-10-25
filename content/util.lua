@@ -253,6 +253,12 @@ function EscapeTheBogUtil.GenericRepeatEncounterTable(difficulty, quest, locatio
                 t.ETB_SINKING_BOG = t.ETB_SINKING_BOG + 1
             end
         end
+        if TheGame:GetGameState():GetDateTime() >= 4 then
+            t.ETB_MYSTERIOUS_STRANGER = TheGame:GetGameState():GetDayPhase() == DAY_PHASE.NIGHT and 1 or 2
+            if not TheGame:GetGameState():GetMainQuest().param.did_mysterious_stranger then
+                t.ETB_MYSTERIOUS_STRANGER = t.ETB_MYSTERIOUS_STRANGER + 2
+            end
+        end
     end
     return t
 end
@@ -261,9 +267,9 @@ function EscapeTheBogUtil.GenericInitialEncounterTable(difficulty, quest, locati
     local t = EscapeTheBogUtil.GenericRepeatEncounterTable(difficulty, quest, location)
     t.ETB_NO_EVENT = 2
     if location:HasTag("bog") then
-        t.ETB_OUTLAW_CAMP = 2
+        t.ETB_OUTLAW_CAMP = 3
         if location:HasTag("clearing") then
-            t.ETB_OUTLAW_CAMP = t.ETB_OUTLAW_CAMP + 1
+            t.ETB_OUTLAW_CAMP = t.ETB_OUTLAW_CAMP + 2
         end
     end
     return t
