@@ -45,10 +45,32 @@ QDEF:Loc{
 
 QDEF:AddConvo()
     :Loc{
-
+        OPT_SEARCH_CAMPFIRE = "Search the campfire",
+        OPT_SEARCH_TENTS = "Search the tents",
     }
     :Hub_Location(function(cxt)
         if cxt.location ~= cxt:GetCastMember("main_location") then
             return
         end
+
+        if not cxt.quest.param.searched_campfires then
+            cxt:Opt("OPT_SEARCH_CAMPFIRE")
+                :Fn( function(cxt)
+                    cxt.quest.param.searched_campfires = true
+                    UIHelpers.DoSpecificConvo( nil, cxt.convodef.id, "STATE_CAMPFIRE" , nil, nil, cxt.quest)
+                end )
+        end
     end)
+    :State("STATE_CAMPFIRE")
+        :Loc{
+            DIALOG_INTRO = [[
+                * Those people seem to be roasting some drumsticks.
+                * Well, they are yours now.
+            ]],
+        }
+        :Fn(function(cxt)
+            cxt:Dialog("DIALOG_INTRO")
+            cxt:GainCards{"hawb_drumstick"}
+            EscapeTheBogUtil.TryMainQuestFn("AdvanceTime", 1, "SEARCH")
+            StateGraphUtil.AddEndOption(cxt)
+        end)
