@@ -1,7 +1,7 @@
 local QDEF
 QDEF = EscapeTheBogUtil.AddBogLocationQuest(
     {
-        is_unique = true,
+        no_spawn_by_default = true,
         entry_encounter = {
             ETB_STARTING_OUT = 1,
         },

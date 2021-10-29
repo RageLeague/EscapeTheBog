@@ -196,7 +196,7 @@ local QDEF = QuestDef.Define
                 tag_cache[chosen_tag] = {}
                 for i, id in ipairs(EscapeTheBogUtil.BOG_LOCATION_QUESTS) do
                     local qdef = Content.GetQuestDef( id )
-                    if not qdef.is_unique then
+                    if not qdef.no_spawn_by_default then
                         local loc_id = string.format( "%s_main_location", qdef.id)
                         if chosen_tag == "any" or table.arraycontains(Content.GetLocationContent(loc_id).tags or {}, chosen_tag) then
                             table.insert(tag_cache[chosen_tag], id)
