@@ -123,6 +123,7 @@ QDEF:AddConvo()
         }
         :Loc{
             DIALOG_SHRINE = [[
+                * <b>Vestige</>
                 * You find an old shrine. It doesn't look very Heshian.
                 * You have no idea what it is doing in the middle of the bog.
                 * Either way, if there is a time for some divine intervention, it should be now.
@@ -190,8 +191,10 @@ QDEF:AddConvo()
             cxt:Dialog(result)
             if result == "DIALOG_RESOLVE" then
                 ConvoUtil.DoResolveDelta(cxt, 10)
+                cxt.caravan:UpgradeResolve( 5 )
             elseif result == "DIALOG_HEALTH" then
                 ConvoUtil.DoHealthDelta(cxt, 10)
+                cxt.caravan:UpgradeHealth( 5, "PRAYER_BONUS" )
             end
             EscapeTheBogUtil.TryMainQuestFn("AdvanceTime", 1, "REST")
             StateGraphUtil.AddEndOption(cxt)
