@@ -3,6 +3,7 @@ local ngraft = {
     type = GRAFT_TYPE.NEGOTIATION,
     name = "Mystery Graft",
     desc = "You can't tell what kind of graft this is. There is only one way to find out.",
+    img = "icons/items/graft_burnt_out_negotiation.tex",
 
     rarity = CARD_RARITY.UNIQUE,
     series = "GENERAL",
@@ -15,6 +16,7 @@ local bgraft = {
     type = GRAFT_TYPE.COMBAT,
     name = "Mystery Graft",
     desc = "You can't tell what kind of graft this is. There is only one way to find out.",
+    img = "icons/items/graft_burnt_out_battle.tex",
 
     rarity = CARD_RARITY.UNIQUE,
     series = "GENERAL",
