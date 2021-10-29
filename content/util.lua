@@ -46,6 +46,8 @@ function EscapeTheBogUtil.AddBogLocationQuest(quest_def, location_def, exit_defs
                 -- Currently has an associated event. You probably need to deal with it first.
                 return
             end
+            if quest.param.disable_event_spawn then
+            end
             local encounter_table = (not quest.param.visited_location) and quest:GetQuestDef().entry_encounter or quest:GetQuestDef().repeat_encounter
             if type(encounter_table) == "function" then
                 encounter_table = encounter_table(TheGame:GetGameState():GetCurrentBaseDifficulty(), quest, location)

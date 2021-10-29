@@ -40,6 +40,55 @@ QDEF:Loc{
 }
 
 QDEF:AddConvo()
+    :ConfrontState("STATE_CONF", function(cxt) return cxt.quest.param.guardians and true end)
+        :Loc{
+            DIALOG_AMBUSH = [[
+                * You returned. Looks like the robots are still here.
+                agent:
+                    !right
+                player:
+                    !left
+                    !scared
+                * If you want to stay here, you have to destroy them!
+            ]],
+            DIALOG_NO_ROBOTS = [[
+                * Seems like the robots guarding this location are gone.
+                * You can now safely access this location.
+            ]],
+            DIALOG_FIGHT_WIN = [[
+                * With the last of the machine destroyed, you can now safely access this location.
+            ]],
+        }
+        :Fn(function(cxt)
+            EscapeTheBogUtil.FilterTableInPlace(cxt.quest.param.guardians, function(agent) return not agent:IsRetired() end)
+            if #cxt.quest.param.guardians > 0 then
+                cxt:TalkTo(cxt.quest.param.guardians[1])
+                cxt:Dialog("DIALOG_AMBUSH")
+                cxt:Opt("OPT_DEFEND")
+                    :Battle{
+                        flags = BATTLE_FLAGS.SELF_DEFENCE | BATTLE_FLAGS.ISOLATED,
+                        on_runaway = StateGraphUtil.DoRunAwayNoFail,
+                    }
+                        :OnWin()
+                            :Dialog("DIALOG_FIGHT_WIN")
+                            :Fn(function(cxt)
+                                cxt.quest.param.disable_event_spawn = nil
+                                cxt.quest.param.guardians = nil
+                                cxt.quest.param.searched_for_poi = true
+                            end)
+                            :DoneConvo()
+            else
+                cxt:Dialog("DIALOG_NO_ROBOTS")
+
+                cxt.quest.param.disable_event_spawn = nil
+                cxt.quest.param.guardians = nil
+                cxt.quest.param.searched_for_poi = true
+
+                StateGraphUtil.AddEndOption(cxt)
+            end
+        end)
+
+QDEF:AddConvo()
     :Loc{
 
     }
@@ -89,7 +138,23 @@ QDEF:AddConvo()
             else
                 cxt:Dialog("DIALOG_ARTIFACT")
             end
-            cxt.quest.param.searched_for_poi = true
-            EscapeTheBogUtil.TryMainQuestFn("AdvanceTime", 1, "SEARCH")
-            StateGraphUtil.AddEndOption(cxt)
+            -- cxt.quest.param.searched_for_poi = true
+            cxt.quest.param.disable_event_spawn = true
+            cxt.quest.param.guardians = CreateCombatParty({"SPARK_BARON_AUTOMECH", "RISE_AUTOMECH", "AUTODOG"}, cxt.quest:GetRank(), cxt.location)
+            cxt:TalkTo(cxt.quest.param.guardians[1])
+            cxt:Dialog("DIALOG_AMBUSH")
+            cxt:Opt("OPT_DEFEND")
+                :Battle{
+                    flags = BATTLE_FLAGS.SELF_DEFENCE | BATTLE_FLAGS.ISOLATED,
+                    on_runaway = StateGraphUtil.DoRunAwayNoFail,
+                }
+                    :OnWin()
+                        :Dialog("DIALOG_FIGHT_WIN")
+                        :Fn(function(cxt)
+                            cxt.quest.param.disable_event_spawn = nil
+                            cxt.quest.param.guardians = nil
+                            cxt.quest.param.searched_for_poi = true
+                            EscapeTheBogUtil.TryMainQuestFn("AdvanceTime", 1, "SEARCH")
+                        end)
+                        :DoneConvo()
         end)
