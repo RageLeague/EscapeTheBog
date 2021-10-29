@@ -60,6 +60,13 @@ QDEF:AddConvo()
                     UIHelpers.DoSpecificConvo( nil, cxt.convodef.id, "STATE_CAMPFIRE" , nil, nil, cxt.quest)
                 end )
         end
+        if not cxt.quest.param.searched_tents then
+            cxt:Opt("OPT_SEARCH_TENTS")
+                :Fn( function(cxt)
+                    cxt.quest.param.searched_tents = true
+                    UIHelpers.DoSpecificConvo( nil, cxt.convodef.id, "STATE_TENT" , nil, nil, cxt.quest)
+                end )
+        end
     end)
     :State("STATE_CAMPFIRE")
         :Loc{
@@ -71,6 +78,23 @@ QDEF:AddConvo()
         :Fn(function(cxt)
             cxt:Dialog("DIALOG_INTRO")
             cxt:GainCards{"hawb_drumstick"}
+            EscapeTheBogUtil.TryMainQuestFn("AdvanceTime", 1, "SEARCH")
+            StateGraphUtil.AddEndOption(cxt)
+        end)
+    :State("STATE_TENT")
+        :Loc{
+            DIALOG_INTRO = [[
+                * There are some items lying around in the tents.
+                * You desperately need those items, so you grabbed them.
+                * What are they going to do, stop you?
+            ]],
+        }
+        :Fn(function(cxt)
+            cxt:Dialog("DIALOG_INTRO")
+
+            EscapeTheBogUtil.DraftItemCardScreen(cxt)
+            EscapeTheBogUtil.DraftItemCardScreen(cxt)
+
             EscapeTheBogUtil.TryMainQuestFn("AdvanceTime", 1, "SEARCH")
             StateGraphUtil.AddEndOption(cxt)
         end)
