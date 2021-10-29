@@ -12,6 +12,8 @@ local MODIFIERS =
         desc_fn = function(self, fmt_str)
             return loc.format(fmt_str, self.expend_chance)
         end,
+        icon = "negotiation/modifiers/fatigued_smith.tex",
+
         expend_chance = 0.1,
         modifier_type = MODIFIER_TYPE.PERMANENT,
 
@@ -36,6 +38,8 @@ local MODIFIERS =
         desc_fn = function(self, fmt_str)
             return loc.format(fmt_str, self.expend_chance)
         end,
+        icon = "negotiation/modifiers/fatigued_smith.tex",
+
         expend_chance = 0.91,
         modifier_type = MODIFIER_TYPE.PERMANENT,
 

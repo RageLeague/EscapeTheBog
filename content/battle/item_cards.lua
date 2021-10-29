@@ -9,6 +9,8 @@ local ITEMS =
         name = "Mixed Bogberries",
         desc = "Has an unknown effect each time you eat it.",
 
+        icon = "battle/seedling.tex",
+
         cost = 1,
         target_type = TARGET_TYPE.FRIENDLY_OR_SELF,
 
@@ -108,11 +110,12 @@ local ITEMS =
             return loc.format(fmt_str, self.heal_amt, self.diseased_amt)
         end,
         flavour = "'It's food, right?'",
+        icon = "negotiation/grisly_trophy.tex",
 
         cost = 1,
         target_type = TARGET_TYPE.FRIENDLY_OR_SELF,
 
-        max_charges = 2,
+        flags = CARD_FLAGS.CONSUME,
 
         heal_amt = 5,
         diseased_amt = 2,
@@ -136,11 +139,12 @@ local ITEMS =
             return loc.format(fmt_str, self.heal_amt)
         end,
         flavour = "'Looks like meat is back on the menu!'",
+        icon = "negotiation/hearty.tex",
 
         cost = 2,
         target_type = TARGET_TYPE.FRIENDLY_OR_SELF,
 
-        max_charges = 3,
+        max_charges = 2,
 
         heal_amt = 9,
 

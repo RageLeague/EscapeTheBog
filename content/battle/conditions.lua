@@ -32,6 +32,7 @@ local CONDITIONS =
         desc_fn = function(self, fmt_str)
             return loc.format(fmt_str, self.expend_chance)
         end,
+        icon = "battle/conditions/annihilation.tex",
 
         expend_chance = 0.1,
         ctype = CTYPE.DEBUFF,
@@ -56,6 +57,7 @@ local CONDITIONS =
         desc_fn = function(self, fmt_str)
             return loc.format(fmt_str, self.expend_chance)
         end,
+        icon = "battle/conditions/annihilation.tex",
 
         expend_chance = 0.1,
         ctype = CTYPE.DEBUFF,
@@ -78,6 +80,7 @@ local CONDITIONS =
     ETB_SLOW_FLEE = {
         name = "Slow Flee",
         desc = "If this fighter flees flees on another fighter's turn, gain {RUNNING} instead.",
+        icon = "battle/conditions/colossal.tex",
 
         ctype = CTYPE.DEBUFF,
 
