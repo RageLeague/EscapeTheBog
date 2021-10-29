@@ -1,3 +1,5 @@
+local MODID = CURRENT_MOD_ID
+
 local EscapeTheBogUtil = class("EscapeTheBogUtil")
 
 function EscapeTheBogUtil.TryMainQuestFn(id, ...)
@@ -517,4 +519,14 @@ function EscapeTheBogUtil.GetPooledGrafts(difficulty, num, graft_pool)
         end
     end
     return grafts
+end
+
+function EscapeTheBogUtil.GetModSetting(id)
+    if id then
+        local file_settings = TheGame:GetGameState() and TheGame:GetGameState():GetMainQuest() and TheGame:GetGameState():GetMainQuest().param.local_file_settings or {}
+        if file_settings[id] ~= nil then
+            return file_settings[id]
+        end
+        return Content.GetModSetting( MODID, id )
+    end
 end

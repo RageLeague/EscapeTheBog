@@ -27,7 +27,7 @@ local QDEF = QuestDef.Define
 
         quest.param.time_segment = 0
 
-        quest:DefFn("GenerateBogMap", 10, "ETB_LOC_STARTING_BOGCAVE", {"ETB_LOC_ANCIENT_MINE_ENTRANCE"})
+        quest:DefFn("GenerateBogMap", EscapeTheBogUtil.GetModSetting("number_of_locations") or 15, "ETB_LOC_STARTING_BOGCAVE", {"ETB_LOC_ANCIENT_MINE_ENTRANCE"})
 
         local player = TheGame:GetGameState():GetPlayerAgent()
 
@@ -227,7 +227,7 @@ local QDEF = QuestDef.Define
                     break
                 end
             end
-            assert(ok, loc.format("No entry generated for {1}", spawned_quest))
+            assert(ok, loc.format("No entry generated for {1}. Please try restart the campaign.", spawned_quest))
             table.insert(quest_queue, spawned_quest)
         end
         -- At this point everything should be connected.

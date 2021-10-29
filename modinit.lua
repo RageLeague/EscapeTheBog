@@ -57,6 +57,7 @@ local function OnPostLoad( mod )
 end
 
 local function OnLoad( mod )
+    rawset(_G, "CURRENT_MOD_ID", mod.id)
 
     for k, filepath in ipairs( filepath.list_files( "ESCAPE_THE_BOG:patches/", "*.lua", true )) do
         local name = filepath:match( "(.+)[.]lua$" )
@@ -137,11 +138,31 @@ local function OnLoad( mod )
     return OnPostLoad
 end
 
+local MOD_OPTIONS =
+{
+    -- Access this value from the user's settings by calling:
+    -- Content.GetModSetting( <mod_id>, "resolve_per_day" )
+    {
+        title = "Number of Locations",
+        slider = true,
+        key = "number_of_locations",
+        default_value = 15,
+        values = {
+            range_min = 3,
+            range_max = 50,
+            step_size = 1,
+            desc = "This sets the number of generic locations to be spawned in a run of Escape the Bog.",
+        },
+    },
+}
+
 return {
     version = "0.0.1",
     alias = "ESCAPE_THE_BOG",
 
     OnLoad = OnLoad,
+
+    mod_options = MOD_OPTIONS,
 
     title = "Escape The Bog",
     description = "A mini campaign for Griftlands where you try to escape your inevitable demise.",
