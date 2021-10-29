@@ -1,11 +1,7 @@
 local QDEF
 QDEF = EscapeTheBogUtil.AddBogLocationQuest(
     {
-        difficulty_delta = 1,
-        -- This location always spawns a camp
-        entry_encounter = {
-            ETB_OUTLAW_CAMP = 1,
-        },
+        entry_encounter = EscapeTheBogUtil.GenericInitialEncounterTable,
         repeat_encounter = EscapeTheBogUtil.GenericRepeatEncounterTable,
         sleep_encounter = EscapeTheBogUtil.GenericSleepEncounterTable,
 
@@ -68,33 +64,3 @@ QDEF:AddConvo()
                 end )
         end
     end)
-    :State("STATE_CAMPFIRE")
-        :Loc{
-            DIALOG_INTRO = [[
-                * Those people seem to be roasting some drumsticks.
-                * Well, they are yours now.
-            ]],
-        }
-        :Fn(function(cxt)
-            cxt:Dialog("DIALOG_INTRO")
-            cxt:GainCards{"hawb_drumstick"}
-            EscapeTheBogUtil.TryMainQuestFn("AdvanceTime", 1, "SEARCH")
-            StateGraphUtil.AddEndOption(cxt)
-        end)
-    :State("STATE_TENT")
-        :Loc{
-            DIALOG_INTRO = [[
-                * There are some items lying around in the tents.
-                * You desperately need those items, so you grabbed them.
-                * What are they going to do, stop you?
-            ]],
-        }
-        :Fn(function(cxt)
-            cxt:Dialog("DIALOG_INTRO")
-
-            EscapeTheBogUtil.DraftItemCardScreen(cxt)
-            EscapeTheBogUtil.DraftItemCardScreen(cxt)
-
-            EscapeTheBogUtil.TryMainQuestFn("AdvanceTime", 1, "SEARCH")
-            StateGraphUtil.AddEndOption(cxt)
-        end)
