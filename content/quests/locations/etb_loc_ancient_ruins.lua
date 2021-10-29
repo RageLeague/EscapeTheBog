@@ -1,3 +1,29 @@
+local ngraft = {
+    id = "etb_mystery_graft_negotiation",
+    type = GRAFT_TYPE.NEGOTIATION,
+    name = "Mystery Graft",
+    desc = "You can't tell what kind of graft this is. There is only one way to find out.",
+
+    rarity = CARD_RARITY.UNIQUE,
+    series = "GENERAL",
+}
+
+Content.AddGraft( ngraft.id, ngraft )
+
+local bgraft = {
+    id = "etb_mystery_graft_battle",
+    type = GRAFT_TYPE.COMBAT,
+    name = "Mystery Graft",
+    desc = "You can't tell what kind of graft this is. There is only one way to find out.",
+
+    rarity = CARD_RARITY.UNIQUE,
+    series = "GENERAL",
+}
+
+
+Content.AddGraft( bgraft.id, bgraft )
+
+
 local QDEF
 QDEF = EscapeTheBogUtil.AddBogLocationQuest(
     {
@@ -40,7 +66,7 @@ QDEF:Loc{
 }
 
 QDEF:AddConvo()
-    :ConfrontState("STATE_CONF", function(cxt) return cxt.quest.param.guardians and true end)
+    :ConfrontState("STATE_CONF", function(cxt) return cxt.quest.param.guardians and cxt.location == cxt:GetCastMember("main_location") end)
         :Loc{
             DIALOG_AMBUSH = [[
                 * You returned. Looks like the robots are still here.
@@ -68,6 +94,7 @@ QDEF:AddConvo()
                     :Battle{
                         flags = BATTLE_FLAGS.SELF_DEFENCE | BATTLE_FLAGS.ISOLATED,
                         on_runaway = StateGraphUtil.DoRunAwayNoFail,
+                        enemies = cxt.quest.param.guardians,
                     }
                         :OnWin()
                             :Dialog("DIALOG_FIGHT_WIN")
@@ -90,7 +117,9 @@ QDEF:AddConvo()
 
 QDEF:AddConvo()
     :Loc{
-
+        OPT_PRAY = "Pray at shrine",
+        TT_PRAY = "Once per day, you can pray here for some time. Maybe you will get something good out of it.",
+        OPT_TAKE_ARTIFACT = "Take the artifact",
     }
     :Hub_Location(function(cxt)
         if cxt.location ~= cxt:GetCastMember("main_location") then
@@ -101,6 +130,29 @@ QDEF:AddConvo()
                 :Fn( function(cxt)
                     UIHelpers.DoSpecificConvo( nil, cxt.convodef.id, "STATE_POI" , nil, nil, cxt.quest)
                 end )
+        else
+            if cxt.quest.param.poi == "shrines" then
+                cxt:Opt("OPT_PRAY")
+                    :PostText("TT_PRAY")
+                    :ReqCondition(not cxt.location:HasMemoryFromToday("USED_LOCATION"), "ON_COOLDOWN")
+                    :Fn( function(cxt)
+                        cxt.location:Remember("USED_LOCATION")
+                        UIHelpers.DoSpecificConvo( nil, cxt.convodef.id, "STATE_SHRINE" , nil, nil, cxt.quest)
+                    end )
+            elseif cxt.quest.param.poi == "artifact" then
+                -- cxt:Opt("OPT_OFFERING")
+                --     :PostText("TT_OFFERING")
+                --     :ReqCondition(not cxt.location:HasMemoryFromToday("USED_LOCATION"), "ON_COOLDOWN")
+                --     :Fn( function(cxt)
+                --         UIHelpers.DoSpecificConvo( nil, cxt.convodef.id, "STATE_RITUAL" , nil, nil, cxt.quest)
+                --     end )
+                if not cxt.quest.param.took_artifact then
+                    cxt:Opt("OPT_TAKE_ARTIFACT")
+                        :Fn( function(cxt)
+                            UIHelpers.DoSpecificConvo( nil, cxt.convodef.id, "STATE_ARTIFACT" , nil, nil, cxt.quest)
+                        end )
+                end
+            end
         end
     end)
     :State("STATE_POI")
@@ -147,6 +199,7 @@ QDEF:AddConvo()
                 :Battle{
                     flags = BATTLE_FLAGS.SELF_DEFENCE | BATTLE_FLAGS.ISOLATED,
                     on_runaway = StateGraphUtil.DoRunAwayNoFail,
+                    enemies = cxt.quest.param.guardians,
                 }
                     :OnWin()
                         :Dialog("DIALOG_FIGHT_WIN")
@@ -157,4 +210,92 @@ QDEF:AddConvo()
                             EscapeTheBogUtil.TryMainQuestFn("AdvanceTime", 1, "SEARCH")
                         end)
                         :DoneConvo()
+        end)
+    :State("STATE_SHRINE")
+        :Quips{
+            {
+                tags = "prayer",
+                [[
+                    Please, to whatever deity is listening, I need some help.
+                ]],
+                [[
+                    I know I have not been the most devote person, but... Please, I need your help.
+                ]],
+                [[
+                    I need your help. Please.
+                ]],
+            },
+        }
+        :Loc{
+            DIALOG_INTRO = [[
+                player:
+                    !left
+                    !hesh_greeting
+                    %prayer
+            ]],
+            DIALOG_NOTHING = [[
+                * Perhaps your prayers aren't strong enough. Or that whatever deity you are praying to doesn't care about you.
+                * Either way, nothing happens.
+            ]],
+            DIALOG_RESOLVE = [[
+                * You feel like your mind is clearer after the prayer.
+                * Was this divine intervention? Or is your mind simply clearer after the prayer?
+                * Either way, it gets results.
+            ]],
+            DIALOG_HEALTH = [[
+                * You feel like your wounds are starting to heal.
+                * Was this divine intervention? Or is your body simply mending itself after some rest?
+                * Either way, it gets results.
+            ]],
+        }
+        :Fn(function(cxt)
+            cxt:Dialog("DIALOG_INTRO")
+            local result = table.arraypick{"DIALOG_NOTHING", "DIALOG_RESOLVE", "DIALOG_HEALTH"}
+            cxt:Dialog(result)
+            if result == "DIALOG_RESOLVE" then
+                ConvoUtil.DoResolveDelta(cxt, 10)
+                cxt.caravan:UpgradeResolve( 5 )
+            elseif result == "DIALOG_HEALTH" then
+                ConvoUtil.DoHealthDelta(cxt, 10)
+                cxt.caravan:UpgradeHealth( 5, "PRAYER_BONUS" )
+            end
+            EscapeTheBogUtil.TryMainQuestFn("AdvanceTime", 1, "REST")
+            StateGraphUtil.AddEndOption(cxt)
+        end)
+    :State("STATE_ARTIFACT")
+        :Loc{
+            DIALOG_INTRO = [[
+                * It's time to take a look at this artifact.
+                player:
+                    !left
+                    !thought
+                * It looks like a powerful graft, although it has seen better days.
+                * Do you want to try it out?
+            ]],
+            OPT_INSTALL_GRAFT = "Install the graft",
+            TT_NEGOTIATION = "This will take up a negotiation graft slot.",
+            TT_BATTLE = "This will take up a battle graft slot.",
+            DIALOG_INSTALL_GRAFT = [[
+                * Well, you are stuck with it now, whether you like it or not.
+            ]],
+        }
+        :Fn(function(cxt)
+            while not cxt.quest.param.graft_reward or (cxt.quest.param.graft_reward:GetType() ~= GRAFT_TYPE.COMBAT and cxt.quest.param.graft_reward:GetType() ~= GRAFT_TYPE.NEGOTIATION) do
+                cxt.quest.param.graft_reward = cxt.quest.param.graft_reward or RewardUtil.GetGrafts(5, 1, TheGame:GetGameState():GetPlayerAgent())[1]
+            end
+            local is_battle = cxt.quest.param.graft_reward:GetType() == GRAFT_TYPE.COMBAT
+
+            cxt:Dialog("DIALOG_INTRO")
+
+            cxt:Opt("OPT_INSTALL_GRAFT")
+                :PostText(is_battle and "TT_BATTLE" or "TT_NEGOTIATION")
+                :Fn(function(cxt)
+                    local graft = GraftInstance(is_battle and "etb_mystery_graft_battle" or "etb_mystery_graft_negotiation")
+                    local installed = ConvoUtil.GiveGraft(cxt, graft)
+                    if installed then
+                        TheGame:GetGameState():GetPlayerAgent().graft_owner:ReplaceGraft( graft, cxt.quest.param.graft_reward )
+                        cxt:Dialog("DIALOG_INSTALL_GRAFT")
+                    end
+                end)
+            StateGraphUtil.AddBackButton(cxt)
         end)
