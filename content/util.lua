@@ -32,6 +32,14 @@ function EscapeTheBogUtil.AddBogLocationQuest(quest_def, location_def, exit_defs
     if not quest_def.events then
         quest_def.events = {}
     end
+
+    quest_def.events.base_difficulty_change = function(quest, new_diff, old_diff)
+        quest:SetRank(new_diff)
+        if quest.param.current_event and quest.param.current_event:IsActive() then
+            quest.param.current_event:SetRank(quest.param.current_event:GetRank() + new_diff - old_diff)
+        end
+    end
+
     quest_def.events.caravan_move_location = function(quest, location)
         if location == quest:GetCastMember("main_location") then
             if quest.param.current_event and quest.param.current_event:IsActive() then
