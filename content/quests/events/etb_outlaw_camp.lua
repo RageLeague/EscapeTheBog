@@ -228,15 +228,7 @@ QDEF:AddConvo()
                             :CompleteQuest()
                             :DoneConvo()
             else
-                local i = 1
-                while i <= #cxt.quest.param.opfor do
-                    local agent = cxt.quest.param.opfor[i]
-                    if agent:IsRetired() then
-                        table.remove(cxt.quest.param.opfor, i)
-                    else
-                        i = i + 1
-                    end
-                end
+                EscapeTheBogUtil.FilterTableInPlace(cxt.quest.param.opfor, function(agent) return not agent:IsRetired() end)
                 if #cxt.quest.param.opfor ~= 0 then
                     cxt:TalkTo(cxt.quest.param.opfor[1])
                     if cxt:GetAgent():IsSentient() then

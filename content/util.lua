@@ -544,3 +544,16 @@ function EscapeTheBogUtil.GetModSetting(id)
         return Content.GetModSetting( MODID, id )
     end
 end
+
+function EscapeTheBogUtil.FilterTableInPlace(t, pred)
+    local i = 1
+    while i <= #t do
+        local v = t[i]
+        if not pred(v) then
+            table.remove(t, i)
+        else
+            i = i + 1
+        end
+    end
+    return t
+end
