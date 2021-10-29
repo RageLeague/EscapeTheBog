@@ -44,14 +44,20 @@ function EscapeTheBogUtil.AddBogLocationQuest(quest_def, location_def, exit_defs
             else
                 encounter_table = shallowcopy(encounter_table)
             end
+
+            local quest_rank = TheGame:GetGameState():GetCurrentBaseDifficulty()
+            if quest:GetQuestDef().difficulty_delta then
+                quest_rank = quest_rank + quest:GetQuestDef().difficulty_delta
+            end
+
             local q
             while not q and next(encounter_table) do
                 local chosen_event = weightedpick(encounter_table)
-                q = QuestUtil.SpawnQuest(chosen_event, {parameters = {location = location}})
+                q = QuestUtil.SpawnQuest(chosen_event, {parameters = {location = location}, qrank = quest_rank})
                 encounter_table[chosen_event] = nil
             end
             if not q then
-                q = QuestUtil.SpawnQuest("ETB_NO_EVENT", {parameters = {location = location}})
+                q = QuestUtil.SpawnQuest("ETB_NO_EVENT", {parameters = {location = location}, qrank = quest_rank})
             end
             if not q or q:GetContentID() == "ETB_NO_EVENT" then
                 TheGame:GetGameState():GetMainQuest().param.free_travel = not (TheGame:GetGameState():GetMainQuest().param.free_travel)

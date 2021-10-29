@@ -100,6 +100,20 @@ QDEF:AddConvo()
                     %confront_again
                 * Looks like there is no talking out of this one!
             ]],
+            DIALOG_INTRO_AGAIN_NONSENTIENT = [[
+                * You returned. There is no one left.
+                player:
+                    !left
+                agent:
+                    !right
+                    !angry
+                * But it seems like you are still not welcome here.
+                * There is no talking out of this one!
+            ]],
+            DIALOG_INTRO_NO_GUARDIAN = [[
+                * There is no one here.
+                * Well, you have all this place for yourself, I guess?
+            ]],
             OPT_TALK = "Talk your way out of this",
             DIALOG_TALK = [[
                 player:
@@ -112,7 +126,6 @@ QDEF:AddConvo()
                     !exit
                 * {agent} disappears before you can follow them.
                 * Well, you have this place for yourself, I guess?
-                * Enjoy the food they left.
             ]],
             DIALOG_TALK_FAILURE = [[
                 agent:
@@ -149,11 +162,11 @@ QDEF:AddConvo()
                 * The campers disappeared before you can follow them.
                 }
                 * That was a bit weird, but you didn't think too hard about it.
-                * You have this place all for yourself. And the food they have left.
+                * You have this place all for yourself.
             ]],
         }
         :Fn(function(cxt)
-            local food = table.arraypick{"hawb_drumstick", "half_sandwich"}
+            -- local food = table.arraypick{"hawb_drumstick", "half_sandwich"}
 
             if not cxt.quest.param.encountered then
                 cxt.quest.param.encountered = true
@@ -165,7 +178,7 @@ QDEF:AddConvo()
 
                 cxt:BasicNegotiation("TALK", {})
                     :OnSuccess()
-                        :GainCard( food )
+                        -- :GainCard( food )
                         :Fn(function(cxt)
                             for i, agent in ipairs(cxt.quest.param.opfor) do
                                 if not agent:IsRetired() then
@@ -185,7 +198,7 @@ QDEF:AddConvo()
                                 }
                                     :OnWin()
                                         :Dialog("DIALOG_BATTLE_WIN")
-                                        :GainCard( food )
+                                        -- :GainCard( food )
                                         :Fn(function(cxt)
                                             for i, agent in ipairs(cxt.quest.param.opfor) do
                                                 if not agent:IsRetired() then
@@ -204,7 +217,7 @@ QDEF:AddConvo()
                     }
                         :OnWin()
                             :Dialog("DIALOG_BATTLE_WIN")
-                            :GainCard( food )
+                            -- :GainCard( food )
                             :Fn(function(cxt)
                                 for i, agent in ipairs(cxt.quest.param.opfor) do
                                     if not agent:IsRetired() then
@@ -215,26 +228,45 @@ QDEF:AddConvo()
                             :CompleteQuest()
                             :DoneConvo()
             else
-                cxt:TalkTo(cxt.quest.param.opfor[1])
-                cxt:Dialog("DIALOG_INTRO_AGAIN")
+                local i = 1
+                while i <= #cxt.quest.param.opfor do
+                    local agent = cxt.quest.param.opfor[i]
+                    if agent:IsRetired() then
+                        table.remove(cxt.quest.param.opfor, i)
+                    else
+                        i = i + 1
+                    end
+                end
+                if #cxt.quest.param.opfor ~= 0 then
+                    cxt:TalkTo(cxt.quest.param.opfor[1])
+                    if cxt:GetAgent():IsSentient() then
+                        cxt:Dialog("DIALOG_INTRO_AGAIN")
+                    else
+                        cxt:Dialog("DIALOG_INTRO_AGAIN_NONSENTIENT")
+                    end
 
-                cxt:Opt("OPT_DEFEND")
-                    :Dialog("DIALOG_DEFEND")
-                    :Battle{
-                        flags = BATTLE_FLAGS.SELF_DEFENCE | BATTLE_FLAGS.ISOLATED,
-                        on_runaway = StateGraphUtil.DoRunAwayNoFail,
-                    }
-                        :OnWin()
-                            :Dialog("DIALOG_BATTLE_WIN")
-                            :GainCard( food )
-                            :Fn(function(cxt)
-                                for i, agent in ipairs(cxt.quest.param.opfor) do
-                                    if not agent:IsRetired() then
-                                        agent:Retire()
+                    cxt:Opt("OPT_DEFEND")
+                        :Dialog("DIALOG_DEFEND")
+                        :Battle{
+                            flags = BATTLE_FLAGS.SELF_DEFENCE | BATTLE_FLAGS.ISOLATED,
+                            on_runaway = StateGraphUtil.DoRunAwayNoFail,
+                        }
+                            :OnWin()
+                                :Dialog("DIALOG_BATTLE_WIN")
+                                -- :GainCard( food )
+                                :Fn(function(cxt)
+                                    for i, agent in ipairs(cxt.quest.param.opfor) do
+                                        if not agent:IsRetired() then
+                                            agent:Retire()
+                                        end
                                     end
-                                end
-                            end)
-                            :CompleteQuest()
-                            :DoneConvo()
+                                end)
+                                :CompleteQuest()
+                                :DoneConvo()
+                else
+                    cxt:Dialog("DIALOG_INTRO_NO_GUARDIAN")
+                    cxt.quest:Complete()
+                    StateGraphUtil.AddEndOption(cxt)
+                end
             end
         end)
