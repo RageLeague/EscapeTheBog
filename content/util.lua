@@ -247,24 +247,26 @@ function EscapeTheBogUtil.NullEncounterTable()
     }
 end
 
-function EscapeTheBogUtil.GenericRepeatEncounterTable(difficulty, quest, location)
+function EscapeTheBogUtil.GenericRepeatEncounterTable(difficulty, quest, location, is_safe)
     local t = {
         ETB_NO_EVENT = 5,
         ETB_FOLKLORE_VISAGE = 1,
     }
     if location:HasTag("bog") then
-        if difficulty <= 3 and not location:IsIndoors() then
+        if difficulty <= 3 and not location:IsIndoors() and not is_safe then
             t.ETB_BOG_BURR_ATTACK = TheGame:GetGameState():GetDayPhase() == DAY_PHASE.NIGHT and 2 or 1
         end
         t.ETB_BOGGER_SCAVENGERS = 1
         if location:HasTag("deepbog") then
             t.ETB_BOGGER_SCAVENGERS = t.ETB_BOGGER_SCAVENGERS + 1
         end
-        t.ETB_BOG_MONSTERS = TheGame:GetGameState():GetDayPhase() == DAY_PHASE.NIGHT and 2 or 1
-        if location:HasTag("forest") then
-            t.ETB_BOG_MONSTERS = t.ETB_BOG_MONSTERS + 1
+        if not is_safe then
+            t.ETB_BOG_MONSTERS = TheGame:GetGameState():GetDayPhase() == DAY_PHASE.NIGHT and 2 or 1
+            if location:HasTag("forest") then
+                t.ETB_BOG_MONSTERS = t.ETB_BOG_MONSTERS + 1
+            end
         end
-        if not location:IsIndoors() then
+        if not location:IsIndoors() and not is_safe then
             t.ETB_SINKING_BOG = TheGame:GetGameState():GetDayPhase() == DAY_PHASE.NIGHT and 2 or 1
             if location:HasTag("deepbog") then
                 t.ETB_SINKING_BOG = t.ETB_SINKING_BOG + 1
@@ -278,6 +280,10 @@ function EscapeTheBogUtil.GenericRepeatEncounterTable(difficulty, quest, locatio
         end
     end
     return t
+end
+
+function EscapeTheBogUtil.GenericSafeRepeatEncounterTable(difficulty, quest, location)
+    return EscapeTheBogUtil.GenericRepeatEncounterTable(difficulty, quest, location, true)
 end
 
 function EscapeTheBogUtil.GenericInitialEncounterTable(difficulty, quest, location)

@@ -6,7 +6,7 @@ QDEF = EscapeTheBogUtil.AddBogLocationQuest(
         entry_encounter = {
             ETB_OUTLAW_CAMP = 1,
         },
-        repeat_encounter = EscapeTheBogUtil.GenericRepeatEncounterTable,
+        repeat_encounter = EscapeTheBogUtil.GenericSafeRepeatEncounterTable,
         sleep_encounter = EscapeTheBogUtil.GenericSleepEncounterTable,
 
         on_init = function(quest)

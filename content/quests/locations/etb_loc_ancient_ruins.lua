@@ -2,7 +2,7 @@ local QDEF
 QDEF = EscapeTheBogUtil.AddBogLocationQuest(
     {
         entry_encounter = EscapeTheBogUtil.GenericInitialEncounterTable,
-        repeat_encounter = EscapeTheBogUtil.GenericRepeatEncounterTable,
+        repeat_encounter = EscapeTheBogUtil.GenericSafeRepeatEncounterTable,
         sleep_encounter = EscapeTheBogUtil.GenericSleepEncounterTable,
 
         on_init = function(quest)
@@ -24,11 +24,11 @@ QDEF = EscapeTheBogUtil.AddBogLocationQuest(
         },
     },
     {
-        name = "Bog Camp",
-        desc = "Someone must have set up camp here. It might be risky to go here.",
-        plax = "EXT_BOGGER_HIDEOUT_01",
+        name = "Ancient Ruins",
+        desc = "A vestige of a former civilization. A shadow of a former glory.",
+        plax = "EXT_Bog_HedgeGod_01",
         show_agents = true,
-        tags = {"bog", "campsite", "clearing"},
+        tags = {"bog", "ruins", "clearing"},
     },
     {"dangerous", "dangerous"}
 )
@@ -41,26 +41,16 @@ QDEF:Loc{
 
 QDEF:AddConvo()
     :Loc{
-        OPT_SEARCH_CAMPFIRE = "Search the campfire",
-        OPT_SEARCH_TENTS = "Search the tents",
+
     }
     :Hub_Location(function(cxt)
         if cxt.location ~= cxt:GetCastMember("main_location") then
             return
         end
-
-        if not cxt.quest.param.searched_campfires then
-            cxt:Opt("OPT_SEARCH_CAMPFIRE")
+        if not cxt.quest.param.searched_for_poi then
+            cxt:Opt("OPT_FIND_POI_ETB")
                 :Fn( function(cxt)
-                    cxt.quest.param.searched_campfires = true
-                    UIHelpers.DoSpecificConvo( nil, cxt.convodef.id, "STATE_CAMPFIRE" , nil, nil, cxt.quest)
-                end )
-        end
-        if not cxt.quest.param.searched_tents then
-            cxt:Opt("OPT_SEARCH_TENTS")
-                :Fn( function(cxt)
-                    cxt.quest.param.searched_tents = true
-                    UIHelpers.DoSpecificConvo( nil, cxt.convodef.id, "STATE_TENT" , nil, nil, cxt.quest)
+                    UIHelpers.DoSpecificConvo( nil, cxt.convodef.id, "STATE_POI" , nil, nil, cxt.quest)
                 end )
         end
     end)

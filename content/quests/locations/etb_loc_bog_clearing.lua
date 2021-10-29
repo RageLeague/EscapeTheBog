@@ -2,7 +2,7 @@ local QDEF
 QDEF = EscapeTheBogUtil.AddBogLocationQuest(
     {
         entry_encounter = EscapeTheBogUtil.GenericInitialEncounterTable,
-        repeat_encounter = EscapeTheBogUtil.GenericRepeatEncounterTable,
+        repeat_encounter = EscapeTheBogUtil.GenericSafeRepeatEncounterTable,
         sleep_encounter = EscapeTheBogUtil.GenericSleepEncounterTable,
 
         on_init = function(quest)
