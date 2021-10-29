@@ -234,6 +234,7 @@ end
 function EscapeTheBogUtil.GenericRepeatEncounterTable(difficulty, quest, location)
     local t = {
         ETB_NO_EVENT = 5,
+        ETB_FOLKLORE_VISAGE = 1,
     }
     if location:HasTag("bog") then
         if difficulty <= 3 and not location:IsIndoors() then
