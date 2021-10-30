@@ -194,7 +194,7 @@ QDEF:AddConvo()
             end
             -- cxt.quest.param.searched_for_poi = true
             cxt.quest.param.disable_event_spawn = true
-            cxt.quest.param.guardians = CreateCombatParty({"SPARK_BARON_AUTOMECH", "RISE_AUTOMECH", "AUTODOG"}, cxt.quest:GetRank(), cxt.location)
+            cxt.quest.param.guardians = CreateCombatParty({"SPARK_BARON_AUTOMECH", "RISE_AUTOMECH"}, cxt.quest:GetRank(), cxt.location)
             cxt:TalkTo(cxt.quest.param.guardians[1])
             cxt:Dialog("DIALOG_AMBUSH")
             cxt:Opt("OPT_DEFEND")
@@ -297,6 +297,8 @@ QDEF:AddConvo()
                     if installed then
                         TheGame:GetGameState():GetPlayerAgent().graft_owner:ReplaceGraft( graft, cxt.quest.param.graft_reward )
                         cxt:Dialog("DIALOG_INSTALL_GRAFT")
+                        cxt.quest.param.took_artifact = true
+                        StateGraphUtil.AddEndOption(cxt)
                     end
                 end)
             StateGraphUtil.AddBackButton(cxt)

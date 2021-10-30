@@ -40,10 +40,29 @@ local mettle_graft = {
 
     negotiation_modifier =
     {
-        hidden = true,
+        desc = "Cards that are able to target any {METTLE_BOUNTY} bounty must do so.",
+        icon = "negotiation/modifiers/mettle_bounty.tex",
+        modifier_type = MODIFIER_TYPE.PERMANENT,
         event_handlers =
         {
-
+            [ MINIGAME_EVENT.CALC_DEFAULT_TARGET ] = function(self, acc, source, weighted_targets)
+                if source.negotiator == self.negotiator then
+                    for target, weight in pairs(weighted_targets) do
+                        if weight > 0 and target.id == "METTLE_BOUNTY" and (not acc.value) then
+                            acc:ModifyValue( target, self )
+                        end
+                    end
+                end
+            end,
+            [ MINIGAME_EVENT.CALC_FORCE_AUTO_TARGET ] = function(self, acc, source, weighted_targets)
+                if source.negotiator == self.negotiator and not acc.value then
+                    for target, weight in pairs(weighted_targets) do
+                        if weight > 0 and target.id == "METTLE_BOUNTY" and (not acc.value) then
+                            acc:ModifyValue( true, self )
+                        end
+                    end
+                end
+            end,
         },
     },
     battle_condition =
@@ -51,6 +70,7 @@ local mettle_graft = {
         -- hidden = true,
         ctype = CTYPE.INNATE,
         desc = "During execution, you are forced execute each enemy with {METTLESOME}.",
+        icon = "battle/conditions/mettlesome.tex",
         event_handlers =
         {
             [ BATTLE_EVENT.EXECUTES_ADDED ] = function( self )
