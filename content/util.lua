@@ -275,7 +275,7 @@ function EscapeTheBogUtil.GenericRepeatEncounterTable(difficulty, quest, locatio
             end
         end
         if TheGame:GetGameState():GetDateTime() >= 4 then
-            t.ETB_MYSTERIOUS_STRANGER = TheGame:GetGameState():GetDayPhase() == DAY_PHASE.NIGHT and 1 or 2
+            t.ETB_MYSTERIOUS_STRANGER = TheGame:GetGameState():GetDayPhase() == DAY_PHASE.NIGHT and 0 or 1
             if not TheGame:GetGameState():GetMainQuest().param.did_mysterious_stranger then
                 t.ETB_MYSTERIOUS_STRANGER = t.ETB_MYSTERIOUS_STRANGER + 2
             end

@@ -445,6 +445,7 @@ QDEF:AddConvo("starting_out")
             ]],
 
             SIT_MOD_PARASITE = "The bog has strong influence on you",
+            SIT_MOD_WEAKEN = "You have weakened the bog's influence",
         }
         :Fn(function(cxt)
             local core_arg = nil
@@ -478,7 +479,7 @@ QDEF:AddConvo("starting_out")
                             end)
                     else
                         local sit_mods = {
-                            --{ value = 20, text = cxt:GetLocString("SIT_MOD") }
+                            { value = -10, text = cxt:GetLocString("SIT_MOD_WEAKEN") }
                         }
                         -- Calculate parasites
                         local parasite_values = cxt.quest:DefFn("CalculateBogInfluence") or 0
@@ -491,6 +492,7 @@ QDEF:AddConvo("starting_out")
                         cxt:BasicNegotiation("BREAK_FREE", {
                             target_agent = cxt:GetCastMember("bog_monster"),
                             situation_modifiers = sit_mods,
+                            flags = NEGOTIATION_FLAGS.WORDSMITH,
                         })
                             :OnSuccess()
                                 :FadeOut()
@@ -619,6 +621,8 @@ QDEF:AddConvo("starting_out")
                 *** You and {agent} is looking for an ancient artifact, but were attacked by boggers.
             ]],
             DIALOG_FLASH_DEFEND = [[
+                player:
+                    !fight
                 bogger:
                     !exit
                 * You dispatched the boggers with no difficulty at all.
@@ -891,8 +895,11 @@ QDEF:AddConvo("starting_out")
                     end)
             elseif (cxt.enc.scratch.question_state or 0) == 3 and not cxt.quest.param.tried_break_free then
                 local sit_mods = {
-                    --{ value = 20, text = cxt:GetLocString("SIT_MOD") }
+
                 }
+                if cxt.quest.param.madness_cured_before then
+                    table.insert(sit_mods, { value = -10, text = cxt:GetLocString("SIT_MOD_WEAKEN") })
+                end
                 -- Calculate parasites
                 local parasite_values = cxt.quest:DefFn("CalculateBogInfluence") or 0
 
@@ -904,6 +911,7 @@ QDEF:AddConvo("starting_out")
                 cxt:BasicNegotiation("BREAK_FREE", {
                     target_agent = cxt:GetCastMember("bog_monster"),
                     situation_modifiers = sit_mods,
+                    flags = NEGOTIATION_FLAGS.WORDSMITH,
                 })
                     :OnSuccess()
                         :FadeOut()
@@ -1054,6 +1062,7 @@ QDEF:AddConvo("starting_out")
             cxt.player:RemoveAspect("etb_hunger")
             cxt.enc:PresentAgent(cxt.player, SIDE.LEFT)
             cxt.enc:Emote(cxt.player, "neutral")
+            EscapeTheBogUtil.TryMainQuestFn("CureCurseUseLimit")
             if cxt.quest.param.handler_dead or cxt:GetCastMember("illusion_boss"):IsDead() then
                 cxt.enc:PresentAgent(nil, SIDE.RIGHT)
                 -- The default ending

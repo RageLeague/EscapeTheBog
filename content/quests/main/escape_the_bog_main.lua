@@ -12,6 +12,7 @@ local QDEF = QuestDef.Define
         ERCHIN = "etb_mixed_monster_meat",
         FLEAD = "etb_mixed_monster_meat",
         VROC = "etb_mixed_monster_meat",
+        LUMICYTE = "etb_mixed_monster_meat",
         GRAWKIT = "etb_big_game_meat",
         LUMINTHIAN = "etb_big_game_meat",
     },
