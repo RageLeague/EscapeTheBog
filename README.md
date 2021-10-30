@@ -18,6 +18,8 @@ Load order:
 
 Supported Languages: English
 
+GitHub: https://github.com/RageLeague/EscapeTheBog
+
 ## New Contents
 
 * **Don't Starve!**(Get it? Because that's another Klei game? Yeah this one is not particularly clever) There are many challenges when trying to survive in the bog. Not only are you battling outside forces like bog monsters and other people, you are also battling against your own hunger and fatigue. Fail to properly manage them will surely be your downfall.
