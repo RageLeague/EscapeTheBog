@@ -21,6 +21,13 @@ end
 function VitalAspect:GetCurrentStage()
 end
 
+function VitalAspect:GetStageName()
+    local current_stage = self:GetCurrentStage()
+    if current_stage then
+        return self:GetLocalizedString("NAME_STAGE_" .. current_stage)
+    end
+end
+
 function VitalAspect:GetName()
     local current_stage = self:GetCurrentStage()
     if current_stage then

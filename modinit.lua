@@ -77,6 +77,7 @@ local function OnLoad( mod )
 
     require "ESCAPE_THE_BOG:content/util"
     require "ESCAPE_THE_BOG:content/convo_loc_common"
+    require "ESCAPE_THE_BOG:content/strings"
     require "ESCAPE_THE_BOG:content/combat_parties"
     require "ESCAPE_THE_BOG:content/custom_card_rewards"
 
