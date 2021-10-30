@@ -13,10 +13,10 @@ local function OnPostLoad( mod )
         title = "The Bog consumes all",
         desc = "Use your wits and improvisation skills to survive and escape the bog.",
 
-        -- act_image = engine.asset.Texture("DEMOCRATICRACE:assets/icons/campaign_icon.png"),
+        act_image = engine.asset.Texture("ESCAPE_THE_BOG:campaign_icon.png"),
         colour_frame = "0xedbb7bff",
         colour_text = "0xd89e52ff",
-        colour_background = "0x895817ff",
+        colour_background = "0xb5a741ff",
 
         world_region = "grout_bog",
 
