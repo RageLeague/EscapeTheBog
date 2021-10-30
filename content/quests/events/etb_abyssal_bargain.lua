@@ -49,6 +49,7 @@ local mettle_graft = {
     battle_condition =
     {
         -- hidden = true,
+        ctype = CTYPE.INNATE,
         desc = "During execution, you are forced execute each enemy with {METTLESOME}.",
         event_handlers =
         {
