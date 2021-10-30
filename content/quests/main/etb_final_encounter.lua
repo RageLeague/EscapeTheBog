@@ -96,7 +96,7 @@ local QDEF = QuestDef.Define
 {
     qtype = QTYPE.STORY,
     on_init = function(quest)
-        quest.param.handler_id = table.arraypick(available_handlers)
+        quest.param.handler_id = TheGame:GetGameState():GetMainQuest().param.handler_id or table.arraypick(available_handlers)
         quest.param["handler_" .. quest.param.handler_id] = true
         quest:AssignCastMember("handler")
         local current_day = math.floor( TheGame:GetGameState():GetDateTime() / 2 ) + 1

@@ -514,6 +514,42 @@ function EscapeTheBogUtil.GetSocialBoonPool()
     return SOCIAL_BOON_CACHE
 end
 
+local SOCIAL_BANE_CACHE
+
+function EscapeTheBogUtil.GetSocialBanePool()
+    if SOCIAL_BANE_CACHE then
+        return deepcopy(SOCIAL_BANE_CACHE)
+    end
+    SOCIAL_BANE_CACHE = {
+        [ CARD_RARITY.COMMON ] = {},
+        [ CARD_RARITY.UNCOMMON ] = {},
+        [ CARD_RARITY.RARE ] = {},
+    }
+    local existing_ids = {}
+    for i, id, def in sorted_pairs(Content.GetAllCharacterDefs()) do
+        local hated_graft = def.hated_graft
+        if hated_graft and hated_graft ~= "" and not existing_ids[hated_graft] then
+            local gift_cost_idx = math.max(def.renown or 1, def.combat_strength or 1)
+            if def.boss then
+                -- Boon of bosses are always rare
+                table.insert(SOCIAL_BANE_CACHE[CARD_RARITY.RARE], hated_graft)
+            elseif gift_cost_idx <= 2 then
+                table.insert(SOCIAL_BANE_CACHE[CARD_RARITY.COMMON], hated_graft)
+            elseif gift_cost_idx <= 4 then
+                table.insert(SOCIAL_BANE_CACHE[CARD_RARITY.UNCOMMON], hated_graft)
+            else
+                table.insert(SOCIAL_BANE_CACHE[CARD_RARITY.RARE], hated_graft)
+            end
+            existing_ids[hated_graft] = true
+        end
+    end
+    -- Just because
+    if not existing_ids.shakey then
+        table.insert(SOCIAL_BANE_CACHE[CARD_RARITY.COMMON], "shakey")
+    end
+    return SOCIAL_BANE_CACHE
+end
+
 function EscapeTheBogUtil.DraftItemCardScreen(cxt)
     local draft_popup = Screen.DraftChoicePopup()
     local cards = RewardUtil.ETBGetMixedItems( 1, 3, cxt.player )
