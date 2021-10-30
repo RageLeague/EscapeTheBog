@@ -1,7 +1,7 @@
 local filepath = require "util/filepath"
 
 local function OnPostLoad( mod )
-    local STARTING_MONEY = 125
+    local STARTING_MONEY = 50
 
     local FORBIDDEN_CONVO = {
 
@@ -17,6 +17,13 @@ local function OnPostLoad( mod )
         colour_frame = "0xedbb7bff",
         colour_text = "0xd89e52ff",
         colour_background = "0xb5a741ff",
+
+        story_image = engine.asset.Texture("ESCAPE_THE_BOG:campaign_icon.png"),
+        story_colour_frame = "0xb8ed7bff",
+        story_colour_text = "0xb2d339ff",
+        story_colour_background = "0xa3b541ff",
+
+        story_mode = true,
 
         world_region = "grout_bog",
 
