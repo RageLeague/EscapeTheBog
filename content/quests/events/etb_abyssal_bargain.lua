@@ -1,6 +1,9 @@
 local negotiation_defs = require "negotiation/negotiation_defs"
 local MINIGAME_CARD_FLAGS = negotiation_defs.CARD_FLAGS
 local MINIGAME_EVENT = negotiation_defs.EVENT
+local battle_defs = require "battle/battle_defs"
+local BATTLE_CARD_FLAGS = battle_defs.CARD_FLAGS
+local BATTLE_EVENT = battle_defs.EVENT
 
 -- I'm just using this from the arint mod.
 if not Content.GetNegotiationCard("PC_ARINT_status_nagging_thought") then
@@ -24,6 +27,47 @@ if not Content.GetNegotiationCard("PC_ARINT_status_nagging_thought") then
         end,
     })
 end
+
+local mettle_graft = {
+    id = "etb_mettle_addiction",
+    type = GRAFT_TYPE.STORY,
+    name = "Mettle Addiction",
+    desc = "You crave mettle so much that your actions in negotiations and battles maximizes your mettle gain.",
+    img = "icons/items/graft_burnt_out_battle.tex",
+
+    rarity = CARD_RARITY.UNIQUE,
+    series = "GENERAL",
+
+    negotiation_modifier =
+    {
+        hidden = true,
+        event_handlers =
+        {
+
+        },
+    },
+    battle_condition =
+    {
+        -- hidden = true,
+        desc = "During execution, you are forced execute each enemy with {METTLESOME}.",
+        event_handlers =
+        {
+            [ BATTLE_EVENT.EXECUTES_ADDED ] = function( self )
+                for i, fighter in self.battle:GetEnemyTeam():Fighters() do
+                    if fighter:HasCondition("METTLESOME") then
+                        local card = Battle.Card( "execute", self.battle.player_team:Primary() )
+                        card.show_dealt = false
+                        -- card:AssignTarget( fighter )
+                        self.battle:PlayCard( card, fighter )
+                    end
+                end
+            end,
+        },
+    },
+}
+
+
+Content.AddGraft( mettle_graft.id, mettle_graft )
 
 local available_handlers = {"fellemo", "kalandra"}
 
@@ -126,6 +170,7 @@ QDEF:AddConvo(nil, nil, "SLEEP_WAKE")
                     local character_id = cxt.player:GetContentID()
                     TheGame:GetGameProfile():UnlockMettle( character_id )
                     TheGame:GetGameProfile():AddMettlePoints( character_id, 8, "EVENT_FIRST_METTLE" )
+                    cxt.player.graft_owner:AddGraft(GraftInstance("etb_mettle_addiction"))
                 end)
                 :GoTo("STATE_WAKE_UP")
         end)
