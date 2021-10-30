@@ -26,6 +26,11 @@ QDEF:AddConvo()
                     * You never know where the ground is solid, and where it will swallow you whole.
                     * For example, right now, you are currently sinking into the bog!
                 ]],
+                [[
+                    * You vaguely remember the phrase "The bog will be the death of you, if you let it reach your neck".
+                    * You can't exactly remember where you heard it from, but it seems like a fitting description of your current situation!
+                    * The bog is pulling you in!
+                ]],
             },
         }
         :Loc{
