@@ -18,6 +18,8 @@ Load order:
 
 Supported Languages: English
 
+Steam: https://steamcommunity.com/sharedfiles/filedetails/?id=2641596853
+
 GitHub: https://github.com/RageLeague/EscapeTheBog
 
 ## New Contents
