@@ -458,7 +458,7 @@ function EscapeTheBogUtil.DoSleepConvo(cxt)
 
     -- Process sleep event
     if not chosen_event then
-        if math.random() < 0.99 then
+        if math.random() < 0.3 then
             -- I don't like this to be honest, and if I have time I would probably make events that don't interrupt sleep
             -- more generic.
             chosen_event = QuestUtil.SpawnQuest("ETB_ABYSSAL_BARGAIN")
