@@ -262,6 +262,10 @@ function EscapeTheBogUtil.GenericRepeatEncounterTable(difficulty, quest, locatio
         if location:HasTag("deepbog") then
             t.ETB_BOGGER_SCAVENGERS = t.ETB_BOGGER_SCAVENGERS + 1
         end
+        t.ETB_PATROL_TEAM = 1
+        if not location:HasTag("deepbog") then
+            t.ETB_PATROL_TEAM = t.ETB_PATROL_TEAM + 1
+        end
         if not is_safe then
             t.ETB_BOG_MONSTERS = TheGame:GetGameState():GetDayPhase() == DAY_PHASE.NIGHT and 2 or 1
             if location:HasTag("forest") then
@@ -276,9 +280,9 @@ function EscapeTheBogUtil.GenericRepeatEncounterTable(difficulty, quest, locatio
         end
         if TheGame:GetGameState():GetDateTime() >= 4 then
             t.ETB_MYSTERIOUS_STRANGER = TheGame:GetGameState():GetDayPhase() == DAY_PHASE.NIGHT and 0 or 1
-            if not TheGame:GetGameState():GetMainQuest().param.did_mysterious_stranger then
-                t.ETB_MYSTERIOUS_STRANGER = t.ETB_MYSTERIOUS_STRANGER + 2
-            end
+            -- if not TheGame:GetGameState():GetMainQuest().param.did_mysterious_stranger then
+            --     t.ETB_MYSTERIOUS_STRANGER = t.ETB_MYSTERIOUS_STRANGER + 2
+            -- end
         end
     end
     return t

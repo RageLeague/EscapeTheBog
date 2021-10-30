@@ -195,13 +195,13 @@ QDEF:AddConvo()
                             cxt:Opt("OPT_DEFEND")
                                 :Battle{
                                     flags = BATTLE_FLAGS.SELF_DEFENCE | BATTLE_FLAGS.ISOLATED,
-                                    on_runaway = function(cxt, battle, no_fail)
+                                    on_runaway = function(cxt, battle)
                                         for i, agent in ipairs(cxt.quest.param.opfor) do
                                             if not agent:IsRetired() then
                                                 agent:Retire()
                                             end
                                         end
-                                        StateGraphUtil.DoRunAway( cxt, battle, no_fail )
+                                        StateGraphUtil.DoRunAway( cxt, battle )
                                     end,
                                 }
                                     :OnWin()
