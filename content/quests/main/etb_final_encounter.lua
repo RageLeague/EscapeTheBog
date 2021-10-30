@@ -322,7 +322,7 @@ QDEF:AddConvo("starting_out")
             cxt:TalkTo(cxt:GetCastMember("illusion_boss"))
             cxt:Dialog("DIALOG_INTRO", EscapeTheBogUtil.TryMainQuestFn("DoObfuscateText", cxt:GetCastMember("handler"):GetName(), 1))
             cxt.quest.param.madness_cured_before = TheGame:GetGameState():GetMainQuest().param.madness_cured
-            if cxt.quest.param.madness_cured_before then
+            if cxt.quest.param.madness_cured_before and not cxt.quest.param.handler_dead then
                 cxt.quest.param.heard_handler_name = true
                 cxt:Dialog("DIALOG_INTRO_UNDERSTAND")
             end
