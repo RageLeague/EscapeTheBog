@@ -25,6 +25,7 @@ Supported Languages: English
 * **Explore The Bog!** The bog is constantly shifting. Each playthrough, the map of the bog is procedurally generated. Explore while you can, but don't get lost!
 * **Time Is Limited!** When doing virtually anything in the bog, the time passes by. As time goes by, everything around you becomes more and more challenging. Taking too long, and you will be overwhelmed.
 * **Multiple Endings!** I heard people really enjoy games with multiple endings, so I made multiple endings. "Your choices matter"! How exciting, right?
+* New items, events, and more!
 
 ## How to install?
 

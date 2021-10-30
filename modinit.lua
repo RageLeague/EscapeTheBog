@@ -157,7 +157,7 @@ local MOD_OPTIONS =
 }
 
 return {
-    version = "0.0.1",
+    version = "1.0.0",
     alias = "ESCAPE_THE_BOG",
 
     OnLoad = OnLoad,
