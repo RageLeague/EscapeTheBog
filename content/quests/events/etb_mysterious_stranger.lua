@@ -107,15 +107,31 @@ QDEF:AddConvo()
             ]],
             DIALOG_YES_NO_PICK = [[
                 agent:
+                {has_one_card?
+                    !thought
                     Hmm... There is nothing you want me to take.
+                }
+                {not has_one_card?
+                    ...
+                    From the looks of your face, it seems like you don't know you have any parasites.
+                }
                     That's strange, because you clearly have parasites on you.
-                    Are you aware of this parasite.
+                    Are you aware of this parasite?
             ]],
             DIALOG_YES_NO_PICK_ALREADY_CURED = [[
                 agent:
+                {has_one_card?
                     !crossed
                     Well, if you don't want me to take any samples, then suit yourself.
                     Maybe you will change your mind when we next meet.
+                }
+                {not has_one_card?
+                    It doesn't seems like you have any other parasites, other than the one that I physically can take.
+                    Well, if you have any more, be sure to find me.
+                player:
+                    !chuckle
+                    Yeah, like I plan to have parasites on me.
+                }
                     !exit
                 * Then, {agent} disappears.
                 * That is certainly strange.
@@ -208,9 +224,12 @@ QDEF:AddConvo()
             cxt:Opt("OPT_YES")
                 :Dialog("DIALOG_YES")
                 :Fn(function(cxt)
+                    local has_one_card = false
+
                     local battle_defs = require "battle/battle_defs"
                     for i, card in ipairs(cxt.player.battler.cards.cards) do
                         if card:IsFlagged( battle_defs.CARD_FLAGS.PARASITE ) then
+                            has_one_card = true
                             cxt:Opt("OPT_SELECT_PARASITE", card)
                                 :Fn(function(cxt)
                                     cxt.player.battler:RemoveCard(card)
@@ -227,6 +246,7 @@ QDEF:AddConvo()
                     local negotiation_defs = require "negotiation/negotiation_defs"
                     for i, card in ipairs(cxt.player.negotiator.cards.cards) do
                         if card:IsFlagged( negotiation_defs.CARD_FLAGS.PARASITE ) then
+                            has_one_card = true
                             cxt:Opt("OPT_SELECT_PARASITE", card)
                                 :Fn(function(cxt)
                                     cxt.player.negotiator:RemoveCard(card)
@@ -239,52 +259,57 @@ QDEF:AddConvo()
                                 :DoneConvo()
                         end
                     end
+                    local function Storyline(cxt)
+                        if TheGame:GetGameState():GetMainQuest().param.madness_cured then
+                            cxt:Dialog("DIALOG_YES_NO_PICK_ALREADY_CURED")
+                            cxt:GetAgent():MoveToLimbo()
+                            cxt.quest:Complete()
+                            StateGraphUtil.AddEndOption(cxt)
+                        else
+                            cxt:Dialog("DIALOG_YES_NO_PICK")
 
-                    cxt:Opt("OPT_BACK_BUTTON")
-                        :MakeUnder()
-                        :Fn(function(cxt)
-                            if TheGame:GetGameState():GetMainQuest().param.madness_cured then
-                                cxt:Dialog("DIALOG_YES_NO_PICK_ALREADY_CURED")
-                                cxt:GetAgent():MoveToLimbo()
-                                cxt.quest:Complete()
-                                StateGraphUtil.AddEndOption(cxt)
-                            else
-                                cxt:Dialog("DIALOG_YES_NO_PICK")
+                            cxt:Opt("OPT_YES")
+                                :Dialog("DIALOG_YES_TO_AWARE")
+                                :Fn(function(cxt)
+                                    cxt:GetAgent():MoveToLimbo()
+                                end)
+                                :CompleteQuest()
+                                :DoneConvo()
 
-                                cxt:Opt("OPT_YES")
-                                    :Dialog("DIALOG_YES_TO_AWARE")
-                                    :Fn(function(cxt)
-                                        cxt:GetAgent():MoveToLimbo()
-                                    end)
-                                    :CompleteQuest()
-                                    :DoneConvo()
+                            cxt:Opt("OPT_NO")
+                                :Dialog("DIALOG_NO_TO_AWARE")
+                                :Fn(function(cxt)
+                                    cxt:Opt("OPT_YES")
+                                        :Dialog("DIALOG_YES_TO_SAMPLE")
+                                        :Fn(function(cxt)
+                                            cxt.player.health:AddStatModifier( "PARASITE_REMOVAL", -PARASITE_HEALTH_LOSS )
+                                            TheGame:GetGameState():GetMainQuest().param.madness_cured = true
+                                        end)
+                                        :Dialog("DIALOG_YES_TO_SAMPLE_PST")
+                                        :Fn(function(cxt)
+                                            cxt:GetAgent():MoveToLimbo()
+                                        end)
+                                        :CompleteQuest()
+                                        :DoneConvo()
 
-                                cxt:Opt("OPT_NO")
-                                    :Dialog("DIALOG_NO_TO_AWARE")
-                                    :Fn(function(cxt)
-                                        cxt:Opt("OPT_YES")
-                                            :Dialog("DIALOG_YES_TO_SAMPLE")
-                                            :Fn(function(cxt)
-                                                cxt.player.health:AddStatModifier( "PARASITE_REMOVAL", -PARASITE_HEALTH_LOSS )
-                                                TheGame:GetGameState():GetMainQuest().param.madness_cured = true
-                                            end)
-                                            :Dialog("DIALOG_YES_TO_SAMPLE_PST")
-                                            :Fn(function(cxt)
-                                                cxt:GetAgent():MoveToLimbo()
-                                            end)
-                                            :CompleteQuest()
-                                            :DoneConvo()
-
-                                        cxt:Opt("OPT_NO")
-                                            :Dialog("DIALOG_NO")
-                                            :Fn(function(cxt)
-                                                cxt:GetAgent():MoveToLimbo()
-                                            end)
-                                            :CompleteQuest()
-                                            :DoneConvo()
-                                    end)
-                            end
-                        end)
+                                    cxt:Opt("OPT_NO")
+                                        :Dialog("DIALOG_NO")
+                                        :Fn(function(cxt)
+                                            cxt:GetAgent():MoveToLimbo()
+                                        end)
+                                        :CompleteQuest()
+                                        :DoneConvo()
+                                end)
+                        end
+                    end
+                    cxt.quest.param.has_one_card = has_one_card
+                    if has_one_card then
+                        cxt:Opt("OPT_BACK_BUTTON")
+                            :MakeUnder()
+                            :Fn(Storyline)
+                    else
+                        Storyline(cxt)
+                    end
                 end)
 
             cxt:Opt("OPT_NO")
