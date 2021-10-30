@@ -1,3 +1,30 @@
+local negotiation_defs = require "negotiation/negotiation_defs"
+local MINIGAME_CARD_FLAGS = negotiation_defs.CARD_FLAGS
+local MINIGAME_EVENT = negotiation_defs.EVENT
+
+-- I'm just using this from the arint mod.
+if not Content.GetNegotiationCard("PC_ARINT_status_nagging_thought") then
+    Content.AddNegotiationCard("PC_ARINT_status_nagging_thought", {
+        name = "Nagging Thought",
+        desc = "Gain {DOUBT {1}}.",
+        desc_fn = function(self, fmt_str)
+            return loc.format(fmt_str, self.doubt_amt)
+        end,
+        flavour = "'But what if...?'",
+        remove_on_rest = true,
+        rarity = CARD_RARITY.UNIQUE,
+        cost = 1,
+        flags = MINIGAME_CARD_FLAGS.STATUS | MINIGAME_CARD_FLAGS.CONSUME | MINIGAME_CARD_FLAGS.SLEEP_IT_OFF,
+        icon = "negotiation/silence.tex",
+
+        doubt_amt = 1,
+
+        OnPostResolve = function( self, minigame, targets )
+            self.negotiator:CreateModifier("DOUBT", self.doubt_amt, self)
+        end,
+    })
+end
+
 local available_handlers = {"fellemo", "kalandra"}
 
 local QDEF = QuestDef.Define
@@ -91,6 +118,7 @@ QDEF:AddConvo(nil, nil, "SLEEP_WAKE")
                     TheGame:GetGameState():GetMainQuest().param.handler_id = cxt.quest.param.handler_id
                 end)
                 :Dialog("DIALOG_TAKE_PHOTOGRAPH")
+                :GainCards{"PC_ARINT_status_nagging_thought"}
                 :GoTo("STATE_WAKE_UP")
             cxt:Opt("OPT_TAKE_BOTTLE")
                 :Dialog("DIALOG_TAKE_BOTTLE")

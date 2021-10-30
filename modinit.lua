@@ -164,6 +164,12 @@ return {
 
     mod_options = MOD_OPTIONS,
 
+    load_after =
+    {
+        -- Loading after the arint mod for adding nagging thoughts
+        "ARINTMOD",
+    },
+
     title = "Escape The Bog",
     description = "A mini campaign for Griftlands where you try to escape your inevitable demise.",
     previewImagePath = "preview.png",
