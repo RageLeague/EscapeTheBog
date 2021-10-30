@@ -26,6 +26,14 @@ local QDEF = QuestDef.Define
         end
     end,
 }
+:AddOpinionEvents{
+    dead_person =
+    {
+        delta = OPINION_DELTAS.NEUTRALIZING,
+        txt = "Dead people don't have relationships",
+    },
+
+}
 
 QDEF:AddConvo()
     :ConfrontState("STATE_CONF")
@@ -116,6 +124,8 @@ QDEF:AddConvo()
                 * But it's no use. The visage of the dead has consumed your thoughts.
                 * You feel as though you are cursed by the dead!
             ]],
+
+            SIT_MOD = "Dead people's opinion of you matters a lot less.",
         }
         :Fn(function(cxt)
             cxt.quest.param.temp_death_data = cxt:GetCastMember("killed_person").death_data
@@ -125,9 +135,17 @@ QDEF:AddConvo()
 
             local hinder_people = table.multipick(cxt.quest.param.other_dead, math.ceil(#cxt.quest.param.other_dead / 2))
 
+            local sit_mods = {
+
+            }
+            if cxt:GetCastMember("killed_person"):GetRelationship() ~= RELATIONSHIP.NEUTRAL then
+                table.insert(sit_mods, { value = 10 * (cxt:GetCastMember("killed_person"):GetRelationship() - RELATIONSHIP.NEUTRAL), text = cxt:GetLocString("SIT_MOD") })
+            end
+
             cxt:BasicNegotiation("DISPEL", {
                 target_agent = cxt:GetCastMember("killed_person"),
                 hinders = hinder_people,
+                situation_modifiers = sit_mods,
             })
                 :OnSuccess()
                     :Fn(function(cxt)
