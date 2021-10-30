@@ -1510,6 +1510,14 @@ QDEF:AddConvo("investigate_further")
                     -- allies = {"handler"},
                     enemies = {"bog_monster"},
                     flags = BATTLE_FLAGS.SELF_DEFENCE | BATTLE_FLAGS.BOSS_FIGHT | BATTLE_FLAGS.ISOLATED,
+                    on_start_battle = function(battle)
+                        local fighter = battle:GetFighterForAgent(cxt:GetCastMember("bog_monster"))
+                        if fighter then
+                            fighter:AddCondition("heart_of_the_bog", 1)
+                            fighter:AddCondition("brain_of_the_bog", 1)
+                            fighter:AddCondition("eyes_of_the_bog", 1)
+                        end
+                    end,
                 }
                     :OnWin()
                         :Fn(function(cxt)
