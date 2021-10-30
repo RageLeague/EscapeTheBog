@@ -3,6 +3,8 @@ local BOGBERRY_ID = "etb_mixed_bogberries"
 local QDEF
 QDEF = EscapeTheBogUtil.AddBogLocationQuest(
     {
+        quest_weight = 3,
+
         entry_encounter = EscapeTheBogUtil.GenericInitialEncounterTable,
         repeat_encounter = EscapeTheBogUtil.GenericRepeatEncounterTable,
         sleep_encounter = EscapeTheBogUtil.GenericSleepEncounterTable,

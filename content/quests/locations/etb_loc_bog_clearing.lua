@@ -1,6 +1,8 @@
 local QDEF
 QDEF = EscapeTheBogUtil.AddBogLocationQuest(
     {
+        quest_weight = 2,
+
         entry_encounter = EscapeTheBogUtil.GenericInitialEncounterTable,
         repeat_encounter = EscapeTheBogUtil.GenericSafeRepeatEncounterTable,
         sleep_encounter = EscapeTheBogUtil.GenericSleepEncounterTable,
