@@ -323,6 +323,7 @@ QDEF:AddConvo("starting_out")
             cxt:Dialog("DIALOG_INTRO", EscapeTheBogUtil.TryMainQuestFn("DoObfuscateText", cxt:GetCastMember("handler"):GetName(), 1))
             cxt.quest.param.madness_cured_before = TheGame:GetGameState():GetMainQuest().param.madness_cured
             if cxt.quest.param.madness_cured_before then
+                cxt.quest.param.heard_handler_name = true
                 cxt:Dialog("DIALOG_INTRO_UNDERSTAND")
             end
             cxt:GoTo("STATE_FIGHT")
@@ -1136,6 +1137,8 @@ QDEF:AddConvo("escape_bog")
                     * Maybe {handler} would still be alive, searching for the ancient artifact with you.
                 }
                 {handler_fellemo?
+                    player:
+                        !sigh
                     {player_sal?
                         * While your alliance with {handler} was found on shaky grounds, you still feel a bit sad seeing {handler.himher} like this.
                     }
@@ -1296,6 +1299,8 @@ QDEF:AddConvo("escape_bog")
                 }
                 {not fought_bog_monster?
                     {searched_for_poi?
+                        player:
+                            !sigh
                         * It is a shame that {handler} cannot see it through.
                     }
                     {not searched_for_poi?
@@ -1426,15 +1431,19 @@ QDEF:AddConvo("investigate_further")
                 handler:
                     !right
                     That's right.
+                    !take
                 * {handler} picked up the artifact.
                 handler:
                     Now, I think it is time for us to leave.
+                    !spit
                     I don't want to spend another minute here.
                 * With that, it is time for you to leave.
                 }
                 {not handler_survived?
                     * You realized that {handler} didn't survive the battle.
                     * You turn towards {handler}, who lies on the ground of the bog.
+                    player:
+                        !sigh
                     {handler_fellemo?
                         {player_sal?
                             * While your alliance with {handler} was found on shaky grounds, you still feel a bit sad seeing {handler.himher} like this.
