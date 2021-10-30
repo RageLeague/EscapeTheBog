@@ -307,6 +307,7 @@ end
 function EscapeTheBogUtil.GenericSleepEncounterTable(difficulty, quest, location)
     local t = {
         ETB_NO_SLEEP_EVENT = 5,
+        -- ETB_ABYSSAL_BARGAIN = 1,
     }
     if location:HasTag("dangerous") then
         t.ETB_SLEEP_MONSTER_ATTACK = 2
@@ -457,7 +458,13 @@ function EscapeTheBogUtil.DoSleepConvo(cxt)
 
     -- Process sleep event
     if not chosen_event then
-        chosen_event = QuestUtil.SpawnQuest("ETB_NO_SLEEP_EVENT")
+        if math.random() < 0.99 then
+            -- I don't like this to be honest, and if I have time I would probably make events that don't interrupt sleep
+            -- more generic.
+            chosen_event = QuestUtil.SpawnQuest("ETB_ABYSSAL_BARGAIN")
+        else
+            chosen_event = QuestUtil.SpawnQuest("ETB_NO_SLEEP_EVENT")
+        end
     end
 
     assert(chosen_event, "No event spawned")

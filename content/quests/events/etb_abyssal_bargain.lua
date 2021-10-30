@@ -70,7 +70,7 @@ QDEF:AddConvo(nil, nil, "SLEEP_WAKE")
             cxt:Opt("OPT_TAKE_MEDALLION")
                 :Dialog("DIALOG_TAKE_MEDALLION")
                 :Fn(function(cxt)
-
+                    cxt:Wait()
                     local grafts
                     grafts = EscapeTheBogUtil.GetPooledGrafts(4, TheGame:GetGameState():GetGraftDraftDetails().count, EscapeTheBogUtil.GetSocialBoonPool())
                     local popup = Screen.PickGraftScreen(grafts, true, function(...) cxt.enc:ResumeEncounter(...) end)
@@ -82,7 +82,6 @@ QDEF:AddConvo(nil, nil, "SLEEP_WAKE")
                     local popup = Screen.PickGraftScreen(grafts, true, function(...) cxt.enc:ResumeEncounter(...) end)
                     TheGame:FE():InsertScreen( popup )
                     local chosen_graft = cxt.enc:YieldEncounter()
-
                 end)
                 :GoTo("STATE_WAKE_UP")
             cxt:Opt("OPT_TAKE_PHOTOGRAPH")
@@ -105,15 +104,17 @@ QDEF:AddConvo(nil, nil, "SLEEP_WAKE")
     :State("STATE_WAKE_UP")
         :Loc{
             DIALOG_INTRO = [[
-                * As you grabbed the item, the abyss slowly fades away.
+                * After you grabbed the item, the abyss slowly fades away.
             ]],
             DIALOG_INTRO_PST = [[
+                * You wake up with a start.
                 * This is when you realized that it is all a dream.
                 * Yet... You feel as though the consequence is far reaching.
             ]],
         }
         :Fn(function(cxt)
             cxt:Dialog("DIALOG_INTRO")
+            cxt:Wait()
             cxt:FadeIn()
             cxt:Dialog("DIALOG_INTRO_PST")
             cxt.quest:Complete()
