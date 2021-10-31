@@ -19,6 +19,7 @@ if not Content.GetNegotiationCard("PC_ARINT_status_nagging_thought") then
         cost = 1,
         flags = MINIGAME_CARD_FLAGS.STATUS | MINIGAME_CARD_FLAGS.CONSUME | MINIGAME_CARD_FLAGS.SLEEP_IT_OFF,
         icon = "negotiation/silence.tex",
+        series = "GENERAL",
 
         doubt_amt = 1,
 
