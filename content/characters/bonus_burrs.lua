@@ -1,3 +1,7 @@
+local battle_defs = require "battle/battle_defs"
+local BATTLE_EVENT = battle_defs.BATTLE_EVENT
+local CARD_FLAGS = battle_defs.CARD_FLAGS
+
 local function GroutJoin( fighter, anim_fighter )
     local x, z = anim_fighter:GetHomePosition()
     anim_fighter.entity.cmp.AnimController:SetXFlip(fighter:GetTeamID() == TEAM.RED)
@@ -55,41 +59,26 @@ local DEFS = {
 
             attacks =
             {
-                -- grout_eye_attack = table.extend(NPC_ATTACK)
-                -- {
-                --     name = "Shoot",
-                --     anim = "attack1",
-                --     flags = CARD_FLAGS.RANGED,
-                --     base_damage = { 7, 9, 10, 11 },
-                --     CanPlayCard = function ( self, battle, target )
-                --         if self.owner:HasCondition("grout_eye_focus") then
-                --             return target == nil or target:IsPlayer()
-                --         else
-                --             return true
-                --         end
-                --     end,
-                -- },
 
-                -- grout_eye_heal = table.extend(NPC_BUFF)
-                -- {
-                --     name = "Intensify",
-                --     anim = "taunt",
+                etb_grout_eye_heal_lesser = table.extend(NPC_BUFF)
+                {
+                    name = "Intensify",
+                    anim = "taunt",
 
-                --     flags = CARD_FLAGS.SKILL | CARD_FLAGS.BUFF | CARD_FLAGS.HEAL,
+                    flags = CARD_FLAGS.SKILL | CARD_FLAGS.BUFF | CARD_FLAGS.HEAL,
 
-                --     target_mod = TARGET_MOD.TEAM,
-                --     target_type = TARGET_TYPE.SELF,
+                    target_mod = TARGET_MOD.TEAM,
+                    target_type = TARGET_TYPE.SELF,
 
-                --     healing = { 4, 6, 8, 10 },
-
-                --     OnPostResolve = function( self, battle, attack )
-                --         for i,ally in self.owner:GetTeam():Fighters() do
-                --             if ally ~= self.owner then
-                --                 ally:HealHealth(self.healing[GetAdvancementModifier( ADVANCEMENT_OPTION.NPC_BOSS_DIFFICULTY ) or 1])
-                --             end
-                --         end
-                --     end
-                -- },
+                    OnPostResolve = function( self, battle, attack )
+                        for i,ally in self.owner:GetTeam():Fighters() do
+                            if ally ~= self.owner then
+                                local health_delta = 2 + GetAdvancementModifier( ADVANCEMENT_OPTION.NPC_ABILITY_STRENGTH )
+                                ally:HealHealth(health_delta, self)
+                            end
+                        end
+                    end
+                },
 
             },
 
@@ -97,7 +86,7 @@ local DEFS = {
             {
                 OnActivate = function( self )
                     self.moves = self:MakePicker()
-                        :AddID( "grout_eye_heal", 1 )
+                        :AddID( "etb_grout_eye_heal_lesser", 1 )
                         :AddID( "grout_eye_attack", 1)
 
                     self:SetPattern( self.Cycle )

@@ -44,6 +44,9 @@ local QDEF = QuestDef.Define
         end
 
         TheGame:GetGameState():GetCaravan():MoveToLocation(quest.param.starting_location:GetCastMember("main_location"))
+
+        TheGame:GetGameState():GetPlayerAgent().graft_owner:AddGraft(GraftInstance("grout_bog_burrs"))
+        DoAutoSave()
     end,
 
     get_narrative_progress = function(quest)

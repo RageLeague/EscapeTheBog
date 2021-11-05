@@ -1,5 +1,12 @@
 local filepath = require "util/filepath"
 
+local function OnSettingsSaved( mod )
+    local def = Content.GetCharacterDef("ETB_GROUT_EYE")
+    if def then
+        def.is_grout = Content.GetModSetting( mod, "enable_grout_eye" )
+    end
+end
+
 local function OnPostLoad( mod )
     local STARTING_MONEY = 50
 
@@ -141,7 +148,7 @@ local function OnLoad( mod )
         end
     end
 
-
+    OnSettingsSaved(mod)
 
     return OnPostLoad
 end
@@ -162,6 +169,17 @@ local MOD_OPTIONS =
             desc = "This sets the number of generic locations to be spawned in a run of Escape the Bog.",
         },
     },
+    {
+        title = "Enable Grout Eye",
+        spinner = true,
+        key = "enable_grout_eye",
+        default_value = true,
+        values =
+        {
+            { name="Disable", desc="Grout Eyes are not added to the burr pool.", data = false },
+            { name="Enable", desc="Grout Eyes are added to the burr pool, and can randomly show up during fights in The Bog Job or Escape The Bog campaign (default).", data = true },
+        }
+    },
 }
 
 return {
@@ -169,6 +187,7 @@ return {
     alias = "ESCAPE_THE_BOG",
 
     OnLoad = OnLoad,
+    OnSettingsSaved = OnSettingsSaved,
 
     mod_options = MOD_OPTIONS,
 
