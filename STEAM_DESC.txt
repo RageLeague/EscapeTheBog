@@ -61,6 +61,7 @@ Note: The Steam workshop version of the game will not be constantly updated. It 
 
 I don't really want to update this after Bogtober, but there are some major issues with this mod that I have to address, so here we are.
 
+* (HOTFIX) Add card series to "Nagging thoughts".
 * The amount of health healed from Grout Eyes is now nerfed to the ground. (6+ -> 2(P0) or 3(P1+))
 * Burrs now can randomly spawn, just like in Rook's campaign.
 * Add a mod option that determines whether Grout Eyes are added to the burr pool.
