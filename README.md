@@ -8,7 +8,7 @@ This campaign introduces additional layers of challenges, and its difficulty is 
 
 This mod is made for Bogtober 2021 (https://bogtober.carrd.co/), and is finished entirely within a month.
 
-Version: 1.0.0
+Version: 1.1.0
 
 Author: RageLeague
 
@@ -56,6 +56,14 @@ With the new official workshop support, you can directly install mods from steam
 Note: The Steam workshop version of the game will not be constantly updated. It will only be updated if there are game breaking bugs that need to be fixed, or major balance issues, or a major feature update. As such, it will be more stable.
 
 ## Changelogs
+
+### 1.1.0
+
+I don't really want to update this after Bogtober, but there are some major issues with this mod that I have to address, so here we are.
+
+* The amount of health healed from Grout Eyes is now nerfed to the ground. (6+ -> 2(P0) or 3(P1+))
+* Burrs now can randomly spawn, just like in Rook's campaign.
+* Add a mod option that determines whether Grout Eyes are added to the burr pool.
 
 ### 1.0.0
 
