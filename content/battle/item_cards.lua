@@ -87,7 +87,7 @@ local ITEMS =
             if (effect_table.health_gain or 0) > 0 then
                 self.target:HealHealth( effect_table.health_gain, self )
             elseif (effect_table.health_gain or 0) < 0 then
-                self.target:DeltaHealth( effect_table.health_gain, self )
+                self.target:DeltaHealth( effect_table.health_gain )
             end
 
             if (effect_table.resolve_gain or 0) > 0 then
